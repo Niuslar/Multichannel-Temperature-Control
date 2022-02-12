@@ -11,18 +11,22 @@
 #ifndef UART_COM_H_
 #define UART_COM_H_
 
-#include <string>
-#include "main.h"
+#include <string.h>
 #include "usart.h"
 
-// I was thinking about using PascalCase for classes
-// camelCase for methods/functions
-// snake_case for variables
+#define UART_TIMEOUT 1000
+
 class UartCom
 {
 private:
+    UART_HandleTypeDef m_huart;
+
 public:
-    void send_msg(const std::string &msg);
+    UartCom(UART_HandleTypeDef &huart);
+
+    // I'm using C style strings because the UART HAL uses (uint8_t*) as
+    // parameter
+    void send_msg(const char *msg);
 };
 
 #endif /* UART_COM_H_ */
