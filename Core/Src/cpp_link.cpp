@@ -7,6 +7,8 @@
  *      Author: niuslar
  */
 
+#include "error_log.h"
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -14,6 +16,12 @@ extern "C"
 
     void my_main()
     {
+        Log log_main(huart2, "Main");
+
+#ifdef DEBUG
+        log_main.info("Entered main function");
+#endif
+        log_main.error("AAAA");
         // C++ Code here
     }
 
