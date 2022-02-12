@@ -23,12 +23,12 @@ void UartCom::send_msg(const char *msg)
 {
     uint16_t msg_len = strlen(msg);
 
-    // Enable UART Pin
+    // Enable UART_DE Pin
     HAL_GPIO_WritePin(USART_DE_GPIO_Port, USART_DE_Pin, GPIO_PIN_SET);
 
     // Send message
     HAL_UART_Transmit(&m_huart, (uint8_t *)msg, msg_len, UART_TIMEOUT);
 
-    // Disable UART Pin
+    // Disable UART_DE Pin
     HAL_GPIO_WritePin(USART_DE_GPIO_Port, USART_DE_Pin, GPIO_PIN_RESET);
 }

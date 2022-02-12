@@ -14,7 +14,7 @@
 #include <string.h>
 #include "usart.h"
 
-#define UART_TIMEOUT 1000
+#define UART_TIMEOUT 100
 
 class UartCom
 {
