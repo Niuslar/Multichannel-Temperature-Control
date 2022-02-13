@@ -17,13 +17,15 @@ extern "C"
 
     void cpp_main()
     {
-        CLog log_main(huart2, "Main");
+        CUartCom uart_for_errors(huart2);
+
+        CLog log_main(&uart_for_errors, "Main");
         log_main.setLogLevel(CLog::LOG_WARNING);
 
 #ifdef DEBUG
-        log_main.log(CLog::LOG_INFO, "123456789012345678901234");
+        log_main.log(CLog::LOG_INFO, "Entered cpp_main function");
 #endif
-        log_main.log(CLog::LOG_ERROR, "123456789012345678901234");
+        log_main.log(CLog::LOG_ERROR, "Pass debugging point");
         log_main.log(CLog::LOG_WARNING, "Hello this is a warning!");
         // C++ Code here
 

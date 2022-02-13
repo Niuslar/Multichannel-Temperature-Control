@@ -11,11 +11,11 @@
 
 /**
  * @brief Constructor
- * @param huart UART Handler
+ * @param Pointer to CUartCom object
  * @param module_name Identifier that will be added to the message
  */
-CLog::CLog(UART_HandleTypeDef &huart, const std::string module_name)
-    : m_error_uart(huart),
+CLog::CLog(CUartCom *error_uart, const std::string module_name)
+    : mp_error_uart(error_uart),
       m_module_name(module_name)
 {
 }
@@ -46,7 +46,7 @@ void CLog::log(log_level_t log_level, const std::string &message)
                                                ": " + message + "\n"))
                               .c_str();
         // Send message using UART
-        m_error_uart.sendMessage(msg);
+        mp_error_uart->sendMessage(msg);
     }
 
     if (log_level == LOG_ERROR && m_log_level >= LOG_ERROR)
@@ -54,7 +54,7 @@ void CLog::log(log_level_t log_level, const std::string &message)
         const char *msg = ((const std::string)("[ERROR]->" + m_module_name +
                                                ": " + message + "\n"))
                               .c_str();
-        m_error_uart.sendMessage(msg);
+        mp_error_uart->sendMessage(msg);
     }
 
     if (log_level == LOG_WARNING && m_log_level >= LOG_WARNING)
@@ -62,6 +62,6 @@ void CLog::log(log_level_t log_level, const std::string &message)
         const char *msg = ((const std::string)("[WARNING]->" + m_module_name +
                                                ": " + message + "\n"))
                               .c_str();
-        m_error_uart.sendMessage(msg);
+        mp_error_uart->sendMessage(msg);
     }
 }

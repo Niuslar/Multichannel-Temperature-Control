@@ -27,12 +27,12 @@ public:
 private:
     // Private Variables
     log_level_t m_log_level = LOG_INFO;
-    CUartCom m_error_uart;
+    CUartCom *mp_error_uart;
     const std::string m_module_name;
 
 public:
     // Public methods
-    CLog(UART_HandleTypeDef &huart, const std::string module_name);
+    CLog(CUartCom *error_uart, const std::string module_name);
     void setLogLevel(log_level_t log_level);
     void log(log_level_t log_level, const std::string &message);
 };
