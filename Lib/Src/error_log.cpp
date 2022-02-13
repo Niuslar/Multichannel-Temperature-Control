@@ -9,18 +9,18 @@
 
 #include "error_log.h"
 
-Log::Log(UART_HandleTypeDef &huart, const std::string module_name)
+CLog::CLog(UART_HandleTypeDef &huart, const std::string module_name)
     : m_error_uart(huart),
       m_module_name(module_name)
 {
 }
 
-void Log::setLogLevel(log_level_t log_level)
+void CLog::setLogLevel(log_level_t log_level)
 {
     m_log_level = log_level;
 }
 
-void Log::info(const std::string &message)
+void CLog::info(const std::string &message)
 {
     if (m_log_level >= LOG_INFO)
     {
@@ -29,11 +29,11 @@ void Log::info(const std::string &message)
                                                ": " + message + "\n"))
                               .c_str();
         // Send message using UART
-        m_error_uart.send_msg(msg);
+        m_error_uart.sendMessage(msg);
     }
 }
 
-void Log::error(const std::string &message)
+void CLog::error(const std::string &message)
 {
     if (m_log_level >= LOG_ERROR)
     {
@@ -41,11 +41,11 @@ void Log::error(const std::string &message)
                                                ": " + message + "\n"))
                               .c_str();
         // Send message using UART
-        m_error_uart.send_msg(msg);
+        m_error_uart.sendMessage(msg);
     }
 }
 
-void Log::warning(const std::string &message)
+void CLog::warning(const std::string &message)
 {
     if (m_log_level >= LOG_WARNING)
     {
@@ -53,6 +53,6 @@ void Log::warning(const std::string &message)
                                                ": " + message + "\n"))
                               .c_str();
         // Send message using UART
-        m_error_uart.send_msg(msg);
+        m_error_uart.sendMessage(msg);
     }
 }

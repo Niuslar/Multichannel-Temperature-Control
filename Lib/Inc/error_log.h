@@ -13,7 +13,7 @@
 #include <string>
 #include "uart_com.h"
 
-class Log
+class CLog
 {
 public:
     // Public variables
@@ -27,12 +27,12 @@ public:
 private:
     // Private Variables
     log_level_t m_log_level = LOG_INFO;
-    UartCom m_error_uart;
+    CUartCom m_error_uart;
     const std::string m_module_name;
 
 public:
     // Public methods
-    Log(UART_HandleTypeDef &huart, const std::string module_name);
+    CLog(UART_HandleTypeDef &huart, const std::string module_name);
     void setLogLevel(log_level_t log_level);
     void info(const std::string &message);
     void error(const std::string &message);

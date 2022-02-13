@@ -17,7 +17,7 @@ extern "C"
 
     void cpp_main()
     {
-        Log log_main(huart2, "Main");
+        CLog log_main(huart2, "Main");
 
 #ifdef DEBUG
         log_main.info("Entered main function");
