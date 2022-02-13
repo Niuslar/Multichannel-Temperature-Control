@@ -1,5 +1,5 @@
 /**
- * @file error_log.h
+ * @file log.h
  */
 
 /*
@@ -7,8 +7,8 @@
  *      Author: niuslar
  */
 
-#ifndef ERROR_LOG_H_
-#define ERROR_LOG_H_
+#ifndef LOG_H_
+#define LOG_H_
 
 #include <string>
 #include "uart_com.h"
@@ -34,4 +34,4 @@ private:
     const std::string m_module_name;
 };
 
-#endif /* ERROR_LOG_H_ */
+#endif /* LOG_H_ */

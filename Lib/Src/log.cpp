@@ -1,5 +1,5 @@
 /**
- * @file error_log.cpp
+ * @file log.cpp
  */
 
 /*
