@@ -13,13 +13,13 @@
 /**
  *  @brief Constructor to configure UART communication
  */
-UartCom::UartCom(UART_HandleTypeDef &huart) : m_huart(huart) {}
+CUartCom::CUartCom(UART_HandleTypeDef &huart) : m_huart(huart) {}
 
 /**
  * @brief sends message via UART
  * @param string message
  */
-void UartCom::send_msg(const char *msg)
+void CUartCom::sendMessage(const char *msg)
 {
     uint16_t msg_len = strlen(msg);
 
