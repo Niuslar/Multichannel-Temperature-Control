@@ -11,7 +11,7 @@
 #ifndef UART_COM_H_
 #define UART_COM_H_
 
-#include <string.h>
+#include <string>
 #include "usart.h"
 
 #define UART_TIMEOUT 100
@@ -29,9 +29,7 @@ public:
              GPIO_TypeDef *uart_de_port,
              uint16_t uart_de_pin);
 
-    // I'm using C style strings because the UART HAL uses (uint8_t*) as
-    // parameter
-    void sendMessage(const char *msg);
+    void sendMessage(const std::string &msg);
 };
 
 #endif /* UART_COM_H_ */
