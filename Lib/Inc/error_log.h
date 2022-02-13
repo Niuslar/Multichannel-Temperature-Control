@@ -34,9 +34,7 @@ public:
     // Public methods
     CLog(UART_HandleTypeDef &huart, const std::string module_name);
     void setLogLevel(log_level_t log_level);
-    void info(const std::string &message);
-    void error(const std::string &message);
-    void warning(const std::string &message);
+    void log(log_level_t log_level, const std::string &message);
 };
 
 #endif /* ERROR_LOG_H_ */

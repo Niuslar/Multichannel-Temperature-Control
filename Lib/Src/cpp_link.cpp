@@ -18,11 +18,13 @@ extern "C"
     void cpp_main()
     {
         CLog log_main(huart2, "Main");
+        log_main.setLogLevel(CLog::LOG_WARNING);
 
 #ifdef DEBUG
-        log_main.info("Entered main function");
+        log_main.log(CLog::LOG_INFO, "123456789012345678901234");
 #endif
-        log_main.error("AAAA");
+        log_main.log(CLog::LOG_ERROR, "123456789012345678901234");
+        log_main.log(CLog::LOG_WARNING, "Hello this is a warning!");
         // C++ Code here
 
         // Infinite Loop
