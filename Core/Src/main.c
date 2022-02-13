@@ -53,7 +53,7 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-void my_main();
+void cpp_main();
 
 /* USER CODE END PFP */
 
@@ -105,7 +105,7 @@ int main(void)
     /* USER CODE BEGIN 2 */
 
     /* From here the application moves to the code found in cpp_link.cpp */
-    my_main();
+    cpp_main();
 
     /* USER CODE END 2 */
 

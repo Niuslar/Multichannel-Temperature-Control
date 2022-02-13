@@ -7,14 +7,21 @@
  *      Author: niuslar
  */
 
+#include "uart_com.h"
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-    void my_main()
+    void cpp_main()
     {
         // C++ Code here
+
+        // Infinite Loop
+        while (1)
+        {
+        }
     }
 
 #ifdef __cplusplus
