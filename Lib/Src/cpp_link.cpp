@@ -8,13 +8,14 @@
  */
 
 #include "error_log.h"
+#include "uart_com.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-    void my_main()
+    void cpp_main()
     {
         Log log_main(huart2, "Main");
 
@@ -23,6 +24,11 @@ extern "C"
 #endif
         log_main.error("AAAA");
         // C++ Code here
+
+        // Infinite Loop
+        while (1)
+        {
+        }
     }
 
 #ifdef __cplusplus
