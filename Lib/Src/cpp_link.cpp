@@ -7,7 +7,7 @@
  *      Author: niuslar
  */
 
-#include "error_log.h"
+#include "log.h"
 #include "uart_com.h"
 
 #ifdef __cplusplus
@@ -20,7 +20,7 @@ extern "C"
         CUartCom uart_for_errors(huart2);
 
         CLog log_main(&uart_for_errors, "Main");
-        log_main.setLogLevel(CLog::LOG_WARNING);
+        log_main.setLogLevel(CLog::LOG_INFO);
 
 #ifdef DEBUG
         log_main.log(CLog::LOG_INFO, "Entered cpp_main function");

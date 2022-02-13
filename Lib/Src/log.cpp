@@ -7,21 +7,22 @@
  *      Author: niuslar
  */
 
-#include "error_log.h"
+#include "log.h"
 
 /**
  * @brief Constructor
  * @param Pointer to CUartCom object
  * @param module_name Identifier that will be added to the message
  */
-CLog::CLog(CUartCom *error_uart, const std::string module_name)
-    : mp_error_uart(error_uart),
+CLog::CLog(CUartCom *p_error_uart, const std::string &module_name)
+    : mp_error_uart(p_error_uart),
       m_module_name(module_name)
 {
 }
 
 /**
- * @brief change log level to change what is sent
+ * @brief change log level to change what is sent via UART
+ * @note  Messages with a log_level below m_log_level will be lost
  * @param log_level:
  * 			LOG_ERROR = will show only errors
  * 			LOG_WARNING = will show error and warnings
@@ -39,29 +40,37 @@ void CLog::setLogLevel(log_level_t log_level)
  */
 void CLog::log(log_level_t log_level, const std::string &message)
 {
-    if (log_level == LOG_INFO && m_log_level >= LOG_INFO)
-    {
-        // Convert to C style string
-        const char *msg = ((const std::string)("[INFO]->" + m_module_name +
-                                               ": " + message + "\n"))
-                              .c_str();
-        // Send message using UART
-        mp_error_uart->sendMessage(msg);
-    }
-
     if (log_level == LOG_ERROR && m_log_level >= LOG_ERROR)
     {
-        const char *msg = ((const std::string)("[ERROR]->" + m_module_name +
-                                               ": " + message + "\n"))
-                              .c_str();
-        mp_error_uart->sendMessage(msg);
+        // Create full message as string
+        const std::string full_msg = ((const std::string)(
+            "[ERROR]->" + m_module_name + ": " + message + "\n"));
+
+        // Send message using UART
+        mp_error_uart->sendMessage(full_msg);
     }
 
-    if (log_level == LOG_WARNING && m_log_level >= LOG_WARNING)
+    else if (log_level == LOG_WARNING && m_log_level >= LOG_WARNING)
     {
-        const char *msg = ((const std::string)("[WARNING]->" + m_module_name +
-                                               ": " + message + "\n"))
-                              .c_str();
-        mp_error_uart->sendMessage(msg);
+        const std::string full_msg = ((const std::string)(
+            "[WARNING]->" + m_module_name + ": " + message + "\n"));
+
+        mp_error_uart->sendMessage(full_msg);
+    }
+
+    else if (log_level == LOG_INFO && m_log_level >= LOG_INFO)
+    {
+        const std::string full_msg = ((const std::string)(
+            "[INFO]->" + m_module_name + ": " + message + "\n"));
+
+        mp_error_uart->sendMessage(full_msg);
+    }
+
+    else
+    {
+        const std::string full_msg = ((const std::string)(
+            "[WARNING]->" + m_module_name + ": Invalid Log Level!\n"));
+
+        mp_error_uart->sendMessage(full_msg);
     }
 }
