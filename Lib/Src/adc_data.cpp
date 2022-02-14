@@ -23,7 +23,7 @@ CLog log_adc(&uart_adc, "ADC_data");
  * @note The ADC will read all the channels once and then stop.
  * To read the channels again, use the triggerADC() method.
  * @param p_hadc Pointer to ADC handler
- * param adc_channels Number of active channels for the ADC
+ * @param adc_channels Number of active channels for the ADC
  * 		(This depends on the hardware configuration)
  */
 CAdc::CAdc(ADC_HandleTypeDef *p_hadc, uint8_t adc_channels)
@@ -35,6 +35,7 @@ CAdc::CAdc(ADC_HandleTypeDef *p_hadc, uint8_t adc_channels)
     {
         // Send error message
         log_adc.log(CLog::LOG_ERROR, "Invalid pointer to ADC Handler");
+
         // Hang application with a toggling ALARM Pin
         while (1)
         {
@@ -82,6 +83,9 @@ uint16_t CAdc::readChannel(uint8_t adc_channel)
         std::string warning =
             std::to_string(adc_channel) + " is not a valid ADC Channel";
         log_adc.log(CLog::LOG_WARNING, warning);
+
+        // Return 0 if it's an invalid channel
+        return 0;
     }
 
     return mp_adc_data_buf[adc_channel];
