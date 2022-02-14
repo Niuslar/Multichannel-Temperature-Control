@@ -31,8 +31,8 @@ public:
     void triggerRead();
 
 private:
-    ADC_HandleTypeDef *mp_hadc;
-    uint8_t m_adc_channels = ADC_CHANNELS;
+    ADC_HandleTypeDef *const mp_hadc;
+    const uint8_t m_adc_channels = ADC_CHANNELS;
     uint16_t m_adc_data_buf[ADC_CHANNELS];
 };
 
