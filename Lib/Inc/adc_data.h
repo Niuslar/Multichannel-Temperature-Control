@@ -20,6 +20,7 @@ public:
     ~CAdc();
 
     // Public methods
+    // use [] operator to read a particular ADC Channel
     uint16_t operator[](uint8_t adc_channel);
     void triggerAdc();
 
