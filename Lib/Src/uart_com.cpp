@@ -37,7 +37,7 @@ void CUartCom::sendMessage(const std::string &msg)
     uint16_t msg_len = msg.length();
 
     // Enable UART_DE Pin
-    if (m_uart_de_port != NULL)
+    if (m_uart_de_port != nullptr)
     {
         HAL_GPIO_WritePin(m_uart_de_port, m_uart_de_pin, GPIO_PIN_SET);
     }
@@ -46,7 +46,7 @@ void CUartCom::sendMessage(const std::string &msg)
     const char *c_msg = msg.c_str();
 
     // Check it is a valid string and send error message if not
-    if (!(*c_msg) || c_msg == NULL)
+    if (!(*c_msg) || c_msg == nullptr)
     {
         const uint8_t error_msg_len = 28;
         const char *error_msg = "Invalid string from c_str()\n";
@@ -56,7 +56,7 @@ void CUartCom::sendMessage(const std::string &msg)
                           UART_TIMEOUT);
 
         // Disable UART_DE Pin
-        if (m_uart_de_port != NULL)
+        if (m_uart_de_port != nullptr)
         {
             HAL_GPIO_WritePin(m_uart_de_port, m_uart_de_pin, GPIO_PIN_RESET);
         }
@@ -68,7 +68,7 @@ void CUartCom::sendMessage(const std::string &msg)
     HAL_UART_Transmit(&m_huart, (uint8_t *)c_msg, msg_len, UART_TIMEOUT);
 
     // Disable UART_DE Pin
-    if (m_uart_de_port != NULL)
+    if (m_uart_de_port != nullptr)
     {
         HAL_GPIO_WritePin(m_uart_de_port, m_uart_de_pin, GPIO_PIN_RESET);
     }
