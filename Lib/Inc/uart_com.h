@@ -20,7 +20,7 @@ class CUartCom
 {
 private:
     UART_HandleTypeDef m_huart;
-    GPIO_TypeDef *m_uart_de_port = NULL;
+    GPIO_TypeDef *m_uart_de_port = nullptr;
     uint16_t m_uart_de_pin;
 
 public:
