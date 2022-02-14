@@ -1,6 +1,6 @@
 /**
  *@file adc_data.cpp
- *@brief This files contains the methods for the CAdc class
+ *@brief This files contains the methods for the CAdcData class
  *
  */
 
@@ -19,16 +19,10 @@ CUartCom uart_adc(&huart2);
 CLog log_adc(&uart_adc, "ADC_data");
 
 /**
- * @brief Calibrate and Start ADC with DMA
- * @note The ADC will read all the channels once and then stop.
- * To read the channels again, use the triggerADC() method.
+ * @brief Constructor
  * @param p_hadc Pointer to ADC handler
- * @param adc_channels Number of active channels for the ADC
- * 		(This depends on the hardware configuration)
  */
-CAdc::CAdc(ADC_HandleTypeDef *p_hadc, uint8_t adc_channels)
-    : mp_hadc(p_hadc),
-      m_adc_channels(adc_channels)
+CAdcData::CAdcData(ADC_HandleTypeDef *p_hadc) : mp_hadc(p_hadc)
 {
     // Check mp_hadc is not null
     if (!mp_hadc)
@@ -36,39 +30,35 @@ CAdc::CAdc(ADC_HandleTypeDef *p_hadc, uint8_t adc_channels)
         // Send error message
         log_adc.log(CLog::LOG_ERROR, "Invalid pointer to ADC Handler");
     }
+}
 
-    // Allocate memory to store the incoming data
-    mp_adc_data_buf = new uint16_t[adc_channels];
-
+/**
+ * @brief Calibrate and Start ADC
+ * @note The ADC will read all the channels once and then stop.
+ * To read the channels again, use the triggerADC() method.
+ */
+void CAdcData::init()
+{
     // Calibrate ADC
-    if (HAL_ADCEx_Calibration_Start(p_hadc, ADC_SINGLE_ENDED) != HAL_OK)
+    if (HAL_ADCEx_Calibration_Start(mp_hadc, ADC_SINGLE_ENDED) != HAL_OK)
     {
-        // Free memory and log error
-        delete[] mp_adc_data_buf;
         log_adc.log(CLog::LOG_ERROR, "ADC Calibration failed");
     }
 
     // Start ADC with DMA
-    if (HAL_ADC_Start_DMA(p_hadc, (uint32_t *)mp_adc_data_buf, adc_channels) !=
-        HAL_OK)
+    if (HAL_ADC_Start_DMA(mp_hadc,
+                          (uint32_t *)m_adc_data_buf,
+                          m_adc_channels) != HAL_OK)
     {
-        // Free memory and log error
-        delete[] mp_adc_data_buf;
         log_adc.log(CLog::LOG_ERROR, "ADC Start DMA failed");
     }
-}
-
-CAdc::~CAdc()
-{
-    // Free memory when the object is destroyed
-    delete[] mp_adc_data_buf;
 }
 
 /**
  * @brief read data from a specific adc_channel
  * @param adc_channel Number of channel starting from 0
  */
-uint16_t CAdc::operator[](uint8_t adc_channel)
+uint16_t CAdcData::operator[](uint8_t adc_channel)
 {
     // Check channel is within defined range
     if (adc_channel >= m_adc_channels)
@@ -81,14 +71,14 @@ uint16_t CAdc::operator[](uint8_t adc_channel)
         return 0;
     }
 
-    return mp_adc_data_buf[adc_channel];
+    return m_adc_data_buf[adc_channel];
 }
 
 /**
  * @brief Trigger a sequence read of all ADC Channels
  * @note This function will replace all the values in the adc_data_buf.
  */
-void CAdc::triggerAdc()
+void CAdcData::triggerRead()
 {
     // Change ADCSTART bit in the ADC control register
     mp_hadc->Instance->CR |= (1 << ADC_START_BIT);

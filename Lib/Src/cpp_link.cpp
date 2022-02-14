@@ -17,16 +17,15 @@ extern "C"
 {
 #endif
 
-#define ADC_CHANNELS 14
+    CAdcData adc_1(&hadc);
 
     void cpp_main()
     {
         CUartCom uart_for_errors(&huart2);
+        adc_1.init();
 
         CLog log_main(&uart_for_errors, "Main");
         log_main.setLogLevel(CLog::LOG_INFO);
-
-        CAdc adc_1(&hadc, ADC_CHANNELS);
 
 #ifdef DEBUG
         log_main.log(CLog::LOG_INFO, "Entered cpp_main function");
@@ -52,7 +51,7 @@ extern "C"
             log_main.log(CLog::LOG_INFO, value3);
 
             HAL_Delay(2000);
-            adc_1.triggerAdc();
+            adc_1.triggerRead();
 #endif
         }
 

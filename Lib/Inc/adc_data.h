@@ -13,21 +13,27 @@
 #include "adc.h"
 #include "log.h"
 
-class CAdc
+/**
+ *  @brief Number of active ADC Channels,
+ *   change this according to hardware
+ */
+#define ADC_CHANNELS 14
+
+class CAdcData
 {
 public:
-    CAdc(ADC_HandleTypeDef *p_hadc, uint8_t adc_channels);
-    ~CAdc();
+    CAdcData(ADC_HandleTypeDef *p_hadc);
 
     // Public methods
+    void init();
     // use [] operator to read a particular ADC Channel
     uint16_t operator[](uint8_t adc_channel);
-    void triggerAdc();
+    void triggerRead();
 
 private:
     ADC_HandleTypeDef *mp_hadc;
-    uint8_t m_adc_channels;
-    uint16_t *mp_adc_data_buf;
+    uint8_t m_adc_channels = ADC_CHANNELS;
+    uint16_t m_adc_data_buf[ADC_CHANNELS];
 };
 
 #endif /* ADC_DATA_H_ */
