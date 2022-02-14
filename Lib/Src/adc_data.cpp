@@ -19,7 +19,7 @@ CUartCom uart_adc(&huart2);
 CLog log_adc(&uart_adc, "ADC_data");
 
 /**
- * @brief Calibrate and Start ADC with DAM
+ * @brief Calibrate and Start ADC with DMA
  * @note The ADC will read all the channels once and then stop.
  * To read the channels again, use the triggerADC() method.
  * @param p_hadc Pointer to ADC handler
@@ -35,13 +35,6 @@ CAdc::CAdc(ADC_HandleTypeDef *p_hadc, uint8_t adc_channels)
     {
         // Send error message
         log_adc.log(CLog::LOG_ERROR, "Invalid pointer to ADC Handler");
-
-        // Hang application with a toggling ALARM Pin
-        while (1)
-        {
-            HAL_GPIO_TogglePin(ALARM_GPIO_Port, ALARM_Pin);
-            HAL_Delay(ALARM_TOGGLE_MS);
-        }
     }
 
     // Allocate memory to store the incoming data
