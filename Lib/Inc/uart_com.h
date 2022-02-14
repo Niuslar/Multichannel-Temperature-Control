@@ -19,13 +19,13 @@
 class CUartCom
 {
 private:
-    UART_HandleTypeDef m_huart;
+    UART_HandleTypeDef *mp_huart;
     GPIO_TypeDef *m_uart_de_port = nullptr;
     uint16_t m_uart_de_pin;
 
 public:
-    CUartCom(UART_HandleTypeDef &huart);
-    CUartCom(UART_HandleTypeDef &huart,
+    CUartCom(UART_HandleTypeDef *p_huart);
+    CUartCom(UART_HandleTypeDef *p_huart,
              GPIO_TypeDef *uart_de_port,
              uint16_t uart_de_pin);
 
