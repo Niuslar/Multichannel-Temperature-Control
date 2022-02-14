@@ -75,7 +75,7 @@ CAdc::~CAdc()
  * @brief read data from a specific adc_channel
  * @param adc_channel Number of channel starting from 0
  */
-uint16_t CAdc::readChannel(uint8_t adc_channel)
+uint16_t CAdc::operator[](uint8_t adc_channel)
 {
     // Check channel is within defined range
     if (adc_channel >= m_adc_channels)
@@ -91,6 +91,10 @@ uint16_t CAdc::readChannel(uint8_t adc_channel)
     return mp_adc_data_buf[adc_channel];
 }
 
+/**
+ * @brief Trigger a sequence read of all ADC Channels
+ * @note This function will replace all the values in the adc_data_buf.
+ */
 void CAdc::triggerAdc()
 {
     // Change ADCSTART bit in the ADC control register

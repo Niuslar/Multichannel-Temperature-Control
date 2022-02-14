@@ -20,7 +20,7 @@ public:
     ~CAdc();
 
     // Public methods
-    uint16_t readChannel(uint8_t adc_channel);
+    uint16_t operator[](uint8_t adc_channel);
     void triggerAdc();
 
 private:
