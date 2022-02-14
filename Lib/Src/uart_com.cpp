@@ -13,19 +13,41 @@
 /**
  *  @brief Constructor to configure UART communication
  */
-CUartCom::CUartCom(UART_HandleTypeDef &huart) : m_huart(huart) {}
+CUartCom::CUartCom(UART_HandleTypeDef *p_huart) : mp_huart(p_huart)
+{
+    // Check mp_huart is not null
+    if (!mp_huart)
+    {
+        // Hang application with a toggling ALARM Pin
+        while (1)
+        {
+            HAL_GPIO_TogglePin(ALARM_GPIO_Port, ALARM_Pin);
+            HAL_Delay(200);
+        }
+    }
+}
 
 /**
  *  @brief Constructor to configure UART communication
  *  with USART_DE Pin.
  */
-CUartCom::CUartCom(UART_HandleTypeDef &huart,
+CUartCom::CUartCom(UART_HandleTypeDef *p_huart,
                    GPIO_TypeDef *uart_de_port,
                    uint16_t uart_de_pin)
-    : m_huart(huart),
+    : mp_huart(p_huart),
       m_uart_de_port(uart_de_port),
       m_uart_de_pin(uart_de_pin)
 {
+    // Check mp_huart is not null
+    if (!mp_huart)
+    {
+        // Hang application with a toggling ALARM Pin
+        while (1)
+        {
+            HAL_GPIO_TogglePin(ALARM_GPIO_Port, ALARM_Pin);
+            HAL_Delay(200);
+        }
+    }
 }
 
 /**
@@ -50,7 +72,7 @@ void CUartCom::sendMessage(const std::string &msg)
     {
         const uint8_t error_msg_len = 28;
         const char *error_msg = "Invalid string from c_str()\n";
-        HAL_UART_Transmit(&m_huart,
+        HAL_UART_Transmit(mp_huart,
                           (uint8_t *)error_msg,
                           error_msg_len,
                           UART_TIMEOUT);
@@ -65,7 +87,7 @@ void CUartCom::sendMessage(const std::string &msg)
     }
 
     // Send message
-    HAL_UART_Transmit(&m_huart, (uint8_t *)c_msg, msg_len, UART_TIMEOUT);
+    HAL_UART_Transmit(mp_huart, (uint8_t *)c_msg, msg_len, UART_TIMEOUT);
 
     // Disable UART_DE Pin
     if (m_uart_de_port != nullptr)

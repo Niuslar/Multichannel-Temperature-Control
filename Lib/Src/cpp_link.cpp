@@ -17,7 +17,7 @@ extern "C"
 
     void cpp_main()
     {
-        CUartCom uart_for_errors(huart2);
+        CUartCom uart_for_errors(&huart2);
 
         CLog log_main(&uart_for_errors, "Main");
         log_main.setLogLevel(CLog::LOG_INFO);
