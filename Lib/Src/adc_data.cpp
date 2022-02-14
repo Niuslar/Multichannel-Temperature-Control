@@ -78,7 +78,7 @@ uint16_t CAdcData::operator[](uint8_t adc_channel)
  * @brief Trigger a sequence read of all ADC Channels
  * @note This function will replace all the values in the adc_data_buf.
  */
-void CAdcData::triggerRead()
+void CAdcData::trigger()
 {
     // Change ADCSTART bit in the ADC control register
     mp_hadc->Instance->CR |= (1 << ADC_START_BIT);

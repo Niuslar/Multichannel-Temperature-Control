@@ -28,7 +28,7 @@ public:
     void init();
     // use [] operator to read a particular ADC Channel
     uint16_t operator[](uint8_t adc_channel);
-    void triggerRead();
+    void trigger();
 
 private:
     ADC_HandleTypeDef *const mp_hadc;
