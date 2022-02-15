@@ -11,8 +11,7 @@
 
 #include "adc_data.h"
 
-#define ADC_START_BIT   2
-#define ALARM_TOGGLE_MS 300
+#define ADC_START_BIT 2
 
 CUartCom uart_adc(&huart2);
 
