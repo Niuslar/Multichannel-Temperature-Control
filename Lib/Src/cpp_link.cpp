@@ -7,11 +7,11 @@
  *      Author: niuslar
  */
 
+#include "CThermistor.h"
 #include "adc.h"
 #include "adc_data.h"
 #include "log.h"
 #include "stdio.h"
-#include "thermistor.h"
 #include "uart_com.h"
 
 #ifdef __cplusplus

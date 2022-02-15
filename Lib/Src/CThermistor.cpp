@@ -1,5 +1,5 @@
 /**
- * @file thermistor.cpp
+ * @file CThermistor.cpp
  */
 
 /*
@@ -7,7 +7,7 @@
  *      Author: niuslar
  */
 
-#include "thermistor.h"
+#include "CThermistor.h"
 #include "math.h"
 
 #define MIN_VOLT_RANGE     (0.57)

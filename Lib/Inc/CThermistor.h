@@ -1,5 +1,5 @@
 /**
- * @file thermistor.h
+ * @file CThermistor.h
  */
 
 /*
@@ -7,8 +7,8 @@
  *      Author: niuslar
  */
 
-#ifndef THERMISTOR_H_
-#define THERMISTOR_H_
+#ifndef CTHERMISTOR_H_
+#define CTHERMISTOR_H_
 
 #include "adc_data.h"
 
@@ -25,4 +25,4 @@ private:
     const uint8_t m_adc_channel;
 };
 
-#endif /* THERMISTOR_H_ */
+#endif /* CTHERMISTOR_H_ */
