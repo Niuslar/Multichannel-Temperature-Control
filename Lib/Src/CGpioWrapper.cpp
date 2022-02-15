@@ -10,8 +10,8 @@
 /**
  * @brief Create instance of a GPIO pin wrapper.
  *
- * @param p_port Pointer to GPIO port
- * @param pin Pin number
+ * @param p_port Pointer to GPIO port.
+ * @param pin Pin mask as defined by HAL.
  */
 CGpioWrapper::CGpioWrapper(GPIO_TypeDef *p_port, uint32_t pin)
     : mp_port(p_port),
@@ -28,7 +28,7 @@ CGpioWrapper::CGpioWrapper(GPIO_TypeDef *p_port, uint32_t pin)
 }
 
 /**
- * @brief Get the state of the pin
+ * @brief Get the state of the pin.
  *
  * @return True if pin is high, False if it is low.
  */

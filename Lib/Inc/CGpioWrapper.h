@@ -1,5 +1,5 @@
-/*
- * CGpioWrapper.h
+/**
+ * @file CGpioWrapper.h
  *
  *  Created on: 14 Feb 2022
  *      Author: salavat.magazov
