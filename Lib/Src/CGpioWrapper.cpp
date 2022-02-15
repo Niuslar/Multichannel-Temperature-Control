@@ -21,11 +21,6 @@ CGpioWrapper::CGpioWrapper(GPIO_TypeDef *p_port, uint32_t pin)
     }
 }
 
-CGpioWrapper::~CGpioWrapper()
-{
-    // TODO Auto-generated destructor stub
-}
-
 bool CGpioWrapper::get()
 {
     if (HAL_GPIO_ReadPin(mp_port, m_pin) == GPIO_PIN_SET)
