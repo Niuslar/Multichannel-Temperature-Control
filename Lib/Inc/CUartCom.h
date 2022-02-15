@@ -1,5 +1,5 @@
 /**
- * @file uart_com.h
+ * @file CUartCom.h
  *
  */
 
@@ -8,8 +8,8 @@
  *      Author: niuslar
  */
 
-#ifndef UART_COM_H_
-#define UART_COM_H_
+#ifndef CUARTCOM_H_
+#define CUARTCOM_H_
 
 #include <string>
 #include "usart.h"
@@ -32,4 +32,4 @@ public:
     void sendMessage(const std::string &msg);
 };
 
-#endif /* UART_COM_H_ */
+#endif /* CUARTCOM_H_ */

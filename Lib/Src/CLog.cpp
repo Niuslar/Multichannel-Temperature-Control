@@ -1,5 +1,5 @@
 /**
- * @file log.cpp
+ * @file CLog.cpp
  */
 
 /*
@@ -7,7 +7,7 @@
  *      Author: niuslar
  */
 
-#include "log.h"
+#include "CLog.h"
 
 /**
  * @brief Constructor
