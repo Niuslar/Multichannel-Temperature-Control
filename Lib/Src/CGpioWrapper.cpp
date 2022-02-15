@@ -27,6 +27,11 @@ CGpioWrapper::CGpioWrapper(GPIO_TypeDef *p_port, uint32_t pin)
     }
 }
 
+CGpioWrapper::~CGpioWrapper()
+{
+    // TODO Auto-generated destructor stub
+}
+
 /**
  * @brief Get the state of the pin.
  *
