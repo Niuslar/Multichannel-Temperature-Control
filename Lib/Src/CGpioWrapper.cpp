@@ -7,6 +7,12 @@
 
 #include "CGpioWrapper.h"
 
+/**
+ * @brief Create instance of a GPIO pin wrapper.
+ *
+ * @param p_port Pointer to GPIO port
+ * @param pin Pin number
+ */
 CGpioWrapper::CGpioWrapper(GPIO_TypeDef *p_port, uint32_t pin)
     : mp_port(p_port),
       m_pin(pin)
@@ -21,6 +27,11 @@ CGpioWrapper::CGpioWrapper(GPIO_TypeDef *p_port, uint32_t pin)
     }
 }
 
+/**
+ * @brief Get the state of the pin
+ *
+ * @return True if pin is high, False if it is low.
+ */
 bool CGpioWrapper::get()
 {
     if (HAL_GPIO_ReadPin(mp_port, m_pin) == GPIO_PIN_SET)
@@ -33,11 +44,20 @@ bool CGpioWrapper::get()
     }
 }
 
+/**
+ * @brief Set the value of the pin.
+ *
+ * @param value Pass True is pin to be set high, False to be set low.
+ */
 void CGpioWrapper::set(bool value)
 {
     HAL_GPIO_WritePin(mp_port, m_pin, (value ? GPIO_PIN_SET : GPIO_PIN_RESET));
 }
 
+/**
+ * @brief Toggle the pin from high to low or from low to high.
+ *
+ */
 void CGpioWrapper::toggle()
 {
     HAL_GPIO_TogglePin(mp_port, m_pin);
