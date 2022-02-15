@@ -18,10 +18,11 @@ public:
 
     bool get();
     void set(bool value);
+    void toggle();
 
 private:
-    GPIO_TypeDef *mp_port;
-    uint32_t m_pin;
+    GPIO_TypeDef *const mp_port;
+    uint32_t const m_pin;
 };
 
 #endif /* CGPIOWRAPPER_H_ */
