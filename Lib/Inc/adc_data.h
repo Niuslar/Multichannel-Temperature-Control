@@ -31,9 +31,8 @@ public:
 
     // Public methods
     void init();
-    // use [] operator to read a particular ADC Channel
-    uint16_t operator[](uint8_t adc_channel);
-    float getVolts(uint8_t adc_channel);
+    // use [] operator to read voltage in a particular ADC Channel
+    float operator[](uint8_t adc_channel);
     void trigger();
 
 private:

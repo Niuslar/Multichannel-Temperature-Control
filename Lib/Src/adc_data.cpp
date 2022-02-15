@@ -11,7 +11,8 @@
 
 #include "adc_data.h"
 
-#define ADC_START_BIT 2
+#define ADC_START_BIT        2
+#define ADC_CONVERSION_COEFF ((float)ADC_VDDA / ADC_RES)
 
 CUartCom uart_adc(&huart2);
 
@@ -54,10 +55,11 @@ void CAdcData::init()
 }
 
 /**
- * @brief read data from a specific adc_channel
+ * @brief read data converted to volts for a specific adc_channel
  * @param adc_channel Number of channel starting from 0
+ * @retval Volts
  */
-uint16_t CAdcData::operator[](uint8_t adc_channel)
+float CAdcData::operator[](uint8_t adc_channel)
 {
     // Check channel is within defined range
     if (adc_channel >= m_adc_channels)
@@ -70,14 +72,7 @@ uint16_t CAdcData::operator[](uint8_t adc_channel)
         return 0;
     }
 
-    return m_adc_data_buf[adc_channel];
-}
-
-float CAdcData::getVolts(uint8_t adc_channel)
-{
-    // The [] operator checks the channel and returns 0 in case of error
-    uint16_t raw_data = this->operator[](adc_channel);
-    float volts = ((float)raw_data) / (ADC_RES)*ADC_VDDA;
+    float volts = ((float)m_adc_data_buf[adc_channel]) * ADC_CONVERSION_COEFF;
 
     return volts;
 }
