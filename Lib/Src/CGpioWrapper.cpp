@@ -1,5 +1,5 @@
-/*
- * CGpioWrapper.cpp
+/**
+ * @file CGpioWrapper.cpp
  *
  *  Created on: 14 Feb 2022
  *      Author: salavat.magazov
