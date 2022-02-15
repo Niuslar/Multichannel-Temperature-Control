@@ -73,6 +73,15 @@ uint16_t CAdcData::operator[](uint8_t adc_channel)
     return m_adc_data_buf[adc_channel];
 }
 
+float CAdcData::getVolts(uint8_t adc_channel)
+{
+    // The [] operator checks the channel and returns 0 in case of error
+    uint16_t raw_data = this->operator[](adc_channel);
+    float volts = ((float)raw_data) / (ADC_RES)*ADC_VDDA;
+
+    return volts;
+}
+
 /**
  * @brief Trigger a sequence read of all ADC Channels
  * @note This function will replace all the values in the adc_data_buf.

@@ -19,6 +19,11 @@
  */
 #define ADC_CHANNELS 14
 
+/** ADC_RES should change depending on the resolution selected (4096 for
+ * 12-bits) */
+#define ADC_RES  4096
+#define ADC_VDDA (3.3)
+
 class CAdcData
 {
 public:
@@ -28,6 +33,7 @@ public:
     void init();
     // use [] operator to read a particular ADC Channel
     uint16_t operator[](uint8_t adc_channel);
+    float getVolts(uint8_t adc_channel);
     void trigger();
 
 private:
