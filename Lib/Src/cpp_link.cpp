@@ -31,8 +31,8 @@ extern "C"
 
         CThermistor thermistor_1;
 
-        // CLog log_thermistor(&st_link_uart, "Thermistor");
-        // thermistor_1.setLogger(&log_thermistor);
+        CLog log_thermistor(&st_link_uart, "Thermistor");
+        thermistor_1.setLogger(&log_thermistor);
 
 #ifdef DEBUG
         log_main.log(CLog::LOG_INFO, "Entered cpp_main function");
