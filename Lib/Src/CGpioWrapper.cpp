@@ -13,7 +13,7 @@
  * @param p_port Pointer to GPIO port.
  * @param pin Pin mask as defined by HAL.
  */
-CGpioWrapper::CGpioWrapper(GPIO_TypeDef *p_port, uint32_t pin)
+CGpioWrapper::CGpioWrapper(GPIO_TypeDef *p_port, uint16_t pin)
     : mp_port(p_port),
       m_pin(pin)
 {

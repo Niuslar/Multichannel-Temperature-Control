@@ -13,7 +13,7 @@
 class CGpioWrapper
 {
 public:
-    CGpioWrapper(GPIO_TypeDef *p_port, uint32_t pin);
+    CGpioWrapper(GPIO_TypeDef *p_port, uint16_t pin);
     virtual ~CGpioWrapper();
 
     bool get();
@@ -22,7 +22,7 @@ public:
 
 private:
     GPIO_TypeDef *const mp_port;
-    uint32_t const m_pin;
+    uint16_t const m_pin;
 };
 
 #endif /* CGPIOWRAPPER_H_ */
