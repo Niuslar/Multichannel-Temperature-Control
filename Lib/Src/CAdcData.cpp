@@ -1,5 +1,5 @@
 /**
- *@file adc_data.cpp
+ *@file CAdcData.cpp
  *@brief This files contains the methods for the CAdcData class
  *
  */
@@ -9,7 +9,7 @@
  *      Author: niuslar
  */
 
-#include "adc_data.h"
+#include "CAdcData.h"
 
 #define ADC_START_BIT        2
 #define ADC_CONVERSION_COEFF ((float)ADC_VDDA / ADC_RES)

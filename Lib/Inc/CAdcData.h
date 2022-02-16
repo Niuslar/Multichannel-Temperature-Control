@@ -1,5 +1,5 @@
 /**
- * @file adc_data.h
+ * @file CAdcData.h
  */
 
 /*
@@ -7,11 +7,11 @@
  *      Author: niuslar
  */
 
-#ifndef ADC_DATA_H_
-#define ADC_DATA_H_
+#ifndef CADCDATA_H_
+#define CADCDATA_H_
 
+#include "CLog.h"
 #include "adc.h"
-#include "log.h"
 
 /**
  *  @brief Number of active ADC Channels,
@@ -41,4 +41,4 @@ private:
     uint16_t m_adc_data_buf[ADC_CHANNELS];
 };
 
-#endif /* ADC_DATA_H_ */
+#endif /* CADCDATA_H_ */

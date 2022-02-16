@@ -1,5 +1,5 @@
 /**
- * @file uart_com.cpp
+ * @file CUartCom.cpp
  *
  */
 
@@ -8,7 +8,7 @@
  *      Author: niuslar
  */
 
-#include "uart_com.h"
+#include "CUartCom.h"
 
 /**
  *  @brief Constructor to configure UART communication
