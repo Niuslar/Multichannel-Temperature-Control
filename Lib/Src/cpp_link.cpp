@@ -20,15 +20,19 @@ extern "C"
 
     void cpp_main()
     {
-        CUartCom uart_for_errors(&huart2);
+        CUartCom st_link_uart(&huart2);
 
-        CLog log_main(&uart_for_errors, "Main");
+        CLog log_main(&st_link_uart, "Main");
+
         log_main.setLogLevel(CLog::LOG_INFO);
 
         CAdcData adc_1(&hadc);
         adc_1.init();
 
         CThermistor thermistor_1;
+
+        // CLog log_thermistor(&st_link_uart, "Thermistor");
+        // thermistor_1.setLogger(&log_thermistor);
 
 #ifdef DEBUG
         log_main.log(CLog::LOG_INFO, "Entered cpp_main function");

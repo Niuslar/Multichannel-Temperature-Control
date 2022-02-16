@@ -10,11 +10,6 @@
 #include "CThermistor.h"
 #include "math.h"
 
-#define OUT_OF_RANGE_VALUE (999.9)
-
-CUartCom uart_temp(&huart2);
-CLog log_temp(&uart_temp, "Temp_sensor");
-
 /**
  * @brief Constructor
  */
@@ -29,6 +24,14 @@ void CThermistor::setLimits(const float min_voltage, const float max_voltage)
 {
     m_min_volt_limit = min_voltage;
     m_max_volt_limit = max_voltage;
+}
+
+void CThermistor::setLogger(CLog *p_uart_com)
+{
+    if (p_uart_com != nullptr)
+    {
+        mp_uart_com = p_uart_com;
+    }
 }
 
 float CThermistor::getTemperature(float voltage)
@@ -46,8 +49,11 @@ float CThermistor::getTemperature(float voltage)
     else
     {
         // Log error and return unrealistic value
-        log_temp.log(CLog::LOG_WARNING, "Temperature outside operation range");
-        temp_celsius = OUT_OF_RANGE_VALUE;
+        if (mp_uart_com != nullptr)
+        {
+            mp_uart_com->log(CLog::LOG_WARNING, "Sensor fault");
+        }
+        temp_celsius = OUT_OF_RANGE;
     }
 
     return temp_celsius;
