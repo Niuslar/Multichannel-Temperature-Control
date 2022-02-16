@@ -21,7 +21,8 @@ CGpioWrapper::CGpioWrapper(GPIO_TypeDef *p_port, uint16_t pin)
     {
         Error_Handler();
     }
-    if (!IS_GPIO_PIN(m_pin))
+    /* test if this is a valid pin mask, i.e. one and only one bit is set. */
+    if (!(m_pin && !(m_pin & (m_pin - 1))))
     {
         Error_Handler();
     }
