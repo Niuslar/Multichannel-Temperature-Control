@@ -8,11 +8,10 @@
  */
 
 #include "CThermistor.h"
+#include "CAdcData.h"
+#include "CLog.h"
+#include "CUartCom.h"
 #include "adc.h"
-#include "adc_data.h"
-#include "log.h"
-#include "stdio.h"
-#include "uart_com.h"
 
 #ifdef __cplusplus
 extern "C"

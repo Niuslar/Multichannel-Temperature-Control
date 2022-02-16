@@ -1,5 +1,5 @@
 /**
- * @file log.h
+ * @file CLog.h
  */
 
 /*
@@ -7,11 +7,11 @@
  *      Author: niuslar
  */
 
-#ifndef LOG_H_
-#define LOG_H_
+#ifndef CLOG_H_
+#define CLOG_H_
 
 #include <string>
-#include "uart_com.h"
+#include "CUartCom.h"
 
 class CLog
 {
@@ -34,4 +34,4 @@ private:
     const std::string m_module_name;
 };
 
-#endif /* LOG_H_ */
+#endif /* CLOG_H_ */
