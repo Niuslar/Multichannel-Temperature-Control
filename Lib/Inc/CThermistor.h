@@ -10,7 +10,7 @@
 #ifndef CTHERMISTOR_H_
 #define CTHERMISTOR_H_
 
-#include "adc_data.h"
+#include "CAdcData.h"
 
 class CThermistor
 {
