@@ -7,9 +7,9 @@
  *      Author: niuslar
  */
 
-#include "CThermistor.h"
 #include "CAdcData.h"
 #include "CLog.h"
+#include "CThermistor.h"
 #include "CUartCom.h"
 #include "adc.h"
 
@@ -28,7 +28,7 @@ extern "C"
         CAdcData adc_1(&hadc);
         adc_1.init();
 
-        CThermistor thermistor_1(adc_1, 0);
+        CThermistor thermistor_1;
 
 #ifdef DEBUG
         log_main.log(CLog::LOG_INFO, "Entered cpp_main function");
@@ -43,11 +43,11 @@ extern "C"
             // Test 3 of the 14 ADC channels
 
             // First read channels
-            uint16_t adc_ch_1 = adc_1[0];
+            float adc_ch_1 = adc_1[0];
             uint16_t adc_ch_2 = adc_1[1];
             uint16_t adc_ch_14 = adc_1[13];
 
-            float temp = thermistor_1.getTemperature();
+            float temp = thermistor_1.getTemperature(adc_ch_1);
 
             sprintf(buffer, "Temp: %.2f", temp);
 

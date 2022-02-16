@@ -12,17 +12,23 @@
 
 #include "CAdcData.h"
 
+// Default Voltage Range
+// Can be changed using the setLimits method
+#define MIN_VOLT_RANGE (0.57)
+#define MAX_VOLT_RANGE (2.67)
+
 class CThermistor
 {
 public:
-    CThermistor(CAdcData &adc_data, uint8_t adc_channel);
+    CThermistor();
 
     // Public methods
-    float getTemperature();
+    float getTemperature(float voltage);
+    void setLimits(float min_voltage, float max_voltage);
 
 private:
-    CAdcData &m_adc_data;
-    const uint8_t m_adc_channel;
+    float m_min_volt_limit = MIN_VOLT_RANGE;
+    float m_max_volt_limit = MAX_VOLT_RANGE;
 };
 
 #endif /* CTHERMISTOR_H_ */
