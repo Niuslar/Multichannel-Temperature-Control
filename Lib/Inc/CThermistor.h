@@ -21,12 +21,12 @@
 class CThermistor
 {
 public:
-    // Constructors
+    // Constructor
     CThermistor(const float *p_calibration_coeff = s_calibration_coeff,
                 const uint8_t calibration_order = s_calibration_order);
 
     // Public methods
-    float getTemperature(float voltage);
+    float getTemperature(float voltage) const;
     void setLimits(float min_voltage, float max_voltage);
     void setLogger(CLog *p_uart_com);
 

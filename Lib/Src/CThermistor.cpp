@@ -69,7 +69,7 @@ void CThermistor::setLogger(CLog *p_uart_com)
     }
 }
 
-float CThermistor::getTemperature(float voltage)
+float CThermistor::getTemperature(float voltage) const
 {
     float temp_celsius = mp_calibration_coeff[0];
 
