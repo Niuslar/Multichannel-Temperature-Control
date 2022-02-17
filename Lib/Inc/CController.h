@@ -16,8 +16,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <string>
+#include "IComChannel.h"
 
-#define MAX_NAME_SIZE 20
 // comment out if you don't want to collect runtime statistics
 #define COLLECT_STATS
 
@@ -30,7 +30,7 @@ public:
     std::string getName() const;
     virtual bool tick(uint32_t current_time);
     virtual void run();
-    virtual bool newCommand(std::string command);
+    virtual bool newCommand(std::string command, IComChannel *p_comchannel);
 #ifdef COLLECT_STATS
     virtual uint32_t getRunCalls() const;
     virtual void resetRunCalls();

@@ -72,7 +72,7 @@ void CController::run()
  * @param p_command Pointer to NULL terminated command string.
  * @return True if command was recognised.
  */
-bool CController::newCommand(std::string command)
+bool CController::newCommand(std::string command, IComChannel *p_comchannel)
 {
     return false;
 }

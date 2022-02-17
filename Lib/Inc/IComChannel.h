@@ -14,7 +14,6 @@ class IComChannel
 {
 public:
     IComChannel(std::string name) : m_name(name){};
-    // TODO: methods of this class are to be decided.
 
     std::string getName() const
     {
@@ -26,7 +25,7 @@ public:
     virtual void send(std::string message) = 0;
 
 private:
-    std::string m_name;
+    std::string const m_name;
 };
 
 #endif /* INC_ICOMCHANNEL_H_ */

@@ -87,6 +87,8 @@ void CDispatcher::run()
         /* scan through all registered controllers and query if they need to be
          * called. If they are due, then call the run() method. Then move to
          * next controller.*/
+
+        // TODO: consider moving this bit of code into a private method.
         current_time = HAL_GetTick();
         if (mp_controllers[m_active_controller]->tick(current_time))
         {
@@ -131,8 +133,9 @@ void CDispatcher::processComChannels()
             for (int controller = 0; controller < m_controller_count;
                  controller++)
             {
-                b_command_recognised =
-                    mp_controllers[controller]->newCommand(command);
+                b_command_recognised = mp_controllers[controller]->newCommand(
+                    command,
+                    mp_comchannels[channel]);
                 if (b_command_recognised)
                 {
                     continue;
