@@ -25,12 +25,47 @@ bool CDispatcher::registerController(CController *p_controller)
     bool success = false;
     if (p_controller == nullptr)
     {
+        mp_logger->log(CLog::LOG_ERROR, "Invalid controller pointer.");
         Error_Handler();
     }
-    if (m_controller_count >= MAX_CONTROLLERS)
+    else if (m_controller_count >= MAX_CONTROLLERS)
     {
+        std::string message;
+        message = "Controller " + p_controller->getName() +
+                  " could not be registered with dispatcher.";
+        mp_logger->log(CLog::LOG_WARNING, message);
         Error_Handler();
     }
+    else
+    {
+        mp_controllers[m_controller_count] = p_controller;
+        m_controller_count++;
+        success = true;
+    }
+    return success;
 }
 
-bool registerComChannel(IComChannel *p_com_channel) {}
+bool CDispatcher::registerComChannel(IComChannel *p_com_channel)
+{
+    bool success = false;
+    if (p_com_channel == nullptr)
+    {
+        mp_logger->log(CLog::LOG_ERROR, "Invalid coms channel pointer.");
+        Error_Handler();
+    }
+    else if (m_comchannel_count >= MAX_COMCHANNELS)
+    {
+        std::string message;
+        message = "Coms channel " + p_com_channel->getName() +
+                  " could not be registered with dispatcher.";
+        mp_logger->log(CLog::LOG_WARNING, message);
+        Error_Handler();
+    }
+    else
+    {
+        mp_comchannels[m_comchannel_count] = p_com_channel;
+        m_comchannel_count++;
+        success = true;
+    }
+    return success;
+}
