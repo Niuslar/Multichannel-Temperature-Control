@@ -8,12 +8,21 @@
 #ifndef INC_ICOMCHANNEL_H_
 #define INC_ICOMCHANNEL_H_
 
+#include <string>
+
 class IComChannel
 {
-    virtual IComChannel() = 0;
-    virtual ~IComChannel() = 0;
-
+public:
+    IComChannel(std::string name) : m_name(name){};
     // TODO: methods of this class are to be decided.
+
+    std::string getName() const
+    {
+        return m_name;
+    };
+
+private:
+    std::string m_name;
 };
 
 #endif /* INC_ICOMCHANNEL_H_ */
