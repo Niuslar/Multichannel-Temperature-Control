@@ -25,7 +25,7 @@ public:
     virtual ~CDispatcher();
 
     bool registerController(CController *p_controller);
-    bool registerComChannel(IComChannel *p_com_channel);
+    bool registerComChannel(IComChannel *p_comchannel);
 
 private:
     CLog *mp_logger;
