@@ -26,11 +26,15 @@ public:
 
     bool registerController(CController *p_controller);
     bool registerComChannel(IComChannel *p_comchannel);
+    void run();  // TODO: figure out a reliable way to declare this as noreturn.
 
 private:
+    void processComChannels();
+
     CLog *mp_logger;
     CController *mp_controllers[MAX_CONTROLLERS];
     uint8_t m_controller_count;
+    uint8_t m_active_controller;
 
     IComChannel *mp_comchannels[MAX_COMCHANNELS];
     uint8_t m_comchannel_count;

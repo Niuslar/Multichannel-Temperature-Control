@@ -6,10 +6,12 @@
  */
 
 #include "CDispatcher.h"
+#include "stm32l0xx_hal.h" /* makes HAL function calls available. */
 
 CDispatcher::CDispatcher(CLog *p_logger)
     : mp_logger(p_logger),
       m_controller_count(0),
+      m_active_controller(0),
       m_comchannel_count(0)
 {
     // TODO Auto-generated constructor stub
@@ -68,4 +70,80 @@ bool CDispatcher::registerComChannel(IComChannel *p_comchannel)
         success = true;
     }
     return success;
+}
+
+/**
+ * @brief The CDispatcher runner method. This method will never exit. This is
+ * where super loop is executed.
+ *
+ */
+void CDispatcher::run()
+{
+    uint32_t current_time;
+    uint8_t idle_loop_counter = 0;  // TODO: this should be part of
+                                    // COLLECT_STATS
+    while (1)
+    {
+        /* scan through all registered controllers and query if they need to be
+         * called. If they are due, then call the run() method. Then move to
+         * next controller.*/
+        current_time = HAL_GetTick();
+        if (mp_controllers[m_active_controller]->tick(current_time))
+        {
+            mp_controllers[m_active_controller]->run();
+            idle_loop_counter = 0;
+        }
+        if (++m_active_controller >= m_controller_count)
+        {
+            m_active_controller = 0;
+            idle_loop_counter++;
+        }
+        /* If full loop was done and no calls to run() methods were made, then
+         * query if any new commands are available on the coms channels.*/
+
+        // TODO: consider having a callback within the CDispatcher class that
+        // gets registered with the IComChannel class and is called when new
+        // command arrives. This might be a better option for a more real-time
+        // response to commands.
+        processComChannels();
+    }
+}
+
+/**
+ * @brief Check every registered coms channel for existing queued up commands.
+ * If command is present pass it on to each controller in turn until one
+ * recognises command and takes appropriate action. If no controller recognises
+ * the command, respond with corresponding error message.
+ * @note Since this logic will keep processing the commands as long as there are
+ * some in the incoming buffer it is possible to DDoS the system with a
+ * sufficiently fast coms channels. Effort is specifically not taken to protect
+ * against such malicious attack, therefore the system architect must bear in
+ * mind the adverse effect of flooding the system with large volume of traffic.
+ */
+void CDispatcher::processComChannels()
+{
+    for (int channel = 0; channel < m_comchannel_count; channel++)
+    {
+        while (mp_comchannels[channel]->isCommandAvailable())
+        {
+            bool b_command_recognised;
+            std::string command = mp_comchannels[channel]->getCommand();
+            for (int controller = 0; controller < m_controller_count;
+                 controller++)
+            {
+                b_command_recognised =
+                    mp_controllers[controller]->newCommand(command);
+                if (b_command_recognised)
+                {
+                    continue;
+                }
+            }
+            if (!b_command_recognised)
+            {
+                std::string message;
+                message = "Command: " + command + " has not been recognised.";
+                mp_comchannels[channel]->send(message);
+            }
+        }
+    }
 }
