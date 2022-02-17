@@ -21,6 +21,10 @@ public:
         return m_name;
     };
 
+    virtual bool isCommandAvailable() = 0;
+    virtual std::string getCommand() = 0;
+    virtual void send(std::string message) = 0;
+
 private:
     std::string m_name;
 };
