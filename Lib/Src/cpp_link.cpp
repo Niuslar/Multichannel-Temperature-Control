@@ -12,6 +12,8 @@
 #include "CUartCom.h"
 #include "adc.h"
 
+// TODO: everything should be instantiated here, so its not on the stack.
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -32,6 +34,9 @@ extern "C"
 #endif
 
         // Infinite Loop
+
+        // TODO: Once everything has been instantiated, CDispatcher instance
+        // should call its run() method instead of this while(1) loop.
         while (1)
         {
 #ifdef DEBUG
