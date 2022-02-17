@@ -18,18 +18,27 @@
  * @param p_name Name of the controller
  * @param run_period_ms How often should run() method be called.
  */
-CController::CController(char *p_name, uint32_t run_period_ms)
-    : m_run_period_ms(run_period_ms),
+CController::CController(std::string name, uint32_t run_period_ms)
+    : m_name(name),
+      m_run_period_ms(run_period_ms),
       m_previous_time(0),
       m_run_calls_counter(0)
 {
-    strncpy(m_name, p_name, MAX_NAME_SIZE);
-    m_name[MAX_NAME_SIZE - 1] = 0;
 }
 
 CController::~CController()
 {
     // TODO Auto-generated destructor stub
+}
+
+/**
+ * @brief Get the name of the controller
+ *
+ * @return Name of the controller
+ */
+std::string CController::getName() const
+{
+    return m_name;
 }
 
 /**
@@ -63,7 +72,7 @@ void CController::run()
  * @param p_command Pointer to NULL terminated command string.
  * @return True if command was recognised.
  */
-bool CController::newCommand(char *p_command)
+bool CController::newCommand(std::string command)
 {
     return false;
 }
@@ -72,7 +81,7 @@ bool CController::newCommand(char *p_command)
 /**
  * @brief Get number of calls to run() method.
  *
- * @return Number of calls to run() methos since last reset.
+ * @return Number of calls to run() method since last reset.
  */
 uint32_t CController::getRunCalls() const
 {

@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <string>
 
 #define MAX_NAME_SIZE 20
 // comment out if you don't want to collect runtime statistics
@@ -23,19 +24,20 @@
 class CController
 {
 public:
-    CController(char *p_name, uint32_t run_period_ms);
+    CController(std::string name, uint32_t run_period_ms);
     virtual ~CController();
 
+    std::string getName() const;
     virtual bool tick(uint32_t current_time);
     virtual void run();
-    virtual bool newCommand(char *p_command);
+    virtual bool newCommand(std::string command);
 #ifdef COLLECT_STATS
     virtual uint32_t getRunCalls() const;
     virtual void resetRunCalls();
 #endif
 
 protected:
-    char m_name[MAX_NAME_SIZE];
+    std::string const m_name;
     uint32_t m_run_period_ms;
 
 private:
