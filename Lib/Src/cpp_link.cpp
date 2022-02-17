@@ -29,10 +29,9 @@ extern "C"
         CAdcData adc_1(&hadc);
         adc_1.init();
 
-        CThermistor thermistor_1;
-
         CLog log_thermistor(&st_link_uart, "Thermistor");
-        thermistor_1.setLogger(&log_thermistor);
+
+        CThermistor thermistor_1(&log_thermistor);
 
 #ifdef DEBUG
         log_main.log(CLog::LOG_INFO, "Entered cpp_main function");

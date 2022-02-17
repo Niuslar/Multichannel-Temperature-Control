@@ -30,9 +30,40 @@ CThermistor::CThermistor(const float *p_calibration_coeff,
     // Check pointer
     if (mp_calibration_coeff == nullptr)
     {
-        if (mp_uart_com != nullptr)
+        Error_Handler();
+    }
+
+    // Check order
+    if (m_calibration_order > MAX_ORDER || m_calibration_order < 1)
+    {
+        Error_Handler();
+    }
+}
+
+/**
+ * @brief Constructor with logger
+ * @param p_calibration_coeff Pointer to array with polynomial coefficients
+ * @param calibration_order Order of the polynomial equation
+ *
+ * @note The order of the polynomial is used in a strict mathematical sense,
+ i.e. third order polynomial will have 4 coefficients: a0, a1, a2, a3. The
+ minimum number of coefficients required is 2, which would make for a first
+ order polynomial otherwise knows as linear relation.
+ */
+CThermistor::CThermistor(CLog *p_logger,
+                         const float *p_calibration_coeff,
+                         const uint8_t calibration_order)
+    : mp_calibration_coeff(p_calibration_coeff),
+      m_calibration_order(calibration_order),
+      mp_logger(p_logger)
+
+{
+    // Check pointer
+    if (mp_calibration_coeff == nullptr)
+    {
+        if (mp_logger != nullptr)
         {
-            mp_uart_com->log(CLog::LOG_ERROR, "Null pointer");
+            mp_logger->log(CLog::LOG_ERROR, "Null pointer");
         }
 
         Error_Handler();
@@ -41,9 +72,9 @@ CThermistor::CThermistor(const float *p_calibration_coeff,
     // Check order
     if (m_calibration_order > MAX_ORDER || m_calibration_order < 1)
     {
-        if (mp_uart_com != nullptr)
+        if (mp_logger != nullptr)
         {
-            mp_uart_com->log(CLog::LOG_ERROR, "Invalid calibration order");
+            mp_logger->log(CLog::LOG_ERROR, "Invalid calibration order");
         }
 
         Error_Handler();
@@ -59,14 +90,6 @@ void CThermistor::setLimits(const float min_voltage, const float max_voltage)
 {
     m_min_volt_limit = min_voltage;
     m_max_volt_limit = max_voltage;
-}
-
-void CThermistor::setLogger(CLog *p_uart_com)
-{
-    if (p_uart_com != nullptr)
-    {
-        mp_uart_com = p_uart_com;
-    }
 }
 
 float CThermistor::getTemperature(float voltage) const
@@ -88,9 +111,9 @@ float CThermistor::getTemperature(float voltage) const
     else
     {
         // Log error and return unrealistic value
-        if (mp_uart_com != nullptr)
+        if (mp_logger != nullptr)
         {
-            mp_uart_com->log(CLog::LOG_WARNING, "Sensor fault");
+            mp_logger->log(CLog::LOG_WARNING, "Sensor fault");
         }
         temp_celsius = OUT_OF_RANGE;
     }
