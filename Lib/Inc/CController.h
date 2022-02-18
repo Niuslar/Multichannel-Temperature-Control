@@ -31,6 +31,9 @@ public:
     virtual bool tick(uint32_t current_time);
     virtual void run();
     virtual bool newCommand(std::string command, IComChannel *p_comchannel);
+    virtual void reset() = 0;
+    virtual void stop();
+    virtual void start();
 #ifdef COLLECT_STATS
     virtual uint32_t getRunCalls() const;
     virtual void resetRunCalls();
@@ -39,6 +42,7 @@ public:
 protected:
     std::string const m_name;
     uint32_t m_run_period_ms;
+    bool mb_stopped;
 
 private:
     uint32_t m_previous_time;

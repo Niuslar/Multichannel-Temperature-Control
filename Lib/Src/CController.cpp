@@ -21,6 +21,7 @@
 CController::CController(std::string name, uint32_t run_period_ms)
     : m_name(name),
       m_run_period_ms(run_period_ms),
+      mb_stopped(false),
       m_previous_time(0),
       m_run_calls_counter(0)
 {
@@ -44,6 +45,10 @@ std::string CController::getName() const
 /**
  * @brief This method determines if it's time for the main loop of the
  * controller to run.
+ * @note This method can be overloaded to allow controller to do something
+ * simple very often. However, parent method must be called to ensure the
+ * correct time keeping of the schedule. Alternatively, overloaded method must
+ * perform the time keeping.
  *
  * @param current_time Current time in milliseconds.
  * @return True if it's time to execute run() method.
@@ -51,9 +56,13 @@ std::string CController::getName() const
 bool CController::tick(uint32_t current_time)
 {
     bool b_time_to_run = false;
-    if ((current_time - m_previous_time) >= m_run_period_ms)
+    if (!mb_stopped)
     {
-        b_time_to_run = true;
+        if ((current_time - m_previous_time) >= m_run_period_ms)
+        {
+            b_time_to_run = true;
+            m_previous_time = current_time;
+        }
     }
     return b_time_to_run;
 }
@@ -75,6 +84,27 @@ void CController::run()
 bool CController::newCommand(std::string command, IComChannel *p_comchannel)
 {
     return false;
+}
+
+/**
+ * @brief Stop controller execution.
+ * @note Calling this method will stop run() method being called. If controller
+ * is already stopped, the method will have no effect.
+ */
+void CController::stop()
+{
+    mb_stopped = true;
+}
+
+/**
+ * @brief Start controller execution.
+ * @note Calling this method will restart the cycle of run() method calls. The
+ * run() method call timer is reset and will likely cause call to run() method
+ * in the next cycle.
+ */
+void CController::start()
+{
+    mb_stopped = false;
 }
 
 #ifdef COLLECT_STATS
