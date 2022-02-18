@@ -1,3 +1,8 @@
+/**
+ * @file CDispatcher.cpp
+ *
+ */
+
 /*
  * CDispatcher.cpp
  *
@@ -14,6 +19,10 @@ CDispatcher::CDispatcher(CLog *p_logger)
       m_active_controller(0),
       m_comchannel_count(0)
 {
+    if (mp_logger == nullptr)
+    {
+        Error_Handler();
+    }
     // TODO Auto-generated constructor stub
 }
 
@@ -22,6 +31,12 @@ CDispatcher::~CDispatcher()
     // TODO Auto-generated destructor stub
 }
 
+/**
+ * @brief Register CController derived class instance with dispatcher.
+ *
+ * @param p_controller Pointer to the controller instance.
+ * @return True is registration was successful.
+ */
 bool CDispatcher::registerController(CController *p_controller)
 {
     bool success = false;
@@ -41,12 +56,19 @@ bool CDispatcher::registerController(CController *p_controller)
     else
     {
         mp_controllers[m_controller_count] = p_controller;
+        m_controller_names[m_controller_count] = p_controller->getName();
         m_controller_count++;
         success = true;
     }
     return success;
 }
 
+/**
+ * @brief Register IComChannel derived class instance with dispatcher.
+ *
+ * @param p_comchannel Pointer to the com channel instance.
+ * @return True if registration successful.
+ */
 bool CDispatcher::registerComChannel(IComChannel *p_comchannel)
 {
     bool success = false;
@@ -75,7 +97,6 @@ bool CDispatcher::registerComChannel(IComChannel *p_comchannel)
 /**
  * @brief The CDispatcher runner method. This method will never exit. This is
  * where super loop is executed.
- *
  */
 void CDispatcher::run()
 {
@@ -111,6 +132,13 @@ void CDispatcher::run()
     }
 }
 
+/**
+ * @brief Method to process incoming commands.
+ *
+ * @param command Command that arrived via coms channel
+ * @param p_comchannel Coms channel which delivered command.
+ * @return True if command has been recognised.
+ */
 bool CDispatcher::newCommand(std::string command, IComChannel *p_comchannel)
 {
     bool b_command_recognised = false;
@@ -195,6 +223,12 @@ void CDispatcher::processComChannels()
     }
 }
 
+/**
+ * @brief Method to find number of the controller based on the name.
+ *
+ * @param name Name of the controller.
+ * @return
+ */
 uint8_t CDispatcher::findControllerNumber(std::string name)
 {
     uint8_t controller = 0;
