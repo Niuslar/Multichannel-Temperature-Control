@@ -1,3 +1,8 @@
+/**
+ * @file CDispatcher.h
+ *
+ */
+
 /*
  * CDispatcher.h
  *
