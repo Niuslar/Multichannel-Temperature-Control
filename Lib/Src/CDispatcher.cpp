@@ -111,6 +111,32 @@ void CDispatcher::run()
     }
 }
 
+bool CDispatcher::newCommand(std::string command, IComChannel *p_comchannel)
+{
+    bool b_command_recognised = false;
+    // TODO: when the command API is firmed up
+    // Example. Start/stop controller.
+    // start(Controller name)/stop(Controller name)
+    std::string controller_name;
+    if (command.find("stop") < command.npos)
+    {
+        b_command_recognised = true;
+        command.size_type open_bracket = command.find("(");
+        command.size_type close_bracket = command.find(")");
+        if ((open_bracket == command.npos) || (close_bracket == command.npos))
+        {
+            p_comchannel->send("Command: " + command + " is malformatted.");
+        }
+        else
+        {
+            controller_name =
+                command.substr(open_bracket, close_bracket - open_bracket)
+        }
+    }
+
+    return b_command_recognised;
+}
+
 /**
  * @brief Check every registered coms channel for existing queued up commands.
  * If command is present pass it on to each controller in turn until one
@@ -130,16 +156,15 @@ void CDispatcher::processComChannels()
         {
             bool b_command_recognised;
             std::string command = mp_comchannels[channel]->getCommand();
-            for (int controller = 0; controller < m_controller_count;
-                 controller++)
+            /* first check if this command is for CDispatcher. */
+            b_command_recognised = newCommand(command, mp_comchannels[channel]);
+            uint8_t controller = 0;
+            while (!b_command_recognised && (controller < m_controller_count))
             {
                 b_command_recognised = mp_controllers[controller]->newCommand(
                     command,
                     mp_comchannels[channel]);
-                if (b_command_recognised)
-                {
-                    continue;
-                }
+                controller++;
             }
             if (!b_command_recognised)
             {

@@ -27,6 +27,7 @@ public:
     bool registerController(CController *p_controller);
     bool registerComChannel(IComChannel *p_comchannel);
     void run();  // TODO: figure out a reliable way to declare this as noreturn.
+    bool newCommand(std::string command, IComChannel *p_comchannel);
 
 private:
     void processComChannels();
