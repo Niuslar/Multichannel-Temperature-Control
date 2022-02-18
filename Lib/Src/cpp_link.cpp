@@ -8,6 +8,7 @@
  */
 
 #include "CAdcData.h"
+#include "CDebugController.h"
 #include "CDispatcher.h"
 #include "CLog.h"
 #include "CUartCom.h"
@@ -24,6 +25,9 @@ CUartCom g_debug_uart(&huart2);
 CLog g_logger(&g_debug_uart, "Debug");
 CDispatcher g_dispatcher(&g_logger);
 
+/* controllers */
+CDebugController g_debug_controller("debug", 100);
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -35,6 +39,7 @@ extern "C"
          * @note By this point in the code all hardware has been configured. Run
          * initialisation code here.
          */
+        g_dispatcher.registerController(&g_debug_controller);
         //        CUartCom uart_for_errors(&huart2);
 
         //        CLog log_main(&uart_for_errors, "Main");

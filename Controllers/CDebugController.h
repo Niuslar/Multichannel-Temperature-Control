@@ -9,8 +9,10 @@
 #define CDEBUGCONTROLLER_H_
 
 #include "CController.h"
+#include "CGpioWrapper.h"
+#include "main.h"
 
-class CDebugController : protected CController
+class CDebugController : public CController
 {
 public:
     CDebugController(std::string name, uint32_t run_period_ms);
@@ -18,7 +20,10 @@ public:
 
     virtual void run();
     virtual bool newCommand(std::string command, IComChannel *p_comchannel);
-    virtual void reset() = 0;
+    virtual void reset();
+
+private:
+    CGpioWrapper m_breather_light;
 };
 
 #endif /* CDEBUGCONTROLLER_H_ */
