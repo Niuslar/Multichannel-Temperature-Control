@@ -121,8 +121,8 @@ bool CDispatcher::newCommand(std::string command, IComChannel *p_comchannel)
     if (command.find("stop") < command.npos)
     {
         b_command_recognised = true;
-        command.size_type open_bracket = command.find("(");
-        command.size_type close_bracket = command.find(")");
+        std::string::size_type open_bracket = command.find("(");
+        std::string::size_type close_bracket = command.find(")");
         if ((open_bracket == command.npos) || (close_bracket == command.npos))
         {
             p_comchannel->send("Command: " + command + " is malformatted.");
@@ -130,7 +130,26 @@ bool CDispatcher::newCommand(std::string command, IComChannel *p_comchannel)
         else
         {
             controller_name =
-                command.substr(open_bracket, close_bracket - open_bracket)
+                command.substr(open_bracket, close_bracket - open_bracket);
+            uint8_t controller_number = findControllerNumber(controller_name);
+            mp_controllers[controller_number]->stop();
+        }
+    }
+    else if (command.find("start") < command.npos)
+    {
+        b_command_recognised = true;
+        std::string::size_type open_bracket = command.find("(");
+        std::string::size_type close_bracket = command.find(")");
+        if ((open_bracket == command.npos) || (close_bracket == command.npos))
+        {
+            p_comchannel->send("Command: " + command + " is malformatted.");
+        }
+        else
+        {
+            controller_name =
+                command.substr(open_bracket, close_bracket - open_bracket);
+            uint8_t controller_number = findControllerNumber(controller_name);
+            mp_controllers[controller_number]->stop();
         }
     }
 
@@ -174,4 +193,15 @@ void CDispatcher::processComChannels()
             }
         }
     }
+}
+
+uint8_t CDispatcher::findControllerNumber(std::string name)
+{
+    uint8_t controller = 0;
+    while ((m_controller_names[controller].compare(name) != 0) &&
+           (controller < m_controller_count))
+    {
+        controller++;
+    }
+    return controller;
 }

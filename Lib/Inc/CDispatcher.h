@@ -31,9 +31,11 @@ public:
 
 private:
     void processComChannels();
+    uint8_t findControllerNumber(std::string name);
 
     CLog *mp_logger;
     CController *mp_controllers[MAX_CONTROLLERS];
+    std::string m_controller_names[MAX_CONTROLLERS];
     uint8_t m_controller_count;
     uint8_t m_active_controller;
 
