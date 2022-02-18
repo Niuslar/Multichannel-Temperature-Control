@@ -92,3 +92,23 @@ float CThermistor::getTemperature(float voltage) const
 
     return temp_celsius;
 }
+
+void CThermistor::setCalibration(float *p_calibration_coeff,
+                                 uint8_t calibration_order)
+{
+    // Check input
+    if ((p_calibration_coeff == nullptr) || (calibration_order > MAX_ORDER) ||
+        (calibration_order == 0))
+    {
+        return;
+    }
+
+    // TODO: see if we need to check this loop won't try to access elements past
+    // the array
+    // e.g. p_calibration_coeff points to array of size 3 and calibration_order
+    // is 3.
+    for (uint8_t i; i <= calibration_order; i++)
+    {
+        m_calibration_coeff[i] = p_calibration_coeff[i];
+    }
+}
