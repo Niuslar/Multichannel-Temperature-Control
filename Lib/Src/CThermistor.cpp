@@ -9,8 +9,8 @@
 
 #include "CThermistor.h"
 
-constexpr float CThermistor::s_calibration_coeff[] = {214, -166, 69.7, -13.4};
-constexpr uint8_t CThermistor::s_calibration_order = 3;
+constexpr float CThermistor::s_default_coeff[] = {214, -166, 69.7, -13.4};
+constexpr uint8_t CThermistor::s_default_order = 3;
 
 /**
  * @brief Constructor
@@ -22,62 +22,38 @@ constexpr uint8_t CThermistor::s_calibration_order = 3;
  minimum number of coefficients required is 2, which would make for a first
  order polynomial otherwise knows as linear relation.
  */
-CThermistor::CThermistor(const float *p_calibration_coeff,
-                         const uint8_t calibration_order)
-    : mp_calibration_coeff(p_calibration_coeff),
-      m_calibration_order(calibration_order)
+CThermistor::CThermistor(float *p_calibration_coeff, uint8_t calibration_order)
+    : m_calibration_order(calibration_order)
 {
-    // Check pointer
-    if (mp_calibration_coeff == nullptr)
+    float const *p_coeff;
+
+    // Check if we need to use default values
+    if ((p_calibration_coeff == nullptr) || (calibration_order == 0))
     {
-        Error_Handler();
+        p_coeff = s_default_coeff;
+        m_calibration_order = s_default_order;
     }
 
-    // Check order
-    if (m_calibration_order > MAX_ORDER || m_calibration_order < 1)
+    else
     {
-        Error_Handler();
-    }
-}
-
-/**
- * @brief Constructor with logger
- * @param p_calibration_coeff Pointer to array with polynomial coefficients
- * @param calibration_order Order of the polynomial equation
- *
- * @note The order of the polynomial is used in a strict mathematical sense,
- i.e. third order polynomial will have 4 coefficients: a0, a1, a2, a3. The
- minimum number of coefficients required is 2, which would make for a first
- order polynomial otherwise knows as linear relation.
- */
-CThermistor::CThermistor(CLog *p_logger,
-                         const float *p_calibration_coeff,
-                         const uint8_t calibration_order)
-    : mp_calibration_coeff(p_calibration_coeff),
-      m_calibration_order(calibration_order),
-      mp_logger(p_logger)
-
-{
-    // Check pointer
-    if (mp_calibration_coeff == nullptr)
-    {
-        if (mp_logger != nullptr)
+        // Check pointer
+        if (p_calibration_coeff == nullptr)
         {
-            mp_logger->log(CLog::LOG_ERROR, "Null pointer");
+            Error_Handler();
         }
 
-        Error_Handler();
+        p_coeff = p_calibration_coeff;
+
+        // Check order
+        if (calibration_order > MAX_ORDER)
+        {
+            Error_Handler();
+        }
     }
 
-    // Check order
-    if (m_calibration_order > MAX_ORDER || m_calibration_order < 1)
+    for (int i = 0; i <= m_calibration_order; i++)
     {
-        if (mp_logger != nullptr)
-        {
-            mp_logger->log(CLog::LOG_ERROR, "Invalid calibration order");
-        }
-
-        Error_Handler();
+        m_calibration_coeff[i] = p_coeff[i];
     }
 }
 
@@ -94,7 +70,7 @@ void CThermistor::setLimits(const float min_voltage, const float max_voltage)
 
 float CThermistor::getTemperature(float voltage) const
 {
-    float temp_celsius = mp_calibration_coeff[0];
+    float temp_celsius = m_calibration_coeff[0];
 
     // Check the values are within range
     if (voltage > m_min_volt_limit && voltage < m_max_volt_limit)
@@ -103,18 +79,14 @@ float CThermistor::getTemperature(float voltage) const
         // Convert voltage to temperature
         for (uint8_t i = 1; i <= m_calibration_order; i++)
         {
-            temp_celsius += voltage * mp_calibration_coeff[i];
+            temp_celsius += voltage * m_calibration_coeff[i];
             voltage *= original_voltage;
         }
     }
 
     else
     {
-        // Log error and return unrealistic value
-        if (mp_logger != nullptr)
-        {
-            mp_logger->log(CLog::LOG_WARNING, "Sensor fault");
-        }
+        // Return unrealistic value
         temp_celsius = OUT_OF_RANGE;
     }
 

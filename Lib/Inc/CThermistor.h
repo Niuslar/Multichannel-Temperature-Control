@@ -21,30 +21,25 @@
 class CThermistor
 {
 public:
-    // Constructor
-    CThermistor(const float *p_calibration_coeff = s_calibration_coeff,
-                const uint8_t calibration_order = s_calibration_order);
-
-    // Constructor with logger
-    CThermistor(CLog *p_logger,
-                const float *p_calibration_coeff = s_calibration_coeff,
-                const uint8_t calibration_order = s_calibration_order);
+    CThermistor(float *p_calibration_coeff = nullptr,
+                uint8_t calibration_order = 0);
 
     // Public methods
     float getTemperature(float voltage) const;
     void setLimits(float min_voltage, float max_voltage);
+    void setCalibration(float *p_calibration_coeff = nullptr,
+                        uint8_t calibration_order = 0);
 
-    // Public variables
+    // Static variables
     static constexpr float OUT_OF_RANGE = 999.9;
-    static const float s_calibration_coeff[];
-    static const uint8_t s_calibration_order;
+    static const float s_default_coeff[];
+    static const uint8_t s_default_order;
 
 private:
     float m_min_volt_limit = MIN_VOLT_RANGE;
     float m_max_volt_limit = MAX_VOLT_RANGE;
-    const float *mp_calibration_coeff;
-    const uint8_t m_calibration_order;
-    CLog *mp_logger = nullptr;
+    float m_calibration_coeff[MAX_ORDER + 1];
+    uint8_t m_calibration_order;
 };
 
 #endif /* CTHERMISTOR_H_ */
