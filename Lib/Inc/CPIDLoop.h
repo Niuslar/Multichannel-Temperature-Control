@@ -13,14 +13,14 @@
 #define CPIDLOOP_H_
 
 /* Default PID parameters.
- * These should be close enough to make control fast, but stable.
+ * These are setup to make PID loop transparent. Output will be equal to error.
  * Proportional is percentage of power per unit of error.
- * Integral is units of output per unit of error per minute.
- * Differential is unit of output per degree error change per minute.
+ * Integral is units of output per unit of error per unit of time.
+ * Differential is unit of output per degree error change per unit of time.
  * Normally for slow moving processes differential is zero.
  */
 #define DEFAULT_P_COEFF 1
-#define DEFAULT_I_COEFF (1.0 / (60.0 * 60.0))
+#define DEFAULT_I_COEFF 0
 #define DEFAULT_D_COEFF 0
 
 class CPIDLoop
