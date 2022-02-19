@@ -12,17 +12,13 @@
 #include "CPIDLoop.h"
 #include <limits>
 
-/* Default PID parameters.
- * These should be close enough to make control fast, but stable.
- * Proportional is percentage of power per unit of error.
- * Integral is units of output per unit of error per minute.
- * Differential is unit of output per degree error change per minute.
- * Normally for slow moving processes differential is zero.
+/**
+ * @brief Internal control structure constructor.
+ *
+ * @param p_coeff Proportional coefficient.
+ * @param i_coeff Integral coefficient.
+ * @param d_coeff Differential coefficient.
  */
-#define DEFAULT_P_COEFF 1
-#define DEFAULT_I_COEFF (1.0 / (60.0 * 60.0))
-#define DEFAULT_D_COEFF 0
-
 CPIDLoop::CONTROL_STRUCT_T::CONTROL_STRUCT_T(float p_coeff,
                                              float i_coeff,
                                              float d_coeff)
@@ -38,6 +34,13 @@ CPIDLoop::CONTROL_STRUCT_T::CONTROL_STRUCT_T(float p_coeff,
 {
 }
 
+/**
+ * @brief Construct a PID loop.
+ *
+ * @param p_coeff Proportional coefficient.
+ * @param i_coeff Integral coefficient.
+ * @param d_coeff Differential coefficient.
+ */
 CPIDLoop::CPIDLoop(float p_coeff, float i_coeff, float d_coeff)
     : m_control_struct(p_coeff, i_coeff, d_coeff),
       m_old_target(0),
@@ -48,6 +51,13 @@ CPIDLoop::CPIDLoop(float p_coeff, float i_coeff, float d_coeff)
 {
 }
 
+/**
+ * @brief Run one loop of the PID.
+ *
+ * @param target Target value of control variable.
+ * @param actual Actual value of control variable.
+ * @return Control output to bring control variable to target.
+ */
 float CPIDLoop::run(float target, float actual)
 {
     float error = target - actual;
@@ -56,7 +66,16 @@ float CPIDLoop::run(float target, float actual)
     return output;
 }
 
-float CPIDLoop::run(float target, float actual, float deltaError)
+/**
+ * @brief Run one loop of the PID.
+ *
+ * @param target Target value of control variable.
+ * @param actual Actual value of control variable.
+ * @param delta_error Error change rate to use in D term. Normally used for
+ * noisy signals that require pre-filtering.
+ * @return Control output to bring control variable to target.
+ */
+float CPIDLoop::run(float target, float actual, float delta_error)
 {
     float error = target - actual;
     float output = 0;
@@ -87,7 +106,7 @@ float CPIDLoop::run(float target, float actual, float deltaError)
          * term can cause severe instability if D coefficient is chosen poorly.
          * Be careful with D coefficient.
          */
-        m_d = deltaError * m_control_struct.d_coeff;
+        m_d = delta_error * m_control_struct.d_coeff;
         applyLimits(m_d, m_control_struct.min_d, m_control_struct.max_d);
 
         output = m_p + m_i + m_d;
@@ -113,6 +132,9 @@ float CPIDLoop::run(float target, float actual, float deltaError)
     return output;
 }
 
+/**
+ * @brief Reset loop to constructed state. Erases all internal states.
+ */
 void CPIDLoop::reset()
 {
     m_old_target = 0;
@@ -120,7 +142,15 @@ void CPIDLoop::reset()
     m_i = 0;
 }
 
-float CPIDLoop::applyLimits(float input, float min_limit, float max_limit)
+/**
+ * @brief Limit variable value to min/max limits.
+ *
+ * @param input Variable to be limited.
+ * @param min_limit Minimum allowed value.
+ * @param max_limit Maximum allowed value.
+ * @return Range limited value of the input argument.
+ */
+float CPIDLoop::applyLimits(float input, float min_limit, float max_limit) const
 {
     if (max_limit < input)
     {

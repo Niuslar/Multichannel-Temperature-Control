@@ -82,7 +82,7 @@ public:
     }
 
 private:
-    float applyLimits(float input, float min_limit, float max_limit);
+    float applyLimits(float input, float min_limit, float max_limit) const;
 
     CONTROL_STRUCT_T m_control_struct;
 
