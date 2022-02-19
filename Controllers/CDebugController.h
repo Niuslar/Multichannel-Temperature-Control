@@ -1,3 +1,7 @@
+/**
+ * @file CDebugController.h
+ */
+
 /*
  * CDebugController.h
  *

@@ -1,3 +1,7 @@
+/**
+ * @file CDebugController.cpp
+ */
+
 /*
  * CDebugController.cpp
  *
@@ -30,4 +34,5 @@ bool CDebugController::newCommand(std::string command,
     return CController::newCommand(command,
                                    p_comchannel);  // todo: temporary plug
 }
+
 void CDebugController::reset() {}
