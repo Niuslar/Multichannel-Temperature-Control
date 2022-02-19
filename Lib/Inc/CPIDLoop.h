@@ -51,7 +51,6 @@ public:
     float run(float target, float actual);
     float run(float target, float actual, float deltaError);
     void reset();
-    void resetParam();
 
     /* PID runtime terms access methods. */
     float getP() const
