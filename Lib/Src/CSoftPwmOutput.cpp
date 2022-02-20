@@ -12,15 +12,14 @@ uint32_t CSoftPwmOutput::s_period = 100;
 uint32_t CSoftPwmOutput::s_counter = 0;
 CSoftPwmOutput *CSoftPwmOutput::sp_first_instance = nullptr;
 
-// TODO: refactor this class to inherit from GPIO rather than own it.
 /**
  * @brief Construct an instance of soft PWM timer based on GPIO.
  *
  * @param p_gpio pointer to GPIO to be controlled by soft PWM.
  */
-CSoftPwmOutput::CSoftPwmOutput(CGpioWrapper *p_gpio)
-    : mp_next_instance(nullptr),
-      mp_gpio(p_gpio),
+CSoftPwmOutput::CSoftPwmOutput(GPIO_TypeDef *p_port, uint16_t pin)
+    : CGpioWrapper(p_port, pin),
+      mp_next_instance(nullptr),
       m_duty_cycle(0)
 {
     if (sp_first_instance == nullptr)
@@ -33,7 +32,7 @@ CSoftPwmOutput::CSoftPwmOutput(CGpioWrapper *p_gpio)
         p_previous_instance->mp_next_instance = this;
     }
     mp_next_instance = nullptr;
-    p_gpio->set(false);
+    CGpioWrapper::set(false);
 }
 
 /**
@@ -103,7 +102,7 @@ void CSoftPwmOutput::tick()
         {
             b_output = true;
         }
-        p_instance->mp_gpio->set(b_output);
+        p_instance->CGpioWrapper::set(b_output);
         p_instance = p_instance->mp_next_instance;
     }
 }

@@ -12,10 +12,10 @@
 #include "IPwmOutput.h"
 #include "stm32l0xx_hal.h"
 
-class CSoftPwmOutput : public IPwmOutput
+class CSoftPwmOutput : public IPwmOutput, private CGpioWrapper
 {
 public:
-    CSoftPwmOutput(CGpioWrapper *p_gpio);
+    CSoftPwmOutput(GPIO_TypeDef *p_port, uint16_t pin);
 
     virtual void setDutyCycle(float duty_cycle_percent);
     virtual float getDutyCycle() const;
@@ -33,8 +33,6 @@ private:
     static CSoftPwmOutput *sp_first_instance;
 
     CSoftPwmOutput *mp_next_instance;
-    CGpioWrapper *mp_gpio;
-    //    CSoftPwmOutput *mp_next_channel;
     uint32_t m_duty_cycle;
 };
 
