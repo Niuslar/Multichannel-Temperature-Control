@@ -22,10 +22,7 @@ public:
 
     static void init(uint32_t period, TIM_HandleTypeDef *p_timer = nullptr);
     static void tick();
-    static TIM_HandleTypeDef *const getTimer()
-    {
-        return sp_timer;
-    };
+    static TIM_HandleTypeDef *const getTimer();
 
 private:
     static CSoftPwmOutput *getLastInstance();
