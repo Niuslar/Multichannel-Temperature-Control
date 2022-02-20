@@ -15,10 +15,11 @@
 
 class IPwmOutput
 {
+public:
     IPwmOutput();
 
-    virtual uint8_t set(uint8_t output) = 0;
-    virtual uint8_t get() const = 0;
+    virtual void setDutyCycle(float duty_cycle_percent) = 0;
+    virtual float getDutyCycle() const = 0;
 };
 
 #endif /* INC_IPWMOUTPUT_H_ */
