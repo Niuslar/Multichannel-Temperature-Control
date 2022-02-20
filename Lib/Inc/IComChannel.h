@@ -1,3 +1,8 @@
+/**
+ * @file IComChannel.h
+ *
+ */
+
 /*
  * IComChannel.h
  *
