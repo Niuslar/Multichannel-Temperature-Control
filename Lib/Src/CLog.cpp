@@ -9,6 +9,12 @@
 
 #include "CLog.h"
 
+// TODO: The logger needs to operate with a generic base class IComChannel.
+// TODO: Logger needs to have a "log, but do not send until asked" mode. In this
+// mode logger stashes all logs in memory until specifically requested by the
+// host. It probably makes sense to have logger either belong to
+// CDebugController class or have CLog inherit form CController class to be able
+// to run and process commands.
 /**
  * @brief Constructor
  * @param Pointer to CUartCom object

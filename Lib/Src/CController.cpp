@@ -27,11 +27,6 @@ CController::CController(std::string name, uint32_t run_period_ms)
 {
 }
 
-CController::~CController()
-{
-    // TODO Auto-generated destructor stub
-}
-
 /**
  * @brief Get the name of the controller
  *
@@ -67,6 +62,11 @@ bool CController::tick(uint32_t current_time)
     return b_time_to_run;
 }
 
+/**
+ * @brief Run() method prototype.
+ * @note If stats collection is required, then overloaded method must call
+ * parent method or implement stats collection.
+ */
 void CController::run()
 {
 #ifdef COLLECT_STATS
@@ -120,7 +120,6 @@ uint32_t CController::getRunCalls() const
 
 /**
  * @brief Reset number of calls to run() method.
- *
  */
 void CController::resetRunCalls()
 {

@@ -13,6 +13,12 @@
 #include "CDispatcher.h"
 #include "stm32l0xx_hal.h" /* makes HAL function calls available. */
 
+// TODO: make logger optional to allow memory saving if logger is not required.
+/**
+ * @brief Create instance of the dispatcher class.
+ *
+ * @param p_logger Pointer to an external logger class.
+ */
 CDispatcher::CDispatcher(CLog *p_logger)
     : mp_logger(p_logger),
       m_controller_count(0),
@@ -23,12 +29,6 @@ CDispatcher::CDispatcher(CLog *p_logger)
     {
         Error_Handler();
     }
-    // TODO Auto-generated constructor stub
-}
-
-CDispatcher::~CDispatcher()
-{
-    // TODO Auto-generated destructor stub
 }
 
 /**

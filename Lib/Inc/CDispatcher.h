@@ -27,7 +27,6 @@ class CDispatcher
 {
 public:
     CDispatcher(CLog *p_logger);
-    virtual ~CDispatcher();
 
     bool registerController(CController *p_controller);
     bool registerComChannel(IComChannel *p_comchannel);

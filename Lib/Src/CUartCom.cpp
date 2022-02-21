@@ -11,7 +11,9 @@
 #include "CUartCom.h"
 
 /**
- *  @brief Constructor to configure UART communication
+ * @brief Construct UART communication object.
+ *
+ * @param p_huart Pointer to UART hardware control register structure.
  */
 CUartCom::CUartCom(UART_HandleTypeDef *p_huart) : mp_huart(p_huart)
 {
@@ -28,8 +30,11 @@ CUartCom::CUartCom(UART_HandleTypeDef *p_huart) : mp_huart(p_huart)
 }
 
 /**
- *  @brief Constructor to configure UART communication
- *  with USART_DE Pin.
+ * @brief Construct UART communication object with half-duplex mode.
+ *
+ * @param p_huart Pointer to UART hardware control register structure.
+ * @param uart_de_port Pointer to GPIO port.
+ * @param uart_de_pin GPIO pin.
  */
 CUartCom::CUartCom(UART_HandleTypeDef *p_huart,
                    GPIO_TypeDef *uart_de_port,
@@ -51,8 +56,8 @@ CUartCom::CUartCom(UART_HandleTypeDef *p_huart,
 }
 
 /**
- * @brief sends message via UART
- * @param string message
+ * @brief sends message via UART.
+ * @param msg Message to send.
  */
 void CUartCom::sendMessage(const std::string &msg)
 {
