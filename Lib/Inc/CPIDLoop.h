@@ -53,29 +53,64 @@ public:
     void reset();
 
     /* PID runtime terms access methods. */
+    /**
+     * @brief Get proportional contribution.
+     *
+     * @return Proportional contribution to PID output.
+     */
     float getP() const
     {
         return m_p;
     }
 
+    /**
+     * @brief Get integral contribution.
+     *
+     * @return Integral contribution to PID output.
+     */
     float getI() const
     {
         return m_i;
     }
+
+    /**
+     * @brief Get differential contribution.
+     *
+     * @return Differential contribution to PID output.
+     */
     float getD() const
     {
         return m_d;
     }
+
+    /**
+     * @brief Set integral contribution. This value is added to integral
+     * accumulator and acts as output preload.
+     *
+     * @param i Integral contribution value.
+     */
+
     void setI(float i)
     {
         m_i = i;
     }
 
-    void setupLoop(const CONTROL_STRUCT_T &control_struct)
+    /**
+     * @brief Set control structure.
+     *
+     * @param control_struct Control structure containing all necessary
+     * parameters.
+     */
+    void setControlStruct(const CONTROL_STRUCT_T &control_struct)
     {
         m_control_struct = control_struct;
     }
 
+    /**
+     * @brief Get current control structure.
+     *
+     * @return Current control structure. Passed by reference.
+     */
     const CONTROL_STRUCT_T &getControlStruct() const
     {
         return m_control_struct;
