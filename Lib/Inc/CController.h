@@ -25,7 +25,6 @@ class CController
 {
 public:
     CController(std::string name, uint32_t run_period_ms);
-    virtual ~CController();
 
     std::string getName() const;
     virtual bool tick(uint32_t current_time);

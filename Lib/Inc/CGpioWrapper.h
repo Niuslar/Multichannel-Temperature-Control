@@ -14,7 +14,6 @@ class CGpioWrapper
 {
 public:
     CGpioWrapper(GPIO_TypeDef *p_port, uint16_t pin);
-    virtual ~CGpioWrapper();
 
     bool get();
     void set(bool value);
