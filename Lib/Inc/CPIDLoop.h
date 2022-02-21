@@ -12,6 +12,8 @@
 #ifndef CPIDLOOP_H_
 #define CPIDLOOP_H_
 
+#include <limits>
+
 /* Default PID parameters.
  * These are setup to make PID loop transparent. Output will be equal to error.
  * Proportional is percentage of power per unit of error.
@@ -42,6 +44,13 @@ public:
 
         float min_d;
         float max_d;
+    };
+
+    enum LIMITS_T
+    {
+        ELimits_Int,
+        ELimits_Diff,
+        ELimits_Out
     };
 
     CPIDLoop(float k_p = DEFAULT_P_COEFF,
@@ -95,16 +104,9 @@ public:
         m_i = i;
     }
 
-    /**
-     * @brief Set control structure.
-     *
-     * @param control_struct Control structure containing all necessary
-     * parameters.
-     */
-    void setControlStruct(const CONTROL_STRUCT_T &control_struct)
-    {
-        m_control_struct = control_struct;
-    }
+    bool setLimits(LIMITS_T limit_type,
+                   float min = -std::numeric_limits<float>::max(),
+                   float max = std::numeric_limits<float>::max());
 
     /**
      * @brief Get current control structure.

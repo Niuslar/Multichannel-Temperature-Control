@@ -10,7 +10,6 @@
  */
 
 #include "CPIDLoop.h"
-#include <limits>
 
 /**
  * @brief Internal control structure constructor.
@@ -140,6 +139,41 @@ void CPIDLoop::reset()
     m_old_target = 0;
     m_old_error = 0;
     m_i = 0;
+}
+
+/**
+ * @brief Set limits for PID operation
+ *
+ * @param type Type of limit to set.
+ * @param min Minimum value.
+ * @param max Maximum value.
+ * @return True if new settings were accepted.
+ */
+bool CPIDLoop::setLimits(LIMITS_T limit_type, float min, float max)
+{
+    bool b_success = false;
+    if (min < max)
+    {
+        b_success = true;
+        switch (limit_type)
+        {
+            case ELimits_Int:
+                m_control_struct.min_i = min;
+                m_control_struct.max_i = max;
+                break;
+            case ELimits_Diff:
+                m_control_struct.min_d = min;
+                m_control_struct.max_d = max;
+                break;
+            case ELimits_Out:
+                m_control_struct.min_out = min;
+                m_control_struct.max_out = max;
+                break;
+            default:
+                b_success = false;
+        }
+    }
+    return b_success;
 }
 
 /**
