@@ -112,6 +112,7 @@ NVIC.PendSV_IRQn=true\:0\:0\:false\:false\:true\:false\:false
 NVIC.SVC_IRQn=true\:0\:0\:false\:false\:true\:false\:false
 NVIC.SysTick_IRQn=true\:0\:0\:true\:false\:true\:true\:true
 NVIC.TIM6_DAC_IRQn=true\:0\:0\:false\:false\:true\:true\:true
+NVIC.USART2_IRQn=true\:0\:0\:false\:false\:true\:true\:true
 PA0.GPIOParameters=GPIO_Label
 PA0.GPIO_Label=ADC_1
 PA0.Locked=true
