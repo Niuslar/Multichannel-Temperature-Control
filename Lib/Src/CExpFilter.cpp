@@ -64,6 +64,9 @@ void CExpFilter::reset()
     m_max = -std::numeric_limits<float>::max();
     m_min = std::numeric_limits<float>::max();
 #endif
+#ifdef TRACK_RMS
+    m_rms = 0;
+#endif
 }
 
 /**
@@ -105,6 +108,10 @@ float CExpFilter::getAverage(float instant_value)
             m_min *= m_coefficient;
             m_min += m_average * (1 - m_coefficient);
         }
+#endif
+#ifdef TRACK_RMS
+        m_rms *= m_coefficient;
+        m_rms += pow(m_average - instant_value, 2) * (1 - m_coefficient);
 #endif
     }
     m_last = instant_value;

@@ -14,6 +14,9 @@
 
 // comment out if there is no need to track running extrema of the sequence.
 #define TRACK_EXTREMA
+// comment out if there is no need to track noise power. This is more demanding
+// on clock cycles due to a lot of multiplications.
+#define TRACK_RMS
 
 class CExpFilter
 {
@@ -77,6 +80,19 @@ public:
         return m_max;
     };
 #endif
+#ifdef TRACK_RMS
+    /**
+     * @brief Get running root mean square.
+     * @note This is not a true RMS, but a running approximation. It is close
+     * enough for everyday use.
+     *
+     * @return Current RMS value.
+     */
+    float getRms() const
+    {
+        return m_rms;
+    }
+#endif
 
 private:
     float m_coefficient;
@@ -86,6 +102,9 @@ private:
 #ifdef TRACK_EXTREMA
     float m_max;
     float m_min;
+#endif
+#ifdef TRACK_RMS
+    float m_rms;
 #endif
 };
 
