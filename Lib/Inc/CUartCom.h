@@ -18,6 +18,7 @@
 
 #define UART_TIMEOUT   100
 #define MAX_RX_BUF_LEN 100
+#define MAX_QUEUE_SIZE 5
 
 class CUartCom : public IComChannel
 {
@@ -32,19 +33,19 @@ public:
     void send(const std::string &message);
     std::string getCommand();
     bool isCommandAvailable();
-    void pushCommand();
+    bool isQueueFull();
 
     // Static members
     // TODO: Check if they need to be volatile
-    static bool s_buffer_full;
     static uint8_t s_rx_buffer[MAX_RX_BUF_LEN];
     static uint8_t *s_rx_buf_addr;
+    static std::queue<std::string> s_queue;
+    static bool s_queue_full_flag;
 
 private:
     UART_HandleTypeDef *mp_huart;
     GPIO_TypeDef *m_uart_de_port = nullptr;
     uint16_t m_uart_de_pin;
-    std::queue<std::string> m_queue;
 };
 
 #endif /* CUARTCOM_H_ */

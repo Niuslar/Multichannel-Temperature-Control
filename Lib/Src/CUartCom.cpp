@@ -12,10 +12,10 @@
 
 #define BYTE 1
 
-bool CUartCom::s_buffer_full = false;
 uint8_t CUartCom::s_rx_buffer[MAX_RX_BUF_LEN] = {0};
 uint8_t *CUartCom::s_rx_buf_addr = CUartCom::s_rx_buffer;
-
+std::queue<std::string> CUartCom::s_queue;
+bool CUartCom::s_queue_full_flag = false;
 /**
  *  @brief Constructor to configure UART communication
  */
@@ -113,19 +113,6 @@ void CUartCom::send(const std::string &msg)
 }
 
 /**
- * @brief Add string stored in buffer to the queue
- * @note Call this function when the s_buffer_status variable is true
- */
-void CUartCom::pushCommand()
-{
-    std::string buffer = (char *)s_rx_buffer;
-    m_queue.push(buffer);
-
-    // Reset buffer status
-    CUartCom::s_buffer_full = false;
-}
-
-/**
  * @brief UART Rx Complete Callback
  * @param huart pointer to huart handler
  * @note This is only to define the Callback function,
@@ -141,7 +128,16 @@ extern "C"
             // Mark the end of string by replacing \n with \0
             *CUartCom::s_rx_buf_addr = '\0';
 
-            CUartCom::s_buffer_full = true;
+            // Push string to queue
+            if (CUartCom::s_queue_full_flag)
+            {
+                CUartCom::s_rx_buf_addr = CUartCom::s_rx_buffer;
+                HAL_UART_Receive_IT(huart, CUartCom::s_rx_buf_addr, BYTE);
+                return;
+            }
+            CUartCom::s_queue_full_flag = false;
+            std::string buffer = (char *)CUartCom::s_rx_buffer;
+            CUartCom::s_queue.push(buffer);
 
             // Restart buffer to original address
             CUartCom::s_rx_buf_addr = CUartCom::s_rx_buffer;
@@ -157,24 +153,39 @@ extern "C"
             // Restart interrupt with 1 byte
             HAL_UART_Receive_IT(huart, CUartCom::s_rx_buf_addr, BYTE);
         }
+
+        // Check queue status
+        if (CUartCom::s_queue.size() >= MAX_QUEUE_SIZE)
+        {
+            // Set queue full flag
+            CUartCom::s_queue_full_flag = true;
+        }
     }
 }
 
 std::string CUartCom::getCommand()
 {
     std::string command = "Error, empty queue";
-    if (!m_queue.empty())
+    if (!CUartCom::s_queue.empty())
     {
-        command = m_queue.front();
-        m_queue.pop();
+        command = CUartCom::s_queue.front();
+        CUartCom::s_queue.pop();
+
+        CUartCom::s_queue_full_flag = false;
     }
+
     return command;
 }
 bool CUartCom::isCommandAvailable()
 {
-    if (!m_queue.empty())
+    if (!CUartCom::s_queue.empty())
     {
         return true;
     }
     return false;
+}
+
+bool CUartCom::isQueueFull()
+{
+    return CUartCom::s_queue_full_flag;
 }
