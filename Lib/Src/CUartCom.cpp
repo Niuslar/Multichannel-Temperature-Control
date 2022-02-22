@@ -16,8 +16,11 @@ uint8_t CUartCom::s_rx_buffer[MAX_RX_BUF_LEN] = {0};
 uint8_t *CUartCom::s_rx_buf_addr = CUartCom::s_rx_buffer;
 std::queue<std::string> CUartCom::s_queue;
 bool CUartCom::s_queue_full_flag = false;
+
 /**
- *  @brief Constructor to configure UART communication
+ * @brief Construct UART communication object.
+ *
+ * @param p_huart Pointer to UART hardware control register structure.
  */
 CUartCom::CUartCom(std::string name, UART_HandleTypeDef *p_huart)
     : IComChannel(name),
@@ -36,8 +39,11 @@ CUartCom::CUartCom(std::string name, UART_HandleTypeDef *p_huart)
 }
 
 /**
- *  @brief Constructor to configure UART communication
- *  with USART_DE Pin.
+ * @brief Construct UART communication object with half-duplex mode.
+ *
+ * @param p_huart Pointer to UART hardware control register structure.
+ * @param uart_de_port Pointer to GPIO port.
+ * @param uart_de_pin GPIO pin.
  */
 CUartCom::CUartCom(const std::string name,
                    UART_HandleTypeDef *p_huart,
@@ -60,9 +66,13 @@ CUartCom::CUartCom(const std::string name,
     }
 }
 
+/**
+ * @brief Starts the UART reception with interrupt
+ * @note  The interrupt needs to be enabled for the UART
+ * in the hardware configuration for this method to work.
+ */
 void CUartCom::startReception()
 {
-    // Start UART reception with 1 byte length
     HAL_UART_Receive_IT(mp_huart, CUartCom::s_rx_buffer, BYTE);
 }
 
@@ -176,6 +186,11 @@ std::string CUartCom::getCommand()
 
     return command;
 }
+
+/**
+ * @retval True if the queue is not empty.
+ * 		   False otherwise
+ */
 bool CUartCom::isCommandAvailable()
 {
     if (!CUartCom::s_queue.empty())
@@ -185,6 +200,10 @@ bool CUartCom::isCommandAvailable()
     return false;
 }
 
+/**
+ * @retval True if the queue has reached the
+ * 		   MAX_QUEUE_SIZE capacity.
+ */
 bool CUartCom::isQueueFull()
 {
     return CUartCom::s_queue_full_flag;
