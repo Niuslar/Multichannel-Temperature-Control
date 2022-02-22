@@ -77,8 +77,8 @@ void CUartCom::startReception()
 }
 
 /**
- * @brief sends message via UART
- * @param string message
+ * @brief sends message via UART.
+ * @param msg Message to send.
  */
 void CUartCom::send(const std::string &msg)
 {
@@ -141,7 +141,7 @@ extern "C"
             // Push string to queue if queue is not full
             if (CUartCom::s_queue_full_flag)
             {
-            	// If the queue is full, messages will be ignored and lost
+                // If the queue is full, messages will be ignored and lost
                 CUartCom::s_rx_buf_addr = CUartCom::s_rx_buffer;
                 HAL_UART_Receive_IT(p_huart, CUartCom::s_rx_buf_addr, BYTE);
                 return;
