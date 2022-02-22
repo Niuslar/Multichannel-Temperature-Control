@@ -124,13 +124,13 @@ void CUartCom::send(const std::string &msg)
 
 /**
  * @brief UART Rx Complete Callback
- * @param huart pointer to huart handler
+ * @param p_huart Pointer to UART hardware control register structure
  * @note This is only to define the Callback function,
  * 		 it will be called when the Rx Complete flag is set.
  */
 extern "C"
 {
-    void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+    void HAL_UART_RxCpltCallback(UART_HandleTypeDef *p_huart)
     {
         // Check if we reached the end of message marked by \n
         if (*CUartCom::s_rx_buf_addr == '\n')
@@ -142,7 +142,7 @@ extern "C"
             if (CUartCom::s_queue_full_flag)
             {
                 CUartCom::s_rx_buf_addr = CUartCom::s_rx_buffer;
-                HAL_UART_Receive_IT(huart, CUartCom::s_rx_buf_addr, BYTE);
+                HAL_UART_Receive_IT(p_huart, CUartCom::s_rx_buf_addr, BYTE);
                 return;
             }
             CUartCom::s_queue_full_flag = false;
@@ -153,26 +153,27 @@ extern "C"
             CUartCom::s_rx_buf_addr = CUartCom::s_rx_buffer;
 
             // Restart interrupt with 1 byte
-            HAL_UART_Receive_IT(huart, CUartCom::s_rx_buf_addr, BYTE);
+            HAL_UART_Receive_IT(p_huart, CUartCom::s_rx_buf_addr, BYTE);
         }
         else
         {
-            // Increase buffer address
             CUartCom::s_rx_buf_addr++;
-
-            // Restart interrupt with 1 byte
-            HAL_UART_Receive_IT(huart, CUartCom::s_rx_buf_addr, BYTE);
+            HAL_UART_Receive_IT(p_huart, CUartCom::s_rx_buf_addr, BYTE);
         }
 
         // Check queue status
         if (CUartCom::s_queue.size() >= MAX_QUEUE_SIZE)
         {
-            // Set queue full flag
             CUartCom::s_queue_full_flag = true;
         }
     }
 }
 
+/**
+ * @brief get a command if available
+ * @retval Command as a string
+ * @note FIFO queue.
+ */
 std::string CUartCom::getCommand()
 {
     std::string command = "Error, empty queue";
