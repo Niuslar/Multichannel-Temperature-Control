@@ -16,6 +16,7 @@ uint8_t CUartCom::s_rx_buffer[MAX_RX_BUF_LEN] = {0};
 uint8_t *CUartCom::s_rx_buf_addr = CUartCom::s_rx_buffer;
 std::queue<std::string> CUartCom::s_queue;
 bool CUartCom::s_queue_full_flag = false;
+uint8_t CUartCom::s_cmd_length_counter = 0;
 
 /**
  * @brief Construct UART communication object.
@@ -159,6 +160,12 @@ extern "C"
         else
         {
             CUartCom::s_rx_buf_addr++;
+            if (++CUartCom::s_cmd_length_counter >= MAX_RX_BUF_LEN)
+            {
+                CUartCom::s_cmd_length_counter = 0;
+                CUartCom::s_rx_buf_addr = CUartCom::s_rx_buffer;
+            }
+
             HAL_UART_Receive_IT(p_huart, CUartCom::s_rx_buf_addr, BYTE);
         }
 

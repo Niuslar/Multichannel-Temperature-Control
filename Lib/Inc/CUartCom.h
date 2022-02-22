@@ -36,9 +36,9 @@ public:
     bool isQueueFull();
 
     // Static members
-    // TODO: Check if they need to be volatile
     static uint8_t s_rx_buffer[MAX_RX_BUF_LEN];
     static uint8_t *s_rx_buf_addr;
+    static uint8_t s_cmd_length_counter;
     static std::queue<std::string> s_queue;
     static bool s_queue_full_flag;
 
