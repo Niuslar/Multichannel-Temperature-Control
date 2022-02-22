@@ -138,14 +138,15 @@ extern "C"
             // Mark the end of string by replacing \n with \0
             *CUartCom::s_rx_buf_addr = '\0';
 
-            // Push string to queue
+            // Push string to queue if queue is not full
             if (CUartCom::s_queue_full_flag)
             {
+            	// If the queue is full, messages will be ignored and lost
                 CUartCom::s_rx_buf_addr = CUartCom::s_rx_buffer;
                 HAL_UART_Receive_IT(p_huart, CUartCom::s_rx_buf_addr, BYTE);
                 return;
             }
-            CUartCom::s_queue_full_flag = false;
+
             std::string buffer = (char *)CUartCom::s_rx_buffer;
             CUartCom::s_queue.push(buffer);
 
