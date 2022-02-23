@@ -10,7 +10,6 @@
 #ifndef CADCCHANNEL_H_
 #define CADCCHANNEL_H_
 
-#include "CLog.h"
 #include "adc.h"
 
 /**

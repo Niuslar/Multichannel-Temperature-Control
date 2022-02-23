@@ -61,7 +61,7 @@ void CAdcChannel::startADC(ADC_HandleTypeDef *p_hadc)
 }
 
 /**
- * @brief read data converted to volts for a specific adc_channel
+ * @brief read channel's ADC data converted to volts
  * @retval Volts
  */
 float CAdcChannel::getVolts()

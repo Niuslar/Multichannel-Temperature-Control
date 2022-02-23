@@ -7,7 +7,7 @@
  *      Author: niuslar
  */
 
-#include "CAdcData.h"
+#include "CAdcChannel.h"
 #include "CDebugController.h"
 #include "CDispatcher.h"
 #include "CLog.h"
