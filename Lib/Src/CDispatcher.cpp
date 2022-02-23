@@ -157,8 +157,8 @@ bool CDispatcher::newCommand(std::string command, IComChannel *p_comchannel)
         }
         else
         {
-            controller_name =
-                command.substr(open_bracket, close_bracket - open_bracket);
+            controller_name = command.substr(open_bracket + 1,
+                                             close_bracket - open_bracket - 1);
             uint8_t controller_number = findControllerNumber(controller_name);
             mp_controllers[controller_number]->stop();
         }
@@ -174,10 +174,10 @@ bool CDispatcher::newCommand(std::string command, IComChannel *p_comchannel)
         }
         else
         {
-            controller_name =
-                command.substr(open_bracket, close_bracket - open_bracket);
+            controller_name = command.substr(open_bracket + 1,
+                                             close_bracket - open_bracket - 1);
             uint8_t controller_number = findControllerNumber(controller_name);
-            mp_controllers[controller_number]->stop();
+            mp_controllers[controller_number]->start();
         }
     }
 
