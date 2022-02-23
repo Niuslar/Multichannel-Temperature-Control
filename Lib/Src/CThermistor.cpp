@@ -14,6 +14,8 @@ constexpr uint8_t CThermistor::s_default_order = 3;
 
 /**
  * @brief Constructor
+ * @param adc_channel Is the adc channel starting from 0 that will be used to
+ *				      get the voltage from the ADC readings.
  * @param p_calibration_coeff Pointer to array with polynomial coefficients
  * @param calibration_order Order of the polynomial equation
  *
@@ -22,8 +24,11 @@ constexpr uint8_t CThermistor::s_default_order = 3;
  minimum number of coefficients required is 2, which would make for a first
  order polynomial otherwise knows as linear relation.
  */
-CThermistor::CThermistor(float *p_calibration_coeff, uint8_t calibration_order)
-    : m_calibration_order(calibration_order)
+CThermistor::CThermistor(uint8_t adc_channel,
+                         float *p_calibration_coeff,
+                         uint8_t calibration_order)
+    : CAdcChannel(adc_channel),
+      m_calibration_order(calibration_order)
 {
     float const *p_coeff;
 
@@ -68,10 +73,11 @@ void CThermistor::setLimits(const float min_voltage, const float max_voltage)
     m_max_volt_limit = max_voltage;
 }
 
-float CThermistor::getTemperature(float voltage) const
+float CThermistor::getTemperature()
 {
     float temp_celsius = m_calibration_coeff[0];
 
+    float voltage = this->getVolts();
     // Check the values are within range
     if (voltage > m_min_volt_limit && voltage < m_max_volt_limit)
     {

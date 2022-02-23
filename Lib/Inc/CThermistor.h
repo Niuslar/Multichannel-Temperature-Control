@@ -10,7 +10,7 @@
 #ifndef CTHERMISTOR_H_
 #define CTHERMISTOR_H_
 
-#include "CLog.h"
+#include "CAdcChannel.h"
 
 // Default Voltage Range
 // Can be changed using the setLimits method
@@ -18,14 +18,15 @@
 #define MAX_VOLT_RANGE (2.67)
 #define MAX_ORDER      5
 
-class CThermistor
+class CThermistor : public CAdcChannel
 {
 public:
-    CThermistor(float *p_calibration_coeff = nullptr,
+    CThermistor(uint8_t adc_channel,
+                float *p_calibration_coeff = nullptr,
                 uint8_t calibration_order = 0);
 
     // Public methods
-    float getTemperature(float voltage) const;
+    float getTemperature();
     void setLimits(float min_voltage, float max_voltage);
     void setCalibration(float *p_calibration_coeff = nullptr,
                         uint8_t calibration_order = 0);
