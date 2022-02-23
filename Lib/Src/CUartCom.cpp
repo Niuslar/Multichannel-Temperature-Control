@@ -153,9 +153,6 @@ extern "C"
 
             // Restart buffer to original address
             CUartCom::s_rx_buf_addr = CUartCom::s_rx_buffer;
-
-            // Restart interrupt with 1 byte
-            HAL_UART_Receive_IT(p_huart, CUartCom::s_rx_buf_addr, BYTE);
         }
         else
         {
@@ -165,8 +162,6 @@ extern "C"
                 CUartCom::s_cmd_length_counter = 0;
                 CUartCom::s_rx_buf_addr = CUartCom::s_rx_buffer;
             }
-
-            HAL_UART_Receive_IT(p_huart, CUartCom::s_rx_buf_addr, BYTE);
         }
 
         // Check queue status
@@ -174,6 +169,8 @@ extern "C"
         {
             CUartCom::s_queue_full_flag = true;
         }
+
+        HAL_UART_Receive_IT(p_huart, CUartCom::s_rx_buf_addr, BYTE);
     }
 }
 
