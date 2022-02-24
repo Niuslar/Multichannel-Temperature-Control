@@ -10,8 +10,8 @@
  *      Author: salavat.magazov
  */
 
-#ifndef INC_IPWMOUTPUT_H_
-#define INC_IPWMOUTPUT_H_
+#ifndef IPWMOUTPUT_H_
+#define IPWMOUTPUT_H_
 
 class IPwmOutput
 {
@@ -22,4 +22,4 @@ public:
     virtual float getDutyCycle() const = 0;
 };
 
-#endif /* INC_IPWMOUTPUT_H_ */
+#endif /* IPWMOUTPUT_H_ */

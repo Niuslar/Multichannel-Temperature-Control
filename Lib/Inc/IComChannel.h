@@ -5,8 +5,8 @@
  *      Author: salavat.magazov
  */
 
-#ifndef INC_ICOMCHANNEL_H_
-#define INC_ICOMCHANNEL_H_
+#ifndef ICOMCHANNEL_H_
+#define ICOMCHANNEL_H_
 
 #include <string>
 
@@ -28,4 +28,4 @@ private:
     std::string const m_name;
 };
 
-#endif /* INC_ICOMCHANNEL_H_ */
+#endif /* ICOMCHANNEL_H_ */

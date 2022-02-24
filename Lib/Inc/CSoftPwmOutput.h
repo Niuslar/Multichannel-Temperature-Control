@@ -10,7 +10,7 @@
 
 #include "CGpioWrapper.h"
 #include "IPwmOutput.h"
-#include "stm32l0xx_hal.h"
+#include "main.h"
 
 class CSoftPwmOutput : public IPwmOutput, private CGpioWrapper
 {
