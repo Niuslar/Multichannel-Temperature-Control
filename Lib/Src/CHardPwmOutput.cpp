@@ -16,8 +16,7 @@ CHardPwmOutput::CHardPwmOutput()
     : mp_timer(nullptr),
       m_channel(0),
       mb_initialised(false),
-      mb_stopped(false),
-      m_output(0)
+      mb_stopped(false)
 {
 }
 
@@ -68,13 +67,14 @@ void CHardPwmOutput::setDutyCycle(float duty_cycle_percent)
 {
     if (mb_initialised)
     {
-        m_output = duty_cycle_percent;
         uint32_t capture_compare_reg;
         duty_cycle_percent *= mp_timer->Instance->ARR + 1;
-        capture_compare_reg = duty_cycle_percent / 100;
-        if (capture_compare_reg > mp_timer->Instance->ARR)
+        capture_compare_reg = (uint32_t)((duty_cycle_percent / 100) + 0.5);
+        if (capture_compare_reg > mp_timer->Instance->ARR + 1)
         {
-            capture_compare_reg = mp_timer->Instance->ARR;
+            // TODO: test if it's legal to have CCR register larger value than
+            // ARR. Might cause crash of the timer.
+            capture_compare_reg = mp_timer->Instance->ARR + 1;
         }
         __HAL_TIM_SET_COMPARE(mp_timer, m_channel, capture_compare_reg);
     }
@@ -91,7 +91,7 @@ float CHardPwmOutput::getDutyCycle() const
     if (mb_initialised)
     {
         duty_cycle = __HAL_TIM_GET_COMPARE(mp_timer, m_channel);
-        duty_cycle /= mp_timer->Instance->ARR;
+        duty_cycle /= (mp_timer->Instance->ARR + 1);
     }
     return duty_cycle;
 }

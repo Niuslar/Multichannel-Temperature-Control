@@ -1,3 +1,8 @@
+/**
+ * @file CSoftPwmOutput.cpp
+ *
+ */
+
 /*
  * CSoftPwmOutput.cpp
  *
@@ -42,7 +47,7 @@ CSoftPwmOutput::CSoftPwmOutput(GPIO_TypeDef *p_port, uint16_t pin)
  */
 void CSoftPwmOutput::setDutyCycle(float duty_cycle_percent)
 {
-    duty_cycle_percent *= s_period + 1;
+    duty_cycle_percent *= s_period;
     m_duty_cycle = duty_cycle_percent / 100;
     if (m_duty_cycle > s_period)
     {
@@ -67,16 +72,18 @@ float CSoftPwmOutput::getDutyCycle() const
  * For operation without a timer, user needs to ensure repeated calls to tick()
  * method to keep the PWM operational.
  *
- * @param period Period of the PWM.
+ * @param period Period of the PWM. The absolute time the period lasts depends
+ * on how often tick() is called. period * tick() calls = absolute period.
  * @param p_timer Pointer to hardware timer control structure.
  */
 void CSoftPwmOutput::init(uint32_t period, TIM_HandleTypeDef *p_timer)
 {
     if (p_timer != nullptr)
     {
-        HAL_TIM_RegisterCallback(sp_timer,
+        HAL_TIM_RegisterCallback(p_timer,
                                  HAL_TIM_PERIOD_ELAPSED_CB_ID,
                                  softPwmTimerTick);
+        HAL_TIM_Base_Start_IT(p_timer);
     }
     sp_timer = p_timer;
     s_period = period;

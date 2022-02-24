@@ -1,3 +1,8 @@
+/**
+ * @file CSoftPwmOutput.h
+ *
+ */
+
 /*
  * CSoftPwmOutput.h
  *

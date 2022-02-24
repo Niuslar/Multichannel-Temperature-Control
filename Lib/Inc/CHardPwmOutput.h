@@ -39,7 +39,6 @@ private:
     uint8_t m_channel;
     bool mb_initialised;
     bool mb_stopped;
-    float m_output;
 };
 
 #endif /* CHARDPWMOUTPUT_H_ */
