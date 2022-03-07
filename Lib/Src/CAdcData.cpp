@@ -40,10 +40,12 @@ CAdcData::CAdcData(ADC_HandleTypeDef *p_hadc) : mp_hadc(p_hadc)
 void CAdcData::init()
 {
     // Calibrate ADC
-    if (HAL_ADCEx_Calibration_Start(mp_hadc, ADC_SINGLE_ENDED) != HAL_OK)
-    {
-        log_adc.log(CLog::LOG_ERROR, "ADC Calibration failed");
-    }
+    // TODO: it does not look like F4 processors require calibration. Research
+    // needed.
+    //    if (HAL_ADCEx_Calibration_Start(mp_hadc, ADC_SINGLE_ENDED) != HAL_OK)
+    //    {
+    //        log_adc.log(CLog::LOG_ERROR, "ADC Calibration failed");
+    //    }
 
     // Start ADC with DMA
     if (HAL_ADC_Start_DMA(mp_hadc,
@@ -84,5 +86,7 @@ float CAdcData::operator[](uint8_t adc_channel)
 void CAdcData::trigger()
 {
     // Change ADCSTART bit in the ADC control register
-    mp_hadc->Instance->CR |= (1 << ADC_START_BIT);
+    //    mp_hadc->Instance->CR |= (1 << ADC_START_BIT);
+    // TODO: verify this works.
+    mp_hadc->Instance->SR |= ADC_SR_STRT;
 }

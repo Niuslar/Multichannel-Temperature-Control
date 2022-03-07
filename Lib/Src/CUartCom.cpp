@@ -23,7 +23,9 @@ CUartCom::CUartCom(UART_HandleTypeDef *p_huart) : mp_huart(p_huart)
         // Hang application with a toggling ALARM Pin
         while (1)
         {
-            HAL_GPIO_TogglePin(ALARM_GPIO_Port, ALARM_Pin);
+            // TODO: cannot use alarm pin. No space for it due to one less pin
+            // available on this MCU. HAL_GPIO_TogglePin(ALARM_GPIO_Port,
+            // ALARM_Pin);
             HAL_Delay(200);
         }
     }
@@ -49,7 +51,8 @@ CUartCom::CUartCom(UART_HandleTypeDef *p_huart,
         // Hang application with a toggling ALARM Pin
         while (1)
         {
-            HAL_GPIO_TogglePin(ALARM_GPIO_Port, ALARM_Pin);
+            // TODO: cannot hardcode stuff like this into classes.
+            //            HAL_GPIO_TogglePin(ALARM_GPIO_Port, ALARM_Pin);
             HAL_Delay(200);
         }
     }

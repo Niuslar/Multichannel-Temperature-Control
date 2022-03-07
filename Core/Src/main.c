@@ -19,7 +19,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
-#include "dma.h"
 #include "gpio.h"
 #include "i2c.h"
 #include "tim.h"
@@ -69,6 +68,19 @@ void cpp_main();
 int main(void)
 {
     /* USER CODE BEGIN 1 */
+    /**
+     * @notes
+     *
+     * 1. DMA is not setup.
+     * 2. ADC conversion sequence is not setup.
+     * 3. C++ integration is not setup.
+     * 4. Test if DMA bug is present for this MCU.
+     * 5. Check timing in all classes. Main clock is now much higher. APB1 and
+     * APB2 are on different clocks.
+     * 6. Run on real hardware...
+     * 7. Full regression test as much as possible. If don't know what
+     * regression test is, read up on it.
+     */
 
     /* USER CODE END 1 */
 
@@ -91,17 +103,16 @@ int main(void)
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
-    MX_DMA_Init();
     MX_GPIO_Init();
-    MX_ADC_Init();
+    MX_ADC1_Init();
+    MX_TIM1_Init();
+    MX_TIM3_Init();
     MX_USART1_UART_Init();
-    MX_TIM2_Init();
-    MX_TIM22_Init();
-    MX_I2C1_Init();
-    MX_TIM21_Init();
-    MX_LPUART1_UART_Init();
     MX_USART2_UART_Init();
-    MX_TIM6_Init();
+    MX_I2C1_Init();
+    MX_TIM2_Init();
+    MX_TIM10_Init();
+    MX_TIM11_Init();
     /* USER CODE BEGIN 2 */
 
     /* From here the application moves to the code found in cpp_link.cpp */
@@ -128,10 +139,10 @@ void SystemClock_Config(void)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-    RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
     /** Configure the main internal regulator output voltage
      */
+    __HAL_RCC_PWR_CLK_ENABLE();
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
@@ -140,8 +151,10 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLMUL = RCC_PLLMUL_8;
-    RCC_OscInitStruct.PLL.PLLDIV = RCC_PLLDIV_2;
+    RCC_OscInitStruct.PLL.PLLM = 4;
+    RCC_OscInitStruct.PLL.PLLN = 100;
+    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+    RCC_OscInitStruct.PLL.PLLQ = 4;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -152,21 +165,10 @@ void SystemClock_Config(void)
                                   RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    PeriphClkInit.PeriphClockSelection =
-        RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_USART2 | RCC_PERIPHCLK_LPUART1 |
-        RCC_PERIPHCLK_I2C1;
-    PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
-    PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
-    PeriphClkInit.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK1;
-    PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
     {
         Error_Handler();
     }
