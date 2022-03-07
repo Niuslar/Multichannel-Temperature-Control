@@ -11,7 +11,7 @@
  */
 
 #include "CDispatcher.h"
-#include "stm32l0xx_hal.h" /* makes HAL function calls available. */
+#include "main.h" /* makes HAL function calls available. */
 
 // TODO: make logger optional to allow memory saving if logger is not required.
 /**
