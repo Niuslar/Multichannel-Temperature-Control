@@ -16,7 +16,7 @@
 class IPwmOutput
 {
 public:
-    IPwmOutput();
+    IPwmOutput(){};
 
     virtual void setDutyCycle(float duty_cycle_percent) = 0;
     virtual float getDutyCycle() const = 0;
