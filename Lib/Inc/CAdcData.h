@@ -16,6 +16,9 @@
 /**
  *  @brief Number of active ADC Channels,
  *   change this according to hardware
+ *  @Note: This does not set the number of channels,
+ *  	   and it should match the number set in
+ *  	   hadc.Init.NbrOfConversions
  */
 #define ADC_CHANNELS 14
 
