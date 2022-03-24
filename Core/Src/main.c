@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
+#include "dma.h"
 #include "gpio.h"
 #include "i2c.h"
 #include "tim.h"
@@ -103,6 +104,7 @@ int main(void)
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
+    MX_DMA_Init();
     MX_GPIO_Init();
     MX_ADC1_Init();
     MX_TIM1_Init();
