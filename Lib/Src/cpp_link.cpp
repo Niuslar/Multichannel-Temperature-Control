@@ -11,6 +11,7 @@
 #include "CDebugController.h"
 #include "CDispatcher.h"
 #include "CLog.h"
+#include "CThermistor.h"
 #include "CUartCom.h"
 #include "adc.h"
 
@@ -39,14 +40,16 @@ extern "C"
          * @note By this point in the code all hardware has been configured. Run
          * initialisation code here.
          */
-        g_dispatcher.registerController(&g_debug_controller);
-        //        CUartCom uart_for_errors(&huart2);
+        // g_dispatcher.registerController(&g_debug_controller);
+        CUartCom uart_for_errors(&huart2);
 
-        //        CLog log_main(&uart_for_errors, "Main");
-        //        log_main.setLogLevel(CLog::LOG_INFO);
+        CLog log_main(&uart_for_errors, "Main");
+        log_main.setLogLevel(CLog::LOG_INFO);
 
-        //        CAdcData adc_1(&hadc);
-        //        adc_1.init();
+        CAdcData adc_1(&hadc1);
+        adc_1.init();
+
+        CThermistor therm_1;
 
 #ifdef DEBUG
         g_logger.log(CLog::LOG_INFO, "Entered cpp_main function");
@@ -58,30 +61,29 @@ extern "C"
          * @note Dispatcher run() method will not return. At this point
          * scheduling of controllers will start.
          */
-        g_dispatcher.run();
-        //        while (1)
-        //        {
-        //#ifdef DEBUG
-        //            // Test 3 of the 14 ADC channels
-        //
-        //            // First read channels
-        //            uint16_t adc_ch_1 = adc_1[0];
-        //            uint16_t adc_ch_2 = adc_1[1];
-        //            uint16_t adc_ch_14 = adc_1[13];
-        //
-        //            std::string value1 = "ADC1 = " + std::to_string(adc_ch_1);
-        //            std::string value2 = "ADC2 = " + std::to_string(adc_ch_2);
-        //            std::string value3 = "ADC14 = " +
-        //            std::to_string(adc_ch_14);
-        //
-        //            log_main.log(CLog::LOG_INFO, value1);
-        //            log_main.log(CLog::LOG_INFO, value2);
-        //            log_main.log(CLog::LOG_INFO, value3);
-        //
-        //            HAL_Delay(2000);
-        //            adc_1.trigger();
-        //#endif
-        //        }
+        // g_dispatcher.run();
+        while (1)
+        {
+            //#ifdef DEBUG
+            // Test 3 of the 14 ADC channels
+
+            // First read channels
+            uint16_t temp_1 = therm_1.getTemperature(adc_1[0]);
+            uint16_t adc_ch_2 = adc_1[1];
+            uint16_t adc_ch_14 = adc_1[13];
+
+            std::string value1 = "ADC1 = " + std::to_string(temp_1);
+            std::string value2 = "ADC2 = " + std::to_string(adc_ch_2);
+            std::string value3 = "ADC14 = " + std::to_string(adc_ch_14);
+
+            log_main.log(CLog::LOG_INFO, value1);
+            log_main.log(CLog::LOG_INFO, value2);
+            log_main.log(CLog::LOG_INFO, value3);
+
+            HAL_Delay(2000);
+            adc_1.trigger();
+            //#endif
+        }
 
         g_logger.log(CLog::LOG_ERROR, "Reached end of cpp_main()");
     }
