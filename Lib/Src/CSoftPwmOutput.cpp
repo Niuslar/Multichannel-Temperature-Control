@@ -138,3 +138,11 @@ CSoftPwmOutput *CSoftPwmOutput::getLastInstance()
     }
     return p_instance;
 }
+
+void softPwmTimerTick(TIM_HandleTypeDef *htim)
+{
+    if (htim == CSoftPwmOutput::getTimer())
+    {
+        CSoftPwmOutput::tick();
+    }
+}
