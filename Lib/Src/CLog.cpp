@@ -53,7 +53,7 @@ void CLog::log(log_level_t log_level, const std::string &message)
             "[ERROR]->" + m_module_name + ": " + message + "\n"));
 
         // Send message using UART
-        mp_error_uart->sendMessage(full_msg);
+        mp_error_uart->send(full_msg);
     }
 
     else if (log_level == LOG_WARNING && m_log_level >= LOG_WARNING)
@@ -61,7 +61,7 @@ void CLog::log(log_level_t log_level, const std::string &message)
         const std::string full_msg = ((const std::string)(
             "[WARNING]->" + m_module_name + ": " + message + "\n"));
 
-        mp_error_uart->sendMessage(full_msg);
+        mp_error_uart->send(full_msg);
     }
 
     else if (log_level == LOG_INFO && m_log_level >= LOG_INFO)
@@ -69,7 +69,7 @@ void CLog::log(log_level_t log_level, const std::string &message)
         const std::string full_msg = ((const std::string)(
             "[INFO]->" + m_module_name + ": " + message + "\n"));
 
-        mp_error_uart->sendMessage(full_msg);
+        mp_error_uart->send(full_msg);
     }
 
     else
@@ -77,6 +77,6 @@ void CLog::log(log_level_t log_level, const std::string &message)
         const std::string full_msg = ((const std::string)(
             "[WARNING]->" + m_module_name + ": Invalid Log Level!\n"));
 
-        mp_error_uart->sendMessage(full_msg);
+        mp_error_uart->send(full_msg);
     }
 }
