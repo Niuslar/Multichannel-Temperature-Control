@@ -14,7 +14,7 @@
 #define ADC_START_BIT        2
 #define ADC_CONVERSION_COEFF ((float)ADC_VDDA / ADC_RES)
 
-CUartCom uart_adc(&huart2);
+CUartCom uart_adc(&huart2, "ADC Data");
 
 CLog log_adc(&uart_adc, "ADC_data");
 

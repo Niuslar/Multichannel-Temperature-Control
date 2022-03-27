@@ -15,19 +15,15 @@
  *
  * @param p_huart Pointer to UART hardware control register structure.
  */
-CUartCom::CUartCom(UART_HandleTypeDef *p_huart) : mp_huart(p_huart)
+CUartCom::CUartCom(UART_HandleTypeDef *p_huart, const std::string name)
+    : IComChannel(name),
+      mp_huart(p_huart),
+      m_uart_de_pin(USART1_DE_GPIO_Port, USART1_DE_Pin)
 {
     // Check mp_huart is not null
     if (!mp_huart)
     {
-        // Hang application with a toggling ALARM Pin
-        while (1)
-        {
-            // TODO: cannot use alarm pin. No space for it due to one less pin
-            // available on this MCU. HAL_GPIO_TogglePin(ALARM_GPIO_Port,
-            // ALARM_Pin);
-            HAL_Delay(200);
-        }
+        Error_Handler();
     }
 }
 
@@ -39,22 +35,17 @@ CUartCom::CUartCom(UART_HandleTypeDef *p_huart) : mp_huart(p_huart)
  * @param uart_de_pin GPIO pin.
  */
 CUartCom::CUartCom(UART_HandleTypeDef *p_huart,
+                   const std::string name,
                    GPIO_TypeDef *uart_de_port,
                    uint16_t uart_de_pin)
-    : mp_huart(p_huart),
-      m_uart_de_port(uart_de_port),
-      m_uart_de_pin(uart_de_pin)
+    : IComChannel(name),
+      mp_huart(p_huart),
+      m_uart_de_pin(uart_de_port, uart_de_pin)
 {
     // Check mp_huart is not null
     if (!mp_huart)
     {
-        // Hang application with a toggling ALARM Pin
-        while (1)
-        {
-            // TODO: cannot hardcode stuff like this into classes.
-            //            HAL_GPIO_TogglePin(ALARM_GPIO_Port, ALARM_Pin);
-            HAL_Delay(200);
-        }
+        Error_Handler();
     }
 }
 
@@ -62,15 +53,12 @@ CUartCom::CUartCom(UART_HandleTypeDef *p_huart,
  * @brief sends message via UART.
  * @param msg Message to send.
  */
-void CUartCom::sendMessage(const std::string &msg)
+void CUartCom::send(std::string msg)
 {
     uint16_t msg_len = msg.length();
 
     // Enable UART_DE Pin
-    if (m_uart_de_port != nullptr)
-    {
-        HAL_GPIO_WritePin(m_uart_de_port, m_uart_de_pin, GPIO_PIN_SET);
-    }
+    m_uart_de_pin.set(GPIO_PIN_SET);
 
     // Convert string to C style
     const char *c_msg = msg.c_str();
@@ -85,11 +73,7 @@ void CUartCom::sendMessage(const std::string &msg)
                           error_msg_len,
                           UART_TIMEOUT);
 
-        // Disable UART_DE Pin
-        if (m_uart_de_port != nullptr)
-        {
-            HAL_GPIO_WritePin(m_uart_de_port, m_uart_de_pin, GPIO_PIN_RESET);
-        }
+        m_uart_de_pin.set(GPIO_PIN_RESET);
 
         return;
     }
@@ -98,8 +82,15 @@ void CUartCom::sendMessage(const std::string &msg)
     HAL_UART_Transmit(mp_huart, (uint8_t *)c_msg, msg_len, UART_TIMEOUT);
 
     // Disable UART_DE Pin
-    if (m_uart_de_port != nullptr)
-    {
-        HAL_GPIO_WritePin(m_uart_de_port, m_uart_de_pin, GPIO_PIN_RESET);
-    }
+    m_uart_de_pin.set(GPIO_PIN_RESET);
+}
+
+bool CUartCom::isCommandAvailable()
+{
+    return false;
+}
+
+std::string CUartCom::getCommand()
+{
+    return "False";
 }
