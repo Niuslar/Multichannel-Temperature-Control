@@ -43,13 +43,7 @@ private:
 
 extern "C"
 {
-    void softPwmTimerTick(TIM_HandleTypeDef *htim)
-    {
-        if (htim == CSoftPwmOutput::getTimer())
-        {
-            CSoftPwmOutput::tick();
-        }
-    }
+    void softPwmTimerTick(TIM_HandleTypeDef *htim);
 }
 
 #endif /* CSOFTPWMOUTPUT_H_ */
