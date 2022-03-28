@@ -1,6 +1,8 @@
+/**
+ * @file CFifoBuffer.cpp
+ */
+
 /*
- * CFifoBuffer.cpp
- *
  *  Created on: Mar 28, 2022
  *      Author: niuslar
  */
@@ -39,12 +41,20 @@ bool CCmdBuffer::put(const char data)
     return end_of_string;
 }
 
+/**
+ * @brief Gets the string stored in the buffer
+ * @return string
+ */
 std::string CCmdBuffer::get()
 {
     std::string string = (char *)m_rx_buffer;
     return string;
 }
 
+/**
+ * @brief Check if buffer reached its max size
+ * @return True if the buffer is full
+ */
 bool CCmdBuffer::isFull()
 {
     if (m_head == m_tail)
