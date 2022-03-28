@@ -5,23 +5,23 @@
  *      Author: niuslar
  */
 
-#include <CFifoBuffer.h>
+#include <CCmdBuffer.h>
 
-CFifoBuffer::CFifoBuffer() : m_head(0), m_tail(BUF_SIZE)
+CCmdBuffer::CCmdBuffer() : m_head(0), m_tail(BUF_SIZE)
 {
     // TODO Auto-generated constructor stub
 }
 
-CFifoBuffer::~CFifoBuffer()
+CCmdBuffer::~CCmdBuffer()
 {
     // TODO Auto-generated destructor stub
 }
 
-/*
+/**
  * @brief Adds character to buffer
  * @return True if the character is \n or \r to mark end of string
  */
-bool CFifoBuffer::put(const char data)
+bool CCmdBuffer::put(const char data)
 {
     bool end_of_string = false;
     if (data == '\n' || data == '\r' || isFull())
@@ -39,13 +39,13 @@ bool CFifoBuffer::put(const char data)
     return end_of_string;
 }
 
-std::string CFifoBuffer::get()
+std::string CCmdBuffer::get()
 {
     std::string string = (char *)m_rx_buffer;
     return string;
 }
 
-bool CFifoBuffer::isFull()
+bool CCmdBuffer::isFull()
 {
     if (m_head == m_tail)
     {
