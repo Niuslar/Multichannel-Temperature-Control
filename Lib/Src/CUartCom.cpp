@@ -10,6 +10,9 @@
 
 #include "CUartCom.h"
 
+CUartCom *CUartCom::sp_UART_1 = NULL;
+CUartCom *CUartCom::sp_UART_2 = NULL;
+
 /**
  * @brief Construct UART communication object.
  *
@@ -50,10 +53,29 @@ CUartCom::CUartCom(UART_HandleTypeDef *p_huart,
 }
 
 /**
+ * @brief Enables UART reception with interrupts
+ * @note Interrupts must be enabled for the UART port in order to use this
+ * function
+ *
+ */
+void CUartCom::startReception()
+{
+    HAL_UART_Receive_IT(mp_huart, &m_rx_char, 1);
+    if (mp_huart->Instance == USART1)
+    {
+        sp_UART_1 = this;
+    }
+    if (mp_huart->Instance == USART2)
+    {
+        sp_UART_2 = this;
+    }
+}
+
+/**
  * @brief sends message via UART.
  * @param msg Message to send.
  */
-void CUartCom::send(std::string msg)
+void CUartCom::send(const std::string &msg)
 {
     uint16_t msg_len = msg.length();
 
@@ -85,12 +107,49 @@ void CUartCom::send(std::string msg)
     m_uart_de_pin.set(GPIO_PIN_RESET);
 }
 
+/*
+ * @brief UART Reception Complete Interrupt Handler
+ * @arg p_huart Pointer to UART Handler
+ */
+void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
+{
+    // Store incoming char and restore interrupt
+    if (m_rx_buffer.put((const char)m_rx_char))
+    {
+        std::string command_string = m_rx_buffer.get();
+        m_cmd_queue.push(command_string);
+    }
+    HAL_UART_Receive_IT(p_huart, &m_rx_char, 1);
+}
+
+/*
+ * @brief Check if the queue has any commands to read
+ * @return True if the queue is not empty
+ */
 bool CUartCom::isCommandAvailable()
 {
+    if (!m_cmd_queue.empty())
+    {
+        return true;
+    }
     return false;
 }
 
 std::string CUartCom::getCommand()
 {
-    return "False";
+    std::string command = m_cmd_queue.front();
+    m_cmd_queue.pop();
+    return command;
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *p_huart)
+{
+    if (p_huart->Instance == USART1)
+    {
+        CUartCom::sp_UART_1->uartRxHandler(p_huart);
+    }
+    if (p_huart->Instance == USART2)
+    {
+        CUartCom::sp_UART_2->uartRxHandler(p_huart);
+    }
 }
