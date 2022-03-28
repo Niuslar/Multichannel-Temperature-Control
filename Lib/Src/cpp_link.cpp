@@ -14,6 +14,10 @@
 #include "CUartCom.h"
 #include "adc.h"
 
+#ifdef CSOFTPWMOUTPUT_H_
+#    warning The software PWM has not been tested, do not use without testing.
+#endif
+
 /** @note: Instantiating classes here means the ctor for each class will run
  * before any of the setup code is being executed. Therefore, ctor that relies
  * on configured hardware will fail. If class that is meant to run hardware is
@@ -21,7 +25,7 @@
  * executing relevant classes can call initialisation methods that will
  * configure the hardware.
  */
-CUartCom g_debug_uart("Debug", &huart2);
+CUartCom g_debug_uart(&huart2, "Main");
 CLog g_logger(&g_debug_uart, "Debug");
 CDispatcher g_dispatcher(&g_logger);
 

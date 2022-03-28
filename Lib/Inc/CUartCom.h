@@ -13,39 +13,37 @@
 
 #include <queue>
 #include <string>
+#include "CFifoBuffer.h"
+#include "CGpioWrapper.h"
 #include "IComChannel.h"
 #include "usart.h"
 
 #define UART_TIMEOUT   100
-#define MAX_RX_BUF_LEN 100
-#define MAX_QUEUE_SIZE 5
-
+#define MAX_QUEUE_SIZE 20
 class CUartCom : public IComChannel
 {
 public:
-    CUartCom(const std::string name, UART_HandleTypeDef *p_huart);
-    CUartCom(std::string name,
-             UART_HandleTypeDef *p_huart,
+    CUartCom(UART_HandleTypeDef *p_huart, const std::string name);
+    CUartCom(UART_HandleTypeDef *p_huart,
+             const std::string name,
              GPIO_TypeDef *uart_de_port,
              uint16_t uart_de_pin);
 
     void startReception();
-    void send(const std::string &message);
-    std::string getCommand();
+    void send(const std::string &msg);
     bool isCommandAvailable();
-    bool isQueueFull();
+    std::string getCommand();
+    void uartRxHandler(UART_HandleTypeDef *p_huart);
 
-    // Static members
-    static uint8_t s_rx_buffer[MAX_RX_BUF_LEN];
-    static uint8_t *s_rx_buf_addr;
-    static uint8_t s_cmd_length_counter;
-    static std::queue<std::string> s_queue;
-    static bool s_queue_full_flag;
+    static CUartCom *sp_UART_1;
+    static CUartCom *sp_UART_2;
 
 private:
     UART_HandleTypeDef *mp_huart;
-    GPIO_TypeDef *m_uart_de_port = nullptr;
-    uint16_t m_uart_de_pin;
+    CGpioWrapper m_uart_de_pin;
+    CFifoBuffer m_rx_buffer;
+    uint8_t m_rx_char;
+    std::queue<std::string> m_cmd_queue;
 };
 
 #endif /* CUARTCOM_H_ */

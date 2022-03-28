@@ -11,8 +11,14 @@
  */
 
 #include "CDispatcher.h"
-#include "stm32l0xx_hal.h" /* makes HAL function calls available. */
+#include "main.h" /* makes HAL function calls available. */
 
+// TODO: make logger optional to allow memory saving if logger is not required.
+/**
+ * @brief Create instance of the dispatcher class.
+ *
+ * @param p_logger Pointer to an external logger class.
+ */
 CDispatcher::CDispatcher(CLog *p_logger)
     : mp_logger(p_logger),
       m_controller_count(0),
@@ -23,12 +29,6 @@ CDispatcher::CDispatcher(CLog *p_logger)
     {
         Error_Handler();
     }
-    // TODO Auto-generated constructor stub
-}
-
-CDispatcher::~CDispatcher()
-{
-    // TODO Auto-generated destructor stub
 }
 
 /**
@@ -157,8 +157,8 @@ bool CDispatcher::newCommand(std::string command, IComChannel *p_comchannel)
         }
         else
         {
-            controller_name =
-                command.substr(open_bracket, close_bracket - open_bracket);
+            controller_name = command.substr(open_bracket + 1,
+                                             close_bracket - open_bracket - 1);
             uint8_t controller_number = findControllerNumber(controller_name);
             mp_controllers[controller_number]->stop();
         }
@@ -174,10 +174,10 @@ bool CDispatcher::newCommand(std::string command, IComChannel *p_comchannel)
         }
         else
         {
-            controller_name =
-                command.substr(open_bracket, close_bracket - open_bracket);
+            controller_name = command.substr(open_bracket + 1,
+                                             close_bracket - open_bracket - 1);
             uint8_t controller_number = findControllerNumber(controller_name);
-            mp_controllers[controller_number]->stop();
+            mp_controllers[controller_number]->start();
         }
     }
 

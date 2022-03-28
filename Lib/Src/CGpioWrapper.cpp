@@ -28,11 +28,6 @@ CGpioWrapper::CGpioWrapper(GPIO_TypeDef *p_port, uint16_t pin)
     }
 }
 
-CGpioWrapper::~CGpioWrapper()
-{
-    // TODO Auto-generated destructor stub
-}
-
 /**
  * @brief Get the state of the pin.
  *
@@ -62,7 +57,6 @@ void CGpioWrapper::set(bool value)
 
 /**
  * @brief Toggle the pin from high to low or from low to high.
- *
  */
 void CGpioWrapper::toggle()
 {
