@@ -18,8 +18,8 @@
 #include "IComChannel.h"
 #include "usart.h"
 
-#define UART_TIMEOUT 100
-#define QUEUE_SIZE   20
+#define UART_TIMEOUT   100
+#define MAX_QUEUE_SIZE 20
 class CUartCom : public IComChannel
 {
 public:
