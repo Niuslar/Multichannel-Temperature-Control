@@ -15,13 +15,15 @@ CUartCom *CUartCom::sp_UART_2 = NULL;
 
 /**
  * @brief Construct UART communication object.
- *
  * @param p_huart Pointer to UART hardware control register structure.
+ * @param name Name of the instance
+ * @note If no USART_DE Pin is needed, the BREATHING Pin will turn on when UART
+ * is sending data
  */
 CUartCom::CUartCom(UART_HandleTypeDef *p_huart, const std::string name)
     : IComChannel(name),
       mp_huart(p_huart),
-      m_uart_de_pin(USART1_DE_GPIO_Port, USART1_DE_Pin)
+      m_uart_de_pin(BREATHING_GPIO_Port, BREATHING_Pin)
 {
     // Check mp_huart is not null
     if (!mp_huart)
