@@ -116,8 +116,14 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
     // Store incoming char and restore interrupt
     if (m_rx_buffer.put((const char)m_rx_char))
     {
+        // If end of string or rx_buffer is full, add to queue
         std::string command_string = m_rx_buffer.get();
-        m_cmd_queue.push(command_string);
+        if (m_cmd_queue.size() <= MAX_QUEUE_SIZE)
+        {
+            // If the queue has reached its max size, the message will be
+            // dismissed
+            m_cmd_queue.push(command_string);
+        }
     }
     HAL_UART_Receive_IT(p_huart, &m_rx_char, 1);
 }
