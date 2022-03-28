@@ -13,7 +13,7 @@
 
 #include <queue>
 #include <string>
-#include "CFifoBuffer.h"
+#include "CCmdBuffer.h"
 #include "CGpioWrapper.h"
 #include "IComChannel.h"
 #include "usart.h"
@@ -41,7 +41,7 @@ public:
 private:
     UART_HandleTypeDef *mp_huart;
     CGpioWrapper m_uart_de_pin;
-    CFifoBuffer m_rx_buffer;
+    CCmdBuffer m_rx_buffer;
     uint8_t m_rx_char;
     std::queue<std::string> m_cmd_queue;
 };
