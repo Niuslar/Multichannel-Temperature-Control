@@ -1,23 +1,23 @@
 /*
- * CFifoBuffer.h
+ * CCmdBuffer.h
  *
  *  Created on: Mar 28, 2022
  *      Author: niuslar
  */
 
-#ifndef CFIFOBUFFER_H_
-#define CFIFOBUFFER_H_
+#ifndef CCMDBUFFER_H_
+#define CCMDBUFFER_H_
 
 #include <string>
 #include "main.h"
 
 #define BUF_SIZE 60
 
-class CFifoBuffer
+class CCmdBuffer
 {
 public:
-    CFifoBuffer();
-    ~CFifoBuffer();
+    CCmdBuffer();
+    ~CCmdBuffer();
 
     bool put(const char data);
     std::string get();
@@ -29,4 +29,4 @@ private:
     uint32_t m_tail;
 };
 
-#endif /* CFIFOBUFFER_H_ */
+#endif /* CCMDBUFFER_H_ */
