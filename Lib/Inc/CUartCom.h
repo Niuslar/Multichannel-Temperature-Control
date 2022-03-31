@@ -11,6 +11,7 @@
 #ifndef CUARTCOM_H_
 #define CUARTCOM_H_
 
+#include <cstring>
 #include <queue>
 #include <string>
 #include "CCmdBuffer.h"
@@ -18,32 +19,46 @@
 #include "IComChannel.h"
 #include "usart.h"
 
-#define UART_TIMEOUT   100
-#define MAX_QUEUE_SIZE 20
+#define UART_TIMEOUT      100
+#define MAX_RX_QUEUE_SIZE 20
+#define MAX_TX_QUEUE_SIZE 20
+#define MAX_UART_ENGINES  8
+#define TX_BUF_SIZE       60
+
 class CUartCom : public IComChannel
 {
 public:
-    CUartCom(UART_HandleTypeDef *p_huart, const std::string name);
-    CUartCom(UART_HandleTypeDef *p_huart,
-             const std::string name,
-             GPIO_TypeDef *uart_de_port,
-             uint16_t uart_de_pin);
+    CUartCom(const std::string name);
 
-    void startReception();
-    void send(const std::string &msg);
+    bool init(UART_HandleTypeDef *p_huart);
+    bool init(UART_HandleTypeDef *p_huart,
+              GPIO_TypeDef *uart_de_port,
+              uint16_t uart_de_pin);
+
+    void startRx();
+    void send(const std::string msg);
     bool isCommandAvailable();
     std::string getCommand();
     void uartRxHandler(UART_HandleTypeDef *p_huart);
+    void uartTxHandler(UART_HandleTypeDef *p_huart);
 
-    static CUartCom *sp_UART_1;
-    static CUartCom *sp_UART_2;
+    static CUartCom *sp_UART[MAX_UART_ENGINES];
+    static uint8_t s_uart_instances;
+    UART_HandleTypeDef *mp_huart;
 
 private:
-    UART_HandleTypeDef *mp_huart;
+    enum uart_states
+    {
+        IDLE,
+        TX
+    };
+    bool mb_state = IDLE;
     CGpioWrapper m_uart_de_pin;
     CCmdBuffer m_rx_buffer;
+    char m_tx_buffer[TX_BUF_SIZE] = {0};
     uint8_t m_rx_char;
-    std::queue<std::string> m_cmd_queue;
+    std::queue<std::string> m_rx_queue;
+    std::queue<std::string> m_tx_queue;
 };
 
 #endif /* CUARTCOM_H_ */
