@@ -27,7 +27,7 @@ public:
 
     virtual bool isCommandAvailable() = 0;
     virtual std::string getCommand() = 0;
-    virtual void send(const std::string &message) = 0;
+    virtual void send(const std::string message) = 0;
 
 private:
     std::string const m_name;
