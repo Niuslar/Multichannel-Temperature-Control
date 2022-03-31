@@ -9,7 +9,7 @@
 
 #include <CCmdBuffer.h>
 
-CCmdBuffer::CCmdBuffer() : m_head(0), m_tail(BUF_SIZE)
+CCmdBuffer::CCmdBuffer() : m_head(0), m_tail(BUF_SIZE - 1)
 {
     // TODO Auto-generated constructor stub
 }
@@ -26,11 +26,13 @@ CCmdBuffer::~CCmdBuffer()
 bool CCmdBuffer::put(const char data)
 {
     bool end_of_string = false;
-    if (data == '\n' || data == '\r' || isFull())
+    bool is_full = isFull();
+    if (data == '\n' || data == '\r' || is_full)
     {
         end_of_string = true;
+        m_rx_buffer[m_head] = data;
         // Mark end of string and reset head
-        m_rx_buffer[m_head] = '\0';
+        m_rx_buffer[m_head + is_full] = '\0';
         m_head = 0;
     }
     else
@@ -57,7 +59,10 @@ std::string CCmdBuffer::get()
  */
 bool CCmdBuffer::isFull()
 {
-    if (m_head == m_tail)
+    /**@note The message ends 1 before the end of the buffer is full
+     * to add the '\0' character
+     */
+    if (m_head == (m_tail - 1))
     {
         return true;
     }
