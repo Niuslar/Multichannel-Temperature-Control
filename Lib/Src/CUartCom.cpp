@@ -10,103 +10,111 @@
 
 #include "CUartCom.h"
 
-CUartCom *CUartCom::sp_UART_1 = NULL;
-CUartCom *CUartCom::sp_UART_2 = NULL;
+CUartCom *CUartCom::sp_UART[MAX_UART_ENGINES] = {nullptr};
+uint8_t CUartCom::s_uart_instances = 0;
 
 /**
- * @brief Construct UART communication object.
- * @param p_huart Pointer to UART hardware control register structure.
+ * @brief Construct UART communication instance
  * @param name Name of the instance
- * @note If no USART_DE Pin is needed, the BREATHING Pin will turn on when UART
- * is sending data
+ * @note An instance needs to be initialised using the init() method to
+ * send and receive data
  */
-CUartCom::CUartCom(UART_HandleTypeDef *p_huart, const std::string name)
+CUartCom::CUartCom(const std::string name)
     : IComChannel(name),
-      mp_huart(p_huart),
-      m_uart_de_pin(BREATHING_GPIO_Port, BREATHING_Pin)
+      mp_huart(nullptr),
+      m_uart_de_pin()
 {
-    // Check mp_huart is not null
-    if (!mp_huart)
-    {
-        Error_Handler();
-    }
 }
 
 /**
- * @brief Construct UART communication object with half-duplex mode.
+ * @brief Initalise UART communication object
  * @param p_huart Pointer to UART hardware control register structure.
- * @param name Name of the CUartCom Instance
+ */
+bool CUartCom::init(UART_HandleTypeDef *p_huart)
+{
+    return init(p_huart, nullptr, 100);
+}
+
+/**
+ * @brief Initalise UART communication object with half-duplex mode.
+ * @param p_huart Pointer to UART hardware control register structure.
  * @param uart_de_port Pointer to GPIO port.
  * @param uart_de_pin GPIO pin.
  */
-CUartCom::CUartCom(UART_HandleTypeDef *p_huart,
-                   const std::string name,
-                   GPIO_TypeDef *uart_de_port,
-                   uint16_t uart_de_pin)
-    : IComChannel(name),
-      mp_huart(p_huart),
-      m_uart_de_pin(uart_de_port, uart_de_pin)
+bool CUartCom::init(UART_HandleTypeDef *p_huart,
+                    GPIO_TypeDef *uart_de_port,
+                    uint16_t uart_de_pin)
 {
+    bool b_success = true;
     // Check mp_huart is not null
-    if (!mp_huart)
+    if (!p_huart)
     {
         Error_Handler();
+        b_success = false;
+        return b_success;
     }
+    else
+    {
+        mp_huart = p_huart;
+        m_uart_de_pin.init(uart_de_port, uart_de_pin);
+    }
+    // Check this hardware is not assigned to another instance
+    for (uint8_t i = 0; i < s_uart_instances; i++)
+    {
+        if (p_huart->Instance == sp_UART[i]->mp_huart->Instance)
+        {
+            b_success = false;
+            return b_success;
+        }
+    }
+
+    // Assign hardware to instance
+    sp_UART[s_uart_instances] = this;
+    s_uart_instances++;
+
+    return b_success;
 }
 
 /**
  * @brief Enables UART reception with interrupts
- * @note Interrupts must be enabled for the UART port in order to use this
- * function
+ * @note UART Interrupts must be enabled in the hardware configuration in order
+ * to use this method
  *
  */
-void CUartCom::startReception()
+void CUartCom::startRx()
 {
     HAL_UART_Receive_IT(mp_huart, &m_rx_char, 1);
-    if (mp_huart->Instance == USART1)
-    {
-        sp_UART_1 = this;
-    }
-    if (mp_huart->Instance == USART2)
-    {
-        sp_UART_2 = this;
-    }
 }
 
 /**
  * @brief sends message via UART.
  * @param msg Message to send.
+ * @return True if there was space in the transmission queue
  */
-void CUartCom::send(const std::string &msg)
+void CUartCom::send(const std::string msg)
 {
-    uint16_t msg_len = msg.length();
-
-    // Enable UART_DE Pin
-    m_uart_de_pin.set(GPIO_PIN_SET);
-
-    // Convert string to C style
-    const char *c_msg = msg.c_str();
-
-    // Check it is a valid string and send error message if not
-    if (!(*c_msg) || c_msg == nullptr)
+    // Push msg to queue
+    if (m_tx_queue.size() <= MAX_TX_QUEUE_SIZE)
     {
-        const uint8_t error_msg_len = 28;
-        const char *error_msg = "Invalid string from c_str()\n";
-        HAL_UART_Transmit(mp_huart,
-                          (uint8_t *)error_msg,
-                          error_msg_len,
-                          UART_TIMEOUT);
-
-        m_uart_de_pin.set(GPIO_PIN_RESET);
-
-        return;
+        m_tx_queue.push(msg);
     }
 
-    // Send message
-    HAL_UART_Transmit(mp_huart, (uint8_t *)c_msg, msg_len, UART_TIMEOUT);
+    // Check state
+    if (mb_state == IDLE)
+    {
+        // Enable USART_DE pin
+        m_uart_de_pin.set(true);
 
-    // Disable UART_DE Pin
-    m_uart_de_pin.set(GPIO_PIN_RESET);
+        // Start transmission with interrupts
+        std::string message = m_tx_queue.front();
+        uint8_t msg_length = message.length();
+        strcpy(m_tx_buffer, message.c_str());
+        m_tx_queue.pop();
+        HAL_UART_Transmit_IT(mp_huart, (uint8_t *)m_tx_buffer, msg_length);
+
+        // Change state to TX
+        mb_state = TX;
+    }
 }
 
 /**
@@ -123,13 +131,38 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
 
         // If the queue has reached its max size, the message will be
         // dismissed
-        if (m_cmd_queue.size() <= MAX_QUEUE_SIZE)
+        if (m_rx_queue.size() <= MAX_RX_QUEUE_SIZE && !command_string.empty())
         {
-            m_cmd_queue.push(command_string);
+            m_rx_queue.push(command_string);
         }
     }
 
     HAL_UART_Receive_IT(p_huart, &m_rx_char, 1);
+}
+
+/**
+ * @brief UART Transmission Complete Interrupt Handler
+ * @arg p_huart Pointer to UART Handler
+ */
+void CUartCom::uartTxHandler(UART_HandleTypeDef *p_huart)
+{
+    // Check if queue is empty
+    if (m_tx_queue.empty())
+    {
+        // Disable interrupt, disable pin
+        __HAL_UART_DISABLE_IT(p_huart, UART_IT_TXE);
+        m_uart_de_pin.set(false);
+        mb_state = IDLE;
+    }
+    else
+    {
+        // Keep sending data
+        std::string message = m_tx_queue.front();
+        uint8_t msg_length = message.length();
+        strcpy(m_tx_buffer, message.c_str());
+        m_tx_queue.pop();
+        HAL_UART_Transmit_IT(p_huart, (uint8_t *)m_tx_buffer, msg_length);
+    }
 }
 
 /**
@@ -138,7 +171,7 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
  */
 bool CUartCom::isCommandAvailable()
 {
-    if (!m_cmd_queue.empty())
+    if (!m_rx_queue.empty())
     {
         return true;
     }
@@ -151,8 +184,8 @@ bool CUartCom::isCommandAvailable()
  */
 std::string CUartCom::getCommand()
 {
-    std::string command = m_cmd_queue.front();
-    m_cmd_queue.pop();
+    std::string command = m_rx_queue.front();
+    m_rx_queue.pop();
     return command;
 }
 
@@ -161,12 +194,25 @@ std::string CUartCom::getCommand()
  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *p_huart)
 {
-    if (p_huart->Instance == USART1)
+    for (uint8_t i = 0; i < CUartCom::s_uart_instances; i++)
     {
-        CUartCom::sp_UART_1->uartRxHandler(p_huart);
+        if (p_huart->Instance == CUartCom::sp_UART[i]->mp_huart->Instance)
+        {
+            CUartCom::sp_UART[i]->uartRxHandler(p_huart);
+        }
     }
-    if (p_huart->Instance == USART2)
+}
+
+/**
+ * @brief UART Tx complete callback
+ */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *p_huart)
+{
+    for (uint8_t i = 0; i < CUartCom::s_uart_instances; i++)
     {
-        CUartCom::sp_UART_2->uartRxHandler(p_huart);
+        if (p_huart->Instance == CUartCom::sp_UART[i]->mp_huart->Instance)
+        {
+            CUartCom::sp_UART[i]->uartTxHandler(p_huart);
+        }
     }
 }
