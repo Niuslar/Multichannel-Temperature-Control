@@ -20,8 +20,8 @@
 #include "usart.h"
 
 #define UART_TIMEOUT      100
-#define MAX_RX_QUEUE_SIZE 20
-#define MAX_TX_QUEUE_SIZE 20
+#define MAX_RX_QUEUE_SIZE 40
+#define MAX_TX_QUEUE_SIZE 40
 #define MAX_UART_ENGINES  8
 #define TX_BUF_SIZE       60
 
