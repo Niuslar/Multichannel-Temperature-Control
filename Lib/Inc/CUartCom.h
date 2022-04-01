@@ -52,6 +52,11 @@ private:
         IDLE,
         TX
     };
+    enum uart_events
+    {
+        EMPTY_MSG,
+        NON_EMPTY_MSG
+    };
     bool mb_state = IDLE;
     CGpioWrapper m_uart_de_pin;
     CCmdBuffer m_rx_buffer;

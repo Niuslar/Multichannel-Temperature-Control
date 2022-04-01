@@ -93,8 +93,14 @@ void CUartCom::startRx()
  */
 void CUartCom::send(const std::string msg)
 {
+    bool event = NON_EMPTY_MSG;
+    // Check event (empty message or not)
+    if (msg.empty())
+    {
+        event = EMPTY_MSG;
+    }
     // Push msg to queue
-    if (m_tx_queue.size() <= MAX_TX_QUEUE_SIZE)
+    if (m_tx_queue.size() <= MAX_TX_QUEUE_SIZE && event == NON_EMPTY_MSG)
     {
         m_tx_queue.push(msg);
     }
@@ -102,18 +108,39 @@ void CUartCom::send(const std::string msg)
     // Check state
     if (mb_state == IDLE)
     {
-        // Enable USART_DE pin
-        m_uart_de_pin.set(true);
+        if (event == EMPTY_MSG)
+        {
+            // Disable interrupt, disable pin
+            __HAL_UART_DISABLE_IT(mp_huart, UART_IT_TXE);
+            m_uart_de_pin.set(false);
+        }
+        else
+        {
+            // Enable USART_DE pin
+            m_uart_de_pin.set(true);
 
-        // Start transmission with interrupts
-        std::string message = m_tx_queue.front();
-        uint8_t msg_length = message.length();
-        strcpy(m_tx_buffer, message.c_str());
-        m_tx_queue.pop();
-        HAL_UART_Transmit_IT(mp_huart, (uint8_t *)m_tx_buffer, msg_length);
+            // Start transmission with interrupts
+            std::string message = m_tx_queue.front();
+            uint8_t msg_length = message.length();
+            strcpy(m_tx_buffer, message.c_str());
+            m_tx_queue.pop();
+            HAL_UART_Transmit_IT(mp_huart, (uint8_t *)m_tx_buffer, msg_length);
 
-        // Change state to TX
-        mb_state = TX;
+            // Change state to TX
+            mb_state = TX;
+        }
+    }
+    else
+    {
+        if (event == EMPTY_MSG)
+        {
+            // Transmit next element in queue
+            std::string message = m_tx_queue.front();
+            uint8_t msg_length = message.length();
+            strcpy(m_tx_buffer, message.c_str());
+            m_tx_queue.pop();
+            HAL_UART_Transmit_IT(mp_huart, (uint8_t *)m_tx_buffer, msg_length);
+        }
     }
 }
 
@@ -149,19 +176,14 @@ void CUartCom::uartTxHandler(UART_HandleTypeDef *p_huart)
     // Check if queue is empty
     if (m_tx_queue.empty())
     {
-        // Disable interrupt, disable pin
-        __HAL_UART_DISABLE_IT(p_huart, UART_IT_TXE);
-        m_uart_de_pin.set(false);
+        // Stop tx
         mb_state = IDLE;
+        send("");
     }
     else
     {
         // Keep sending data
-        std::string message = m_tx_queue.front();
-        uint8_t msg_length = message.length();
-        strcpy(m_tx_buffer, message.c_str());
-        m_tx_queue.pop();
-        HAL_UART_Transmit_IT(p_huart, (uint8_t *)m_tx_buffer, msg_length);
+        send("");
     }
 }
 
