@@ -107,7 +107,7 @@ void CThermistor::setCalibration(float *p_calibration_coeff,
     // the array
     // e.g. p_calibration_coeff points to array of size 3 and calibration_order
     // is 3.
-    for (uint8_t i; i <= calibration_order; i++)
+    for (uint8_t i = 0; i <= calibration_order; i++)
     {
         m_calibration_coeff[i] = p_calibration_coeff[i];
     }
