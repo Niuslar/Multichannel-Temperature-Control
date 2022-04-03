@@ -8,10 +8,14 @@ on: push
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: mahmedtech/stm32-cubeide-headless:latest
+    container: 
+      image: mahmedtech/stm32-cubeide-headless:latest
     steps:
     - uses: actions/checkout@v3
     - name: build 1
-      run: chmod +x /workspace/Multichannel-Temperature-Control/builder.sh
-    - name: build 2
-      run: ./workspace/Multichannel-Temperature-Control/builder.sh
+      run:
+        pwd
+        ls 
+ #     run: chmod +x /workspace/Multichannel-Temperature-Control/builder.sh
+ #   - name: build 2
+  #    run: ./workspace/Multichannel-Temperature-Control/builder.sh
