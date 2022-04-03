@@ -11,8 +11,18 @@ jobs:
     container: mahmedtech/stm32-cubeide-headless:latest
     steps:
     - uses: actions/checkout@v3
-    - name: build App
+    - name: Build App
       run: |
         chmod +x /opt/st/stm32cubeide_1.9.0/headless-build.sh
         cd /opt/st/stm32cubeide_1.9.0
         ./headless-build.sh -data /workspace -import /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control -cleanBuild 'Multichannel temperature sensor' -markerType cdt || { echo "Build Failed"; exit 1; }
+    - uses: actions/upload-artifact@v3
+      with:
+        name: Build Artifact
+        path: |
+          /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Debug/Multichannel\ temperature\ sensor.bin
+          /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Debug/Multichannel\ temperature\ sensor.hex
+          /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Debug/Multichannel\ temperature\ sensor.elf
+          /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Release/Multichannel\ temperature\ sensor.bin
+          /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Release/Multichannel\ temperature\ sensor.hex
+          /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Release/Multichannel\ temperature\ sensor.elf
