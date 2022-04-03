@@ -19,7 +19,8 @@ jobs:
     - name: build 1
       run: |
         chmod +x /opt/st/stm32cubeide_1.9.0/headless-build.sh
-        ./opt/st/stm32cubeide_1.9.0/headless-build.sh --help || true
+        cd /opt/st/stm32cubeide_1.9.0
+        ./headless-build.sh --help || true
 #    - name: build 2
 #      run: ./opt/st/stm32cubeide_1.9.0/headless-build.sh
       #-data /workspace -import /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control -cleanBuild 'Multichannel temperature sensor' -markerType cdt || { echo "Build Failed"; exit 1; }
