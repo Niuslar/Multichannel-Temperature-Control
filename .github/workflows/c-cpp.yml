@@ -12,9 +12,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: build
-    - run: chmod +x /workspace/Multichannel-Temperature-Control/builder.sh
-    - run: ./workspace/Multichannel-Temperature-Control/builder.sh
+    - name: build 1
+      run: chmod +x /workspace/Multichannel-Temperature-Control/builder.sh
+    - name: build 2
+      run: ./workspace/Multichannel-Temperature-Control/builder.sh
     - name: Upload a Build Artifact
     - uses: actions/upload-artifact@v3
       with:
