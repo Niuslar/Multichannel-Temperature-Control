@@ -13,10 +13,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: build 1
-      working-directory: /workspace
-      run: |
-        chmod +x /opt/st/stm32cubeide_1.9.0/headless-build.sh
-        ./opt/st/stm32cubeide_1.9.0/headless-build.sh -data /workspace -import /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control -cleanBuild 'Multichannel temperature sensor' -markerType cdt || { echo "Build Failed"; exit 1; }
+      run: chmod +x /opt/st/stm32cubeide_1.9.0/headless-build.sh
+    - name: build 2
+      run:  ./opt/st/stm32cubeide_1.9.0/headless-build.sh -data /workspace -import /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control -cleanBuild 'Multichannel temperature sensor' -markerType cdt || { echo "Build Failed"; exit 1; }
  #       cat /opt/st/stm32cubeide_1.9.0/headless-build.sh
  #     run: chmod +x /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/builder.sh
  #   - name: build 2
