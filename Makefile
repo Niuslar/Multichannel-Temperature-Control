@@ -1,5 +1,5 @@
-help:           ## Help screen
-	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+help: ## make [option] 
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 build-image: ## Build docker CI image locally 
 	DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml build 
