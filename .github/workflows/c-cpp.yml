@@ -8,11 +8,14 @@ on: push
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: mahmedtech/stm32-cubeide-headless:latest
     steps:
     - uses: actions/checkout@v2
-    - uses: docker://mahmedtech/stm32-cubeide-headless:latest
     - name: build 0 
-      run: echo ${{ github.workspace }}
+      run: |
+        echo ${{ github.workspace }}
+        ls -la 
+        ls -la /github/workspace  
     - name: build 1
       run: chmod +x /opt/st/stm32cubeide_1.9.0/headless-build.sh
 #    - name: build 2
