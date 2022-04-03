@@ -10,12 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     container: mahmedtech/stm32-cubeide-headless:latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: build 0 
       run: |
         echo ${{ github.workspace }}
         ls -la 
-        ls -la /github/workspace  
+        ls -la /opt/st/stm32cubeide_1.9.0
     - name: build 1
       run: chmod +x /opt/st/stm32cubeide_1.9.0/headless-build.sh
 #    - name: build 2
