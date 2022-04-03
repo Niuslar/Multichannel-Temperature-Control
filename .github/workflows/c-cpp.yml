@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: STM32 C/C++ CI
 
 on: push
  #   branches: [ develop ]
@@ -11,7 +11,7 @@ jobs:
     container: 
       image: mahmedtech/stm32-cubeide-headless:latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
     - name: build 1
       working-directory: /workspace
       run: |
