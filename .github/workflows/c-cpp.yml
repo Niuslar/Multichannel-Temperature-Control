@@ -13,8 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: build 1
-      run:
-        stm32cubeide --launcher.suppressErrors -nosplash -application org.eclipse.cdt.managedbuilder.core.headlessbuild "$@"
+      run: ls /opt/st/stm32cubeide_1.9.0
  #     run: chmod +x /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/builder.sh
  #   - name: build 2
   #    run: ./workspace/Multichannel-Temperature-Control/builder.sh
