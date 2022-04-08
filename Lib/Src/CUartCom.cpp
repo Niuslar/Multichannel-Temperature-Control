@@ -69,8 +69,15 @@ bool CUartCom::init(UART_HandleTypeDef *p_huart,
     }
 
     // Assign hardware to instance
-    sp_UART[s_uart_instances] = this;
-    s_uart_instances++;
+    if (s_uart_instances < MAX_UART_ENGINES)
+    {
+        sp_UART[s_uart_instances] = this;
+        s_uart_instances++;
+    }
+    else
+    {
+        b_success = false;
+    }
 
     return b_success;
 }
