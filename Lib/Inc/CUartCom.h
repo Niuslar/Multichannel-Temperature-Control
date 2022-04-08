@@ -14,8 +14,8 @@
 #include <cstring>
 #include <queue>
 #include <string>
-#include "CCmdBuffer.h"
 #include "CGpioWrapper.h"
+#include "CUartBuffer.h"
 #include "IComChannel.h"
 #include "usart.h"
 
@@ -59,7 +59,7 @@ private:
     };
     bool mb_state = IDLE;
     CGpioWrapper m_uart_de_pin;
-    CCmdBuffer m_rx_buffer;
+    CUartBuffer m_rx_buffer;
     char m_tx_buffer[TX_BUF_SIZE] = {0};
     uint8_t m_rx_char;
     std::queue<std::string> m_rx_queue;
