@@ -47,20 +47,24 @@ public:
     UART_HandleTypeDef *mp_huart;
 
 private:
-    enum uart_states
+    void updateTxBuffer();
+    void endTx();
+    void transmit();
+    enum uart_status
     {
         IDLE,
         TX
     };
     enum uart_events
     {
-        EMPTY_MSG,
-        NON_EMPTY_MSG
+        NO_MESSAGE_AVAILABLE,
+        MESSAGE_AVAILABLE
     };
-    bool mb_state = IDLE;
+    uint8_t m_status = IDLE;
     CGpioWrapper m_uart_de_pin;
     CUartBuffer m_rx_buffer;
     char m_tx_buffer[TX_BUF_SIZE] = {0};
+    uint8_t m_tx_msg_length = 0;
     uint8_t m_rx_char;
     std::queue<std::string> m_rx_queue;
     std::queue<std::string> m_tx_queue;
