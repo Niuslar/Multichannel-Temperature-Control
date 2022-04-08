@@ -87,61 +87,66 @@ void CUartCom::startRx()
 }
 
 /**
- * @brief sends message via UART.
+ * @brief Start UART Transmission and push message to the TX Queue
  * @param msg Message to send.
- * @return True if there was space in the transmission queue
+ * TODO: Add return value (True if there was space in the queue)
  */
 void CUartCom::send(const std::string msg)
 {
-    bool event = NON_EMPTY_MSG;
-    // Check event (empty message or not)
-    if (msg.empty())
-    {
-        event = EMPTY_MSG;
-    }
-    // Push msg to queue
-    if (m_tx_queue.size() <= MAX_TX_QUEUE_SIZE && event == NON_EMPTY_MSG)
+    bool event = NO_MESSAGE_AVAILABLE;
+
+    if (m_tx_queue.size() <= MAX_TX_QUEUE_SIZE && (msg.empty() == false))
     {
         m_tx_queue.push(msg);
     }
 
-    // Check state
-    if (mb_state == IDLE)
+    if (m_tx_queue.empty() == false)
     {
-        if (event == EMPTY_MSG)
+        event = MESSAGE_AVAILABLE;
+    }
+
+    if (m_status == IDLE)
+    {
+        if (event == NO_MESSAGE_AVAILABLE)
         {
-            // Disable interrupt, disable pin
-            __HAL_UART_DISABLE_IT(mp_huart, UART_IT_TXE);
-            m_uart_de_pin.set(false);
+            endTx();
         }
-        else
+        else if (event == MESSAGE_AVAILABLE)
         {
-            // Enable USART_DE pin
-            m_uart_de_pin.set(true);
-
-            // Start transmission with interrupts
-            std::string message = m_tx_queue.front();
-            uint8_t msg_length = message.length();
-            strcpy(m_tx_buffer, message.c_str());
-            m_tx_queue.pop();
-            HAL_UART_Transmit_IT(mp_huart, (uint8_t *)m_tx_buffer, msg_length);
-
-            // Change state to TX
-            mb_state = TX;
+            updateTxBuffer();
+            transmit();
         }
     }
-    else
-    {
-        if (event == EMPTY_MSG)
-        {
-            // Transmit next element in queue
-            std::string message = m_tx_queue.front();
-            uint8_t msg_length = message.length();
-            strcpy(m_tx_buffer, message.c_str());
-            m_tx_queue.pop();
-            HAL_UART_Transmit_IT(mp_huart, (uint8_t *)m_tx_buffer, msg_length);
-        }
-    }
+}
+
+/**
+ * @brief Update TX Buffer with next element on queue
+ */
+void CUartCom::updateTxBuffer()
+{
+    std::string message = m_tx_queue.front();
+    m_tx_msg_length = message.length();
+    strcpy(m_tx_buffer, message.c_str());
+    m_status = TX;
+    m_tx_queue.pop();
+}
+
+void CUartCom::transmit()
+{
+    // Enable USART_DE pin
+    m_uart_de_pin.set(true);
+    HAL_UART_Transmit_IT(mp_huart, (uint8_t *)m_tx_buffer, m_tx_msg_length);
+}
+
+/**
+ * @brief Ends UART TX and disables UART DE Pin
+ */
+void CUartCom::endTx()
+{
+    // Disable interrupt, disable pin
+    __HAL_UART_DISABLE_IT(mp_huart, UART_IT_TXE);
+    m_uart_de_pin.set(false);
+    m_status = IDLE;
 }
 
 /**
@@ -173,17 +178,20 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
  */
 void CUartCom::uartTxHandler(UART_HandleTypeDef *p_huart)
 {
-    // Check if queue is empty
-    if (m_tx_queue.empty())
+    bool event = NO_MESSAGE_AVAILABLE;
+    if (m_tx_queue.empty() == false)
     {
-        // Stop tx
-        mb_state = IDLE;
-        send("");
+        event = MESSAGE_AVAILABLE;
+    }
+    // Check if queue is empty
+    if (event == MESSAGE_AVAILABLE)
+    {
+        updateTxBuffer();
+        transmit();
     }
     else
     {
-        // Keep sending data
-        send("");
+        endTx();
     }
 }
 
