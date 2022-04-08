@@ -1,5 +1,5 @@
 /**
- * @file CCmdBuffer.h
+ * @file CUartBuffer.h
  */
 
 /*
@@ -7,19 +7,19 @@
  *      Author: niuslar
  */
 
-#ifndef CCMDBUFFER_H_
-#define CCMDBUFFER_H_
+#ifndef CUARTBUFFER_H_
+#define CUARTBUFFER_H_
 
 #include <string>
 #include "main.h"
 
 #define BUF_SIZE 60
 
-class CCmdBuffer
+class CUartBuffer
 {
 public:
-    CCmdBuffer();
-    ~CCmdBuffer();
+    CUartBuffer();
+    ~CUartBuffer();
 
     bool put(const char data);
     std::string get();
@@ -31,4 +31,4 @@ private:
     uint32_t m_tail;
 };
 
-#endif /* CCMDBUFFER_H_ */
+#endif /* CUARTBUFFER_H_ */

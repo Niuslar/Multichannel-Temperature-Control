@@ -7,14 +7,14 @@
  *      Author: niuslar
  */
 
-#include <CCmdBuffer.h>
+#include "CUartBuffer.h"
 
-CCmdBuffer::CCmdBuffer() : m_head(0), m_tail(BUF_SIZE - 1)
+CUartBuffer::CUartBuffer() : m_head(0), m_tail(BUF_SIZE - 1)
 {
     // TODO Auto-generated constructor stub
 }
 
-CCmdBuffer::~CCmdBuffer()
+CUartBuffer::~CUartBuffer()
 {
     // TODO Auto-generated destructor stub
 }
@@ -23,7 +23,7 @@ CCmdBuffer::~CCmdBuffer()
  * @brief Adds character to buffer
  * @return True if the character is \n or \r to mark end of string
  */
-bool CCmdBuffer::put(const char data)
+bool CUartBuffer::put(const char data)
 {
     bool end_of_string = false;
     bool is_full = isFull();
@@ -47,7 +47,7 @@ bool CCmdBuffer::put(const char data)
  * @brief Gets the string stored in the buffer
  * @return string
  */
-std::string CCmdBuffer::get()
+std::string CUartBuffer::get()
 {
     std::string string = (char *)m_rx_buffer;
     return string;
@@ -57,7 +57,7 @@ std::string CCmdBuffer::get()
  * @brief Check if buffer reached its max size
  * @return True if the buffer is full
  */
-bool CCmdBuffer::isFull()
+bool CUartBuffer::isFull()
 {
     /**@note The message ends 1 before the end of the buffer is full
      * to add the '\0' character
