@@ -1,5 +1,5 @@
 /**
- * @file CFifoBuffer.cpp
+ * @file CUartBuffer.cpp
  */
 
 /*
@@ -9,7 +9,7 @@
 
 #include "CUartBuffer.h"
 
-CUartBuffer::CUartBuffer() : m_head(0), m_tail(BUF_SIZE - 1)
+CUartBuffer::CUartBuffer() : m_head(0), m_tail(0)
 {
     // TODO Auto-generated constructor stub
 }
@@ -21,50 +21,49 @@ CUartBuffer::~CUartBuffer()
 
 /**
  * @brief Adds character to buffer
- * @return True if the character is \n or \r to mark end of string
  */
-bool CUartBuffer::put(const char data)
+void CUartBuffer::put(const char data)
 {
-    bool end_of_string = false;
-    bool is_full = isFull();
-    if (data == '\n' || data == '\r' || is_full)
+    m_rx_buffer[m_head] = data;
+    if (m_head == (BUF_SIZE - 1))
     {
-        end_of_string = true;
-        m_rx_buffer[m_head] = data;
-        // Mark end of string and reset head
-        m_rx_buffer[m_head + is_full] = '\0';
         m_head = 0;
     }
-    else
-    {
-        m_rx_buffer[m_head] = data;
-        m_head++;
-    }
-    return end_of_string;
+    m_head++;
 }
 
 /**
- * @brief Gets the string stored in the buffer
+ * @brief Gets data from buffer
+ * @return char
+ */
+char CUartBuffer::get()
+{
+    char data = m_rx_buffer[m_tail];
+    m_rx_buffer[m_tail] = 0;
+    if (m_tail == (BUF_SIZE - 1))
+    {
+        m_tail = 0;
+    }
+    m_tail++;
+    return data;
+}
+
+/**
+ * @brief gets string stored in ringbuffer
  * @return string
  */
-std::string CUartBuffer::get()
+std::string CUartBuffer::getString()
 {
-    std::string string = (char *)m_rx_buffer;
-    return string;
-}
-
-/**
- * @brief Check if buffer reached its max size
- * @return True if the buffer is full
- */
-bool CUartBuffer::isFull()
-{
-    /**@note The message ends 1 before the end of the buffer is full
-     * to add the '\0' character
-     */
-    if (m_head == (m_tail - 1))
+    uint8_t counter = 0;
+    char c_string[BUF_SIZE];
+    char data;
+    while ((data = get()) != '\0' && counter < BUF_SIZE)
     {
-        return true;
+        c_string[counter] = data;
+        counter++;
     }
-    return false;
+    c_string[counter] = '\0';
+    std::string cpp_string = (char *)c_string;
+
+    return cpp_string;
 }
