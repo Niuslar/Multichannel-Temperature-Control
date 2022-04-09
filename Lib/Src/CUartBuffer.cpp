@@ -57,7 +57,7 @@ std::string CUartBuffer::getString()
     uint8_t counter = 0;
     char c_string[BUF_SIZE];
     char data;
-    while ((data = get()) != '\0' && counter < BUF_SIZE)
+    while ((data = get()) != '\0' && counter < (BUF_SIZE - 1))
     {
         c_string[counter] = data;
         counter++;
