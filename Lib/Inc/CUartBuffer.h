@@ -21,9 +21,9 @@ public:
     CUartBuffer();
     ~CUartBuffer();
 
-    bool put(const char data);
-    std::string get();
-    bool isFull();
+    void put(const char data);
+    char get();
+    std::string getString();
 
 private:
     char m_rx_buffer[BUF_SIZE];

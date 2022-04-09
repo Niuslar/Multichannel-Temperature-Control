@@ -163,17 +163,23 @@ void CUartCom::endTx()
 void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
 {
     // Store incoming char
-    if (m_rx_buffer.put((const char)m_rx_char))
+    static uint8_t len_counter = 0;
+    if (m_rx_char == '\n' || m_rx_char == '\r' || len_counter >= (BUF_SIZE - 3))
     {
-        // If end of string or rx_buffer is full, add to queue
-        std::string command_string = m_rx_buffer.get();
+        m_rx_buffer.put((char)m_rx_char);
+        m_rx_buffer.put('\0');
 
-        // If the queue has reached its max size, the message will be
-        // dismissed
-        if (m_rx_queue.size() <= MAX_RX_QUEUE_SIZE && !command_string.empty())
+        std::string rx_string = m_rx_buffer.getString();
+        if (m_rx_queue.size() <= MAX_RX_QUEUE_SIZE && !rx_string.empty())
         {
-            m_rx_queue.push(command_string);
+            m_rx_queue.push(rx_string);
         }
+        len_counter = 0;
+    }
+    else
+    {
+        m_rx_buffer.put((char)m_rx_char);
+        len_counter++;
     }
 
     HAL_UART_Receive_IT(p_huart, &m_rx_char, 1);
