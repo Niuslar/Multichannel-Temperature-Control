@@ -227,9 +227,13 @@ bool CUartCom::isCommandAvailable()
  */
 std::string CUartCom::getCommand()
 {
-    std::string command = m_rx_queue.front();
-    m_rx_queue.pop();
-    return command;
+    if (m_rx_queue.empty() == false)
+    {
+        std::string command = m_rx_queue.front();
+        m_rx_queue.pop();
+        return command;
+    }
+    return "";
 }
 
 /**
