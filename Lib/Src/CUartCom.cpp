@@ -164,9 +164,15 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
 {
     // Store incoming char
     static uint8_t len_counter = 0;
-    if (m_rx_char == '\n' || m_rx_char == '\r' || len_counter >= (BUF_SIZE - 3))
+    bool full_buffer = (len_counter >= (BUF_SIZE - 3));
+    if (m_rx_char == '\n' || m_rx_char == '\r' || full_buffer)
     {
-        m_rx_buffer.put((char)m_rx_char);
+        if (full_buffer)
+        {
+            m_rx_buffer.put((char)m_rx_char);
+        }
+
+        // '\n' and '\r' are replaced with '\0' to mark the end of the string
         m_rx_buffer.put('\0');
 
         std::string rx_string = m_rx_buffer.getString();
