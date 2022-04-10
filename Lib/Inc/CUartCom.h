@@ -42,6 +42,8 @@ public:
     void uartRxHandler(UART_HandleTypeDef *p_huart);
     void uartTxHandler(UART_HandleTypeDef *p_huart);
 
+    static int8_t getIndex(UART_HandleTypeDef *p_huart);
+
     static CUartCom *sp_UART[MAX_UART_ENGINES];
     static uint8_t s_uart_instances;
     UART_HandleTypeDef *mp_huart;
