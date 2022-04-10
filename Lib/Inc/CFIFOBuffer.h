@@ -12,7 +12,7 @@
 
 #include "main.h"
 
-template <typename T, uint8_t BUF_SIZE>
+template <typename T, uint16_t BUF_SIZE>
 class CFIFOBuffer
 {
 private:
@@ -22,7 +22,7 @@ private:
 
 public:
     /**
-     * @brief Adds character to buffer
+     * @brief Adds data to buffer
      */
     void put(T data)
     {
@@ -47,6 +47,37 @@ public:
         }
         m_tail++;
         return data;
+    }
+
+    /**
+     * @return True if buffer is empty
+     */
+    bool empty()
+    {
+        if (m_head == m_tail)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    uint16_t size()
+    {
+        uint16_t size;
+        if (empty())
+        {
+            size = 0;
+        }
+        else if (m_head > m_tail)
+        {
+            size = m_head - m_tail;
+        }
+        else
+        {
+            size = (BUF_SIZE - m_tail) + m_head;
+        }
+
+        return size;
     }
 };
 
