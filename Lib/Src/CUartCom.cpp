@@ -104,7 +104,7 @@ void CUartCom::send(const std::string msg)
 
     if (m_tx_queue.size() <= MAX_TX_QUEUE_SIZE && (msg.empty() == false))
     {
-        m_tx_queue.push(msg);
+        m_tx_queue.put(msg);
     }
 
     if (m_tx_queue.empty() == false)
@@ -131,11 +131,10 @@ void CUartCom::send(const std::string msg)
  */
 void CUartCom::updateTxBuffer()
 {
-    std::string message = m_tx_queue.front();
+    std::string message = m_tx_queue.get();
     m_tx_msg_length = message.length();
     strcpy(m_tx_buffer, message.c_str());
     m_status = TX;
-    m_tx_queue.pop();
 }
 
 void CUartCom::transmit()
@@ -179,7 +178,7 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
         std::string rx_string = getString();
         if (m_rx_queue.size() <= MAX_RX_QUEUE_SIZE && !rx_string.empty())
         {
-            m_rx_queue.push(rx_string);
+            m_rx_queue.put(rx_string);
         }
         len_counter = 0;
     }
@@ -256,8 +255,7 @@ std::string CUartCom::getCommand()
 {
     if (m_rx_queue.empty() == false)
     {
-        std::string command = m_rx_queue.front();
-        m_rx_queue.pop();
+        std::string command = m_rx_queue.get();
         return command;
     }
     return "";
