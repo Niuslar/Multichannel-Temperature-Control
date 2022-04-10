@@ -55,6 +55,11 @@ bool CUartCom::init(UART_HandleTypeDef *p_huart,
     else
     {
         mp_huart = p_huart;
+        if (uart_de_port != nullptr)
+        {
+            // When UART_DE pin is used, half-duplex is assumed
+            mb_half_duplex = true;
+        }
         m_uart_de_pin.init(uart_de_port, uart_de_pin);
 
         // Check this hardware is not assigned to another instance
@@ -138,6 +143,19 @@ void CUartCom::updateTxBuffer()
 
 void CUartCom::transmit()
 {
+    if (mb_half_duplex)
+    {
+        // Disable RX Interrupts
+        // Disable the UART Parity Error Interrupt
+        __HAL_UART_DISABLE_IT(mp_huart, UART_IT_PE);
+
+        // Disable the UART Error Interrupt: (Frame error, noise error, overrun
+        // error)
+        __HAL_UART_DISABLE_IT(mp_huart, UART_IT_ERR);
+
+        // Disable the UART Data Register not empty Interrupt
+        __HAL_UART_DISABLE_IT(mp_huart, UART_IT_RXNE);
+    }
     // Enable USART_DE pin
     m_uart_de_pin.set(true);
     HAL_UART_Transmit_IT(mp_huart, (uint8_t *)m_tx_buffer, m_tx_msg_length);
@@ -148,7 +166,21 @@ void CUartCom::transmit()
  */
 void CUartCom::endTx()
 {
-    // Disable interrupt, disable pin
+    if (mb_half_duplex)
+    {
+        // Re-enable RX Interrupts
+        // Enable the UART Parity Error Interrupt
+        __HAL_UART_ENABLE_IT(mp_huart, UART_IT_PE);
+
+        // Enable the UART Error Interrupt: (Frame error, noise error, overrun
+        // error)
+        __HAL_UART_ENABLE_IT(mp_huart, UART_IT_ERR);
+
+        // Enable the UART Data Register not empty Interrupt
+        __HAL_UART_ENABLE_IT(mp_huart, UART_IT_RXNE);
+    }
+
+    // Disable TX interrupt, disable pin
     __HAL_UART_DISABLE_IT(mp_huart, UART_IT_TXE);
     m_uart_de_pin.set(false);
     m_status = IDLE;
