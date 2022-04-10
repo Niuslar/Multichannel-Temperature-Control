@@ -46,37 +46,36 @@ bool CUartCom::init(UART_HandleTypeDef *p_huart,
                     uint16_t uart_de_pin)
 {
     bool b_success = true;
-    // Check mp_huart is not null
+
     if (!p_huart)
     {
         Error_Handler();
         b_success = false;
-        return b_success;
     }
     else
     {
         mp_huart = p_huart;
         m_uart_de_pin.init(uart_de_port, uart_de_pin);
-    }
-    // Check this hardware is not assigned to another instance
-    for (uint8_t i = 0; i < s_uart_instances; i++)
-    {
-        if (p_huart->Instance == sp_UART[i]->mp_huart->Instance)
+
+        // Check this hardware is not assigned to another instance
+        int8_t index = CUartCom::getIndex(p_huart);
+        if (index >= 0)
         {
             b_success = false;
-            return b_success;
         }
-    }
-
-    // Assign hardware to instance
-    if (s_uart_instances < MAX_UART_ENGINES)
-    {
-        sp_UART[s_uart_instances] = this;
-        s_uart_instances++;
-    }
-    else
-    {
-        b_success = false;
+        else
+        {
+            // Assign hardware to instance
+            if (s_uart_instances < MAX_UART_ENGINES)
+            {
+                sp_UART[s_uart_instances] = this;
+                s_uart_instances++;
+            }
+            else
+            {
+                b_success = false;
+            }
+        }
     }
 
     return b_success;
@@ -107,7 +106,7 @@ void CUartCom::send(const std::string msg)
         m_tx_queue.put(msg);
     }
 
-    if (m_tx_queue.empty() == false)
+    if (m_tx_queue.size() > 0)
     {
         event = MESSAGE_AVAILABLE;
     }
@@ -198,7 +197,7 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
 void CUartCom::uartTxHandler(UART_HandleTypeDef *p_huart)
 {
     bool event = NO_MESSAGE_AVAILABLE;
-    if (m_tx_queue.empty() == false)
+    if (m_tx_queue.size() > 0)
     {
         event = MESSAGE_AVAILABLE;
     }
@@ -240,7 +239,7 @@ std::string CUartCom::getString()
  */
 bool CUartCom::isCommandAvailable()
 {
-    if (m_rx_queue.empty() == false)
+    if (m_rx_queue.size() > 0)
     {
         return true;
     }
@@ -248,12 +247,12 @@ bool CUartCom::isCommandAvailable()
 }
 
 /**
- * @brief Gets and deletes the first command in the queue
+ * @brief Get and delete the first element in the RX queue
  * @return Command as string
  */
 std::string CUartCom::getCommand()
 {
-    if (m_rx_queue.empty() == false)
+    if (m_rx_queue.size() > 0)
     {
         std::string command = m_rx_queue.get();
         return command;
@@ -262,16 +261,35 @@ std::string CUartCom::getCommand()
 }
 
 /**
- * @brief UART Rx complete callback
+ * @brief get index for the active UART handler
+ * @return index from 0 to MAX_UART_ENGINES
  */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *p_huart)
+int8_t CUartCom::getIndex(UART_HandleTypeDef *p_huart)
 {
+    int8_t index = -1;
     for (uint8_t i = 0; i < CUartCom::s_uart_instances; i++)
     {
         if (p_huart->Instance == CUartCom::sp_UART[i]->mp_huart->Instance)
         {
-            CUartCom::sp_UART[i]->uartRxHandler(p_huart);
+            index = i;
         }
+    }
+    return index;
+}
+
+/**
+ * @brief UART Rx complete callback
+ */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *p_huart)
+{
+    int8_t index = CUartCom::getIndex(p_huart);
+    if (index >= 0)
+    {
+        CUartCom::sp_UART[index]->uartRxHandler(p_huart);
+    }
+    else
+    {
+        Error_Handler();
     }
 }
 
@@ -280,11 +298,13 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *p_huart)
  */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *p_huart)
 {
-    for (uint8_t i = 0; i < CUartCom::s_uart_instances; i++)
+    int8_t index = CUartCom::getIndex(p_huart);
+    if (index >= 0)
     {
-        if (p_huart->Instance == CUartCom::sp_UART[i]->mp_huart->Instance)
-        {
-            CUartCom::sp_UART[i]->uartTxHandler(p_huart);
-        }
+        CUartCom::sp_UART[index]->uartTxHandler(p_huart);
+    }
+    else
+    {
+        Error_Handler();
     }
 }
