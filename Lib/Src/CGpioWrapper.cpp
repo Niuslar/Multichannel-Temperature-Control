@@ -37,17 +37,17 @@ CGpioWrapper::CGpioWrapper(GPIO_TypeDef *p_port, uint16_t pin, bool init_state)
 
 /**
  * @brief Initialise class with real hardware or turn GPIO pin into virtual pin.
- * @param p_port Pointer to GPIO port. If NULL, then this becomes virtual GPIO
- * pin.
- * @param pin Pin mask as defined by HAL. If p_port is non-NUll, pin _must_ be
- * valid.
+ * @param p_port Pointer to GPIO port. If nullptr, then this becomes virtual
+ * GPIO pin.
+ * @param pin Pin mask as defined by HAL. If p_port is non-nullptr, pin _must_
+ * be valid.
  * @return True if initialisation is successful, false if failed.
  * @note Do not attempt to write into improperly initialised GPIO.
  */
 bool CGpioWrapper::init(GPIO_TypeDef *p_port, uint16_t pin)
 {
     bool b_success = true;
-    if (p_port != NULL)
+    if (p_port != nullptr)
     {
         /* test if this is a valid pin mask, i.e. one and only one bit is set.
          */
@@ -72,7 +72,7 @@ bool CGpioWrapper::init(GPIO_TypeDef *p_port, uint16_t pin)
  */
 bool CGpioWrapper::get()
 {
-    if (mp_port == NULL)
+    if (mp_port == nullptr)
     {
         return mb_state;
     }
@@ -96,7 +96,7 @@ bool CGpioWrapper::get()
  */
 void CGpioWrapper::set(bool value)
 {
-    if (mp_port == NULL)
+    if (mp_port == nullptr)
     {
         mb_state = value;
     }
@@ -113,7 +113,7 @@ void CGpioWrapper::set(bool value)
  */
 void CGpioWrapper::toggle()
 {
-    if (mp_port == NULL)
+    if (mp_port == nullptr)
     {
         mb_state = !mb_state;
     }
