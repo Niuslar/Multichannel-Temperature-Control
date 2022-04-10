@@ -164,18 +164,19 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
 {
     // Store incoming char
     static uint8_t len_counter = 0;
-    bool full_buffer = (len_counter >= (BUF_SIZE - 3));
+    bool full_buffer = (len_counter >= (RX_BUF_SIZE - 3));
     if (m_rx_char == '\n' || m_rx_char == '\r' || full_buffer)
     {
         if (full_buffer)
         {
+            // Add last character before end of string
             m_rx_buffer.put((char)m_rx_char);
         }
 
         // '\n' and '\r' are replaced with '\0' to mark the end of the string
         m_rx_buffer.put('\0');
 
-        std::string rx_string = m_rx_buffer.getString();
+        std::string rx_string = getString();
         if (m_rx_queue.size() <= MAX_RX_QUEUE_SIZE && !rx_string.empty())
         {
             m_rx_queue.push(rx_string);
@@ -212,6 +213,26 @@ void CUartCom::uartTxHandler(UART_HandleTypeDef *p_huart)
     {
         endTx();
     }
+}
+
+/**
+ * @brief gets string stored in FIFO Buffer
+ * @return string
+ */
+std::string CUartCom::getString()
+{
+    uint8_t counter = 0;
+    char c_string[RX_BUF_SIZE];
+    char data;
+    while ((data = m_rx_buffer.get()) != '\0' && counter < (RX_BUF_SIZE - 1))
+    {
+        c_string[counter] = data;
+        counter++;
+    }
+    c_string[counter] = '\0';
+    std::string cpp_string = (char *)c_string;
+
+    return cpp_string;
 }
 
 /**

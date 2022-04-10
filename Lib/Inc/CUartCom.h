@@ -15,7 +15,7 @@
 #include <queue>
 #include <string>
 #include "CGpioWrapper.h"
-#include "CUartBuffer.h"
+#include "CFIFOBuffer.h"
 #include "IComChannel.h"
 #include "usart.h"
 
@@ -24,6 +24,7 @@
 #define MAX_TX_QUEUE_SIZE 40
 #define MAX_UART_ENGINES  8
 #define TX_BUF_SIZE       60
+#define RX_BUF_SIZE       60
 
 class CUartCom : public IComChannel
 {
@@ -50,6 +51,7 @@ private:
     void updateTxBuffer();
     void endTx();
     void transmit();
+    std::string getString();
     enum uart_status
     {
         IDLE,
@@ -62,7 +64,7 @@ private:
     };
     uint8_t m_status = IDLE;
     CGpioWrapper m_uart_de_pin;
-    CUartBuffer m_rx_buffer;
+    CFIFOBuffer<char, RX_BUF_SIZE> m_rx_buffer;
     char m_tx_buffer[TX_BUF_SIZE] = {0};
     uint8_t m_tx_msg_length = 0;
     uint8_t m_rx_char;
