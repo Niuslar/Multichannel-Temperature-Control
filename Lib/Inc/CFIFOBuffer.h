@@ -57,23 +57,6 @@ public:
         return data;
     }
 
-    /**
-     * @return True if buffer is empty
-     */
-    // TODO: deprecated in next release cycle.
-    bool empty()
-    {
-#warning "do not use this method. To be deprecated."
-        if (m_count == 0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
     uint16_t size() const
     {
         return m_count;
