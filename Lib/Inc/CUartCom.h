@@ -12,10 +12,9 @@
 #define CUARTCOM_H_
 
 #include <cstring>
-#include <queue>
 #include <string>
-#include "CGpioWrapper.h"
 #include "CFIFOBuffer.h"
+#include "CGpioWrapper.h"
 #include "IComChannel.h"
 #include "usart.h"
 
@@ -68,8 +67,8 @@ private:
     char m_tx_buffer[TX_BUF_SIZE] = {0};
     uint8_t m_tx_msg_length = 0;
     uint8_t m_rx_char;
-    std::queue<std::string> m_rx_queue;
-    std::queue<std::string> m_tx_queue;
+    CFIFOBuffer<std::string, MAX_RX_QUEUE_SIZE> m_rx_queue;
+    CFIFOBuffer<std::string, MAX_TX_QUEUE_SIZE> m_tx_queue;
 };
 
 #endif /* CUARTCOM_H_ */
