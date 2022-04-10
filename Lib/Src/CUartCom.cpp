@@ -240,7 +240,7 @@ std::string CUartCom::getString()
  */
 bool CUartCom::isCommandAvailable()
 {
-    if (!m_rx_queue.empty())
+    if (m_rx_queue.empty() == false)
     {
         return true;
     }
