@@ -63,6 +63,8 @@ private:
         NO_MESSAGE_AVAILABLE,
         MESSAGE_AVAILABLE
     };
+
+    bool mb_half_duplex = false;
     uint8_t m_status = IDLE;
     CGpioWrapper m_uart_de_pin;
     CFIFOBuffer<char, RX_BUF_SIZE> m_rx_buffer;
