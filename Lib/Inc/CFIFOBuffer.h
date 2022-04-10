@@ -10,74 +10,73 @@
 #ifndef CFIFOBUFFER_H_
 #define CFIFOBUFFER_H_
 
-#include "main.h"
-
 template <typename T, uint16_t BUF_SIZE>
 class CFIFOBuffer
 {
 private:
     T m_rx_buffer[BUF_SIZE];
-    uint32_t m_head = 0;
-    uint32_t m_tail = 0;
+    uint16_t m_head = 0;
+    uint16_t m_tail = 0;
+    uint16_t m_count = 0;
 
 public:
     /**
-     * @brief Adds data to buffer
+     * @brief Add data to buffer
      */
-    void put(T data)
+    bool put(T data)
     {
-        m_rx_buffer[m_head] = data;
-        if (m_head == (BUF_SIZE - 1))
+        bool b_success = false;
+        if (m_count < BUF_SIZE)
         {
-            m_head = 0;
+            m_rx_buffer[m_head] = data;
+            if (++m_head >= BUF_SIZE)
+            {
+                m_head = 0;
+            }
+            m_count++;
+            b_success = true;
         }
-        m_head++;
+        return b_success;
     }
 
     /**
-     * @brief Gets data from buffer
+     * @brief Get data from buffer
      * @return T data
      */
     T get()
     {
         T data = m_rx_buffer[m_tail];
-        if (m_tail == (BUF_SIZE - 1))
+        if (m_count > 0)
         {
-            m_tail = 0;
+            if (++m_tail >= BUF_SIZE)
+            {
+                m_tail = 0;
+            }
+            m_count--;
         }
-        m_tail++;
         return data;
     }
 
     /**
      * @return True if buffer is empty
      */
+    // TODO: deprecated in next release cycle.
     bool empty()
     {
-        if (m_head == m_tail)
+#warning "do not use this method. To be deprecated."
+        if (m_count == 0)
         {
             return true;
         }
-        return false;
-    }
-
-    uint16_t size()
-    {
-        uint16_t size;
-        if (empty())
-        {
-            size = 0;
-        }
-        else if (m_head > m_tail)
-        {
-            size = m_head - m_tail;
-        }
         else
         {
-            size = (BUF_SIZE - m_tail) + m_head;
+            return false;
         }
+    }
 
-        return size;
+    uint16_t size() const
+    {
+        return m_count;
     }
 };
 
