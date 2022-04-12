@@ -10,7 +10,7 @@
 #ifndef CTHERMISTOR_H_
 #define CTHERMISTOR_H_
 
-#include "CLog.h"
+#include "main.h"
 
 // Default Voltage Range
 // Can be changed using the setLimits method
