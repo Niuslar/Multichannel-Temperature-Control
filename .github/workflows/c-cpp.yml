@@ -14,7 +14,7 @@ jobs:
         run: docker run --rm -v $PWD:/stm32-app $(docker build -q -f Doxygen/Dockerfile .) /bin/sh -c "doxygen Doxygen/config/Doxyfile"
       - uses: actions/upload-artifact@v3
         with:
-          name: Build Artifact
+          name: Doxygen Doc
           path: Doxygen/html
 
   build:
