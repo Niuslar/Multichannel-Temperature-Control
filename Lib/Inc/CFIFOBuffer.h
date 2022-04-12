@@ -57,6 +57,16 @@ public:
         return data;
     }
 
+    /**
+     * @brief Empty buffer
+     */
+    void reset()
+    {
+        m_head = 0;
+        m_tail = 0;
+        m_count = 0;
+    }
+
     uint16_t size() const
     {
         return m_count;
