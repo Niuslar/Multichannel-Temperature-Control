@@ -11,10 +11,11 @@
 #ifndef CUARTCOM_H_
 #define CUARTCOM_H_
 
-#include <string>
+#include "../etl/string.h"
 #include "usart.h"
 
-#define UART_TIMEOUT 100
+#define MAX_STRING_SIZE 60
+#define UART_TIMEOUT    100
 
 class CUartCom
 {
@@ -29,7 +30,7 @@ public:
              GPIO_TypeDef *uart_de_port,
              uint16_t uart_de_pin);
 
-    void sendMessage(const std::string &msg);
+    void send(const etl::string<MAX_STRING_SIZE> &msg);
 };
 
 #endif /* CUARTCOM_H_ */

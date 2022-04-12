@@ -14,9 +14,10 @@
 #define CCONTROLLER_H_
 
 #include <stdio.h>
-#include <string.h>
-#include <string>
+#include "../etl/string.h"
 #include "IComChannel.h"
+
+#define MAX_STRING_SIZE 60
 
 // comment out if you don't want to collect runtime statistics
 #define COLLECT_STATS
@@ -24,12 +25,13 @@
 class CController
 {
 public:
-    CController(std::string name, uint32_t run_period_ms);
+    CController(etl::string<MAX_STRING_SIZE> name, uint32_t run_period_ms);
 
-    std::string getName() const;
+    etl::string<MAX_STRING_SIZE> getName() const;
     virtual bool tick(uint32_t current_time);
     virtual void run();
-    virtual bool newCommand(std::string command, IComChannel *p_comchannel);
+    virtual bool newCommand(etl::string<MAX_STRING_SIZE> command,
+                            IComChannel *p_comchannel);
     virtual void reset() = 0;
     virtual void stop();
     virtual void start();
@@ -39,7 +41,7 @@ public:
 #endif
 
 protected:
-    std::string const m_name;
+    etl::string<MAX_STRING_SIZE> const m_name;
     uint32_t m_run_period_ms;
     bool mb_stopped;
 

@@ -62,7 +62,7 @@ CUartCom::CUartCom(UART_HandleTypeDef *p_huart,
  * @brief sends message via UART.
  * @param msg Message to send.
  */
-void CUartCom::sendMessage(const std::string &msg)
+void CUartCom::send(const etl::string<MAX_STRING_SIZE> &msg)
 {
     uint16_t msg_len = msg.length();
 
