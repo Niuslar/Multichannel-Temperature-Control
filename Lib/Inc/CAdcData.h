@@ -10,7 +10,6 @@
 #ifndef CADCDATA_H_
 #define CADCDATA_H_
 
-#include "CLog.h"
 #include "adc.h"
 
 /**

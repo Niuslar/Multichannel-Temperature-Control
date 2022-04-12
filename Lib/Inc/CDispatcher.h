@@ -20,26 +20,27 @@
 #define MAX_COMCHANNELS 5
 
 #include "CController.h"
-#include "CLog.h"
+#include "CUartCom.h"
 #include "IComChannel.h"
 
 class CDispatcher
 {
 public:
-    CDispatcher(CLog *p_logger);
+    CDispatcher(CUartCom *p_uart_com);
 
     bool registerController(CController *p_controller);
     bool registerComChannel(IComChannel *p_comchannel);
     void run();  // TODO: figure out a reliable way to declare this as noreturn.
-    bool newCommand(std::string command, IComChannel *p_comchannel);
+    bool newCommand(etl::string<MAX_STRING_SIZE> command,
+                    IComChannel *p_comchannel);
 
 private:
     void processComChannels();
-    uint8_t findControllerNumber(std::string name);
+    uint8_t findControllerNumber(etl::string<MAX_STRING_SIZE> name);
 
-    CLog *mp_logger;
+    CUartCom *mp_uart_com;
     CController *mp_controllers[MAX_CONTROLLERS];
-    std::string m_controller_names[MAX_CONTROLLERS];
+    etl::string<MAX_STRING_SIZE> m_controller_names[MAX_CONTROLLERS];
     uint8_t m_controller_count;
     uint8_t m_active_controller;
 

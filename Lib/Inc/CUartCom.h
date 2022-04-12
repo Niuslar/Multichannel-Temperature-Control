@@ -11,8 +11,7 @@
 #ifndef CUARTCOM_H_
 #define CUARTCOM_H_
 
-#include <cstring>
-#include <string>
+#include "../etl/string.h"
 #include "CFIFOBuffer.h"
 #include "CGpioWrapper.h"
 #include "IComChannel.h"

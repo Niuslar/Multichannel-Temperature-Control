@@ -19,13 +19,13 @@
  *
  * @param p_logger Pointer to an external logger class.
  */
-CDispatcher::CDispatcher(CLog *p_logger)
-    : mp_logger(p_logger),
+CDispatcher::CDispatcher(CUartCom *p_uart_com)
+    : mp_uart_com(p_uart_com),
       m_controller_count(0),
       m_active_controller(0),
       m_comchannel_count(0)
 {
-    if (mp_logger == nullptr)
+    if (mp_uart_com == nullptr)
     {
         Error_Handler();
     }
@@ -42,15 +42,14 @@ bool CDispatcher::registerController(CController *p_controller)
     bool success = false;
     if (p_controller == nullptr)
     {
-        mp_logger->log(CLog::LOG_ERROR, "Invalid controller pointer.");
+        mp_uart_com->send("Invalid controller pointer.");
         Error_Handler();
     }
     else if (m_controller_count >= MAX_CONTROLLERS)
     {
-        std::string message;
-        message = "Controller " + p_controller->getName() +
-                  " could not be registered with dispatcher.";
-        mp_logger->log(CLog::LOG_WARNING, message);
+        etl::string<MAX_STRING_SIZE> message;
+        message = "Controller could not be registered with dispatcher.";
+        mp_uart_com->send(message);
         Error_Handler();
     }
     else
@@ -74,15 +73,14 @@ bool CDispatcher::registerComChannel(IComChannel *p_comchannel)
     bool success = false;
     if (p_comchannel == nullptr)
     {
-        mp_logger->log(CLog::LOG_ERROR, "Invalid coms channel pointer.");
+        mp_uart_com->send("Invalid coms channel pointer.\n");
         Error_Handler();
     }
     else if (m_comchannel_count >= MAX_COMCHANNELS)
     {
-        std::string message;
-        message = "Coms channel " + p_comchannel->getName() +
-                  " could not be registered with dispatcher.";
-        mp_logger->log(CLog::LOG_WARNING, message);
+        etl::string<MAX_STRING_SIZE> message;
+        message = "Coms channel could not be registered with dispatcher.\n";
+        mp_uart_com->send(message);
         Error_Handler();
     }
     else
@@ -139,21 +137,24 @@ void CDispatcher::run()
  * @param p_comchannel Coms channel which delivered command.
  * @return True if command has been recognised.
  */
-bool CDispatcher::newCommand(std::string command, IComChannel *p_comchannel)
+bool CDispatcher::newCommand(etl::string<MAX_STRING_SIZE> command,
+                             IComChannel *p_comchannel)
 {
     bool b_command_recognised = false;
     // TODO: when the command API is firmed up
     // Example. Start/stop controller.
     // start(Controller name)/stop(Controller name)
-    std::string controller_name;
+    etl::string<MAX_STRING_SIZE> controller_name;
     if (command.find("stop") < command.npos)
     {
         b_command_recognised = true;
-        std::string::size_type open_bracket = command.find("(");
-        std::string::size_type close_bracket = command.find(")");
+        etl::string<MAX_STRING_SIZE>::size_type open_bracket =
+            command.find("(");
+        etl::string<MAX_STRING_SIZE>::size_type close_bracket =
+            command.find(")");
         if ((open_bracket == command.npos) || (close_bracket == command.npos))
         {
-            p_comchannel->send("Command: " + command + " is malformatted.");
+            p_comchannel->send("Command: is malformatted.\n");
         }
         else
         {
@@ -166,11 +167,13 @@ bool CDispatcher::newCommand(std::string command, IComChannel *p_comchannel)
     else if (command.find("start") < command.npos)
     {
         b_command_recognised = true;
-        std::string::size_type open_bracket = command.find("(");
-        std::string::size_type close_bracket = command.find(")");
+        etl::string<MAX_STRING_SIZE>::size_type open_bracket =
+            command.find("(");
+        etl::string<MAX_STRING_SIZE>::size_type close_bracket =
+            command.find(")");
         if ((open_bracket == command.npos) || (close_bracket == command.npos))
         {
-            p_comchannel->send("Command: " + command + " is malformatted.");
+            p_comchannel->send("Command is malformatted.\n");
         }
         else
         {
@@ -202,7 +205,8 @@ void CDispatcher::processComChannels()
         while (mp_comchannels[channel]->isCommandAvailable())
         {
             bool b_command_recognised;
-            std::string command = mp_comchannels[channel]->getCommand();
+            etl::string<MAX_STRING_SIZE> command =
+                mp_comchannels[channel]->getCommand();
             /* first check if this command is for CDispatcher. */
             b_command_recognised = newCommand(command, mp_comchannels[channel]);
             uint8_t controller = 0;
@@ -215,8 +219,8 @@ void CDispatcher::processComChannels()
             }
             if (!b_command_recognised)
             {
-                std::string message;
-                message = "Command: " + command + " has not been recognised.";
+                etl::string<MAX_STRING_SIZE> message;
+                message = "Command has not been recognised.\n";
                 mp_comchannels[channel]->send(message);
             }
         }
@@ -229,7 +233,7 @@ void CDispatcher::processComChannels()
  * @param name Name of the controller.
  * @return
  */
-uint8_t CDispatcher::findControllerNumber(std::string name)
+uint8_t CDispatcher::findControllerNumber(etl::string<MAX_STRING_SIZE> name)
 {
     uint8_t controller = 0;
     while ((m_controller_names[controller].compare(name) != 0) &&
