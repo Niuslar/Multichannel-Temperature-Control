@@ -27,7 +27,7 @@
 class CUartCom : public IComChannel
 {
 public:
-    CUartCom(const std::string name);
+    CUartCom(const etl::string<MAX_STRING_SIZE> name);
 
     bool init(UART_HandleTypeDef *p_huart);
     bool init(UART_HandleTypeDef *p_huart,
@@ -35,9 +35,9 @@ public:
               uint16_t uart_de_pin);
 
     void startRx();
-    void send(const std::string msg);
+    void send(const etl::string<MAX_STRING_SIZE> msg);
     bool isCommandAvailable();
-    std::string getCommand();
+    etl::string<MAX_STRING_SIZE> getCommand();
     void uartRxHandler(UART_HandleTypeDef *p_huart);
     void uartTxHandler(UART_HandleTypeDef *p_huart);
 
@@ -51,7 +51,7 @@ private:
     void updateTxBuffer();
     void endTx();
     void transmit();
-    std::string getString();
+    etl::string<MAX_STRING_SIZE> getString();
     enum uart_status
     {
         IDLE,
@@ -70,8 +70,8 @@ private:
     char m_tx_buffer[TX_BUF_SIZE] = {0};
     uint8_t m_tx_msg_length = 0;
     uint8_t m_rx_char;
-    CFIFOBuffer<std::string, MAX_RX_QUEUE_SIZE> m_rx_queue;
-    CFIFOBuffer<std::string, MAX_TX_QUEUE_SIZE> m_tx_queue;
+    CFIFOBuffer<etl::string<MAX_STRING_SIZE>, MAX_RX_QUEUE_SIZE> m_rx_queue;
+    CFIFOBuffer<etl::string<MAX_STRING_SIZE>, MAX_TX_QUEUE_SIZE> m_tx_queue;
 };
 
 #endif /* CUARTCOM_H_ */

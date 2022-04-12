@@ -19,7 +19,7 @@ uint8_t CUartCom::s_uart_instances = 0;
  * @note An instance needs to be initialised using the init() method to
  * send and receive data
  */
-CUartCom::CUartCom(const std::string name)
+CUartCom::CUartCom(const etl::string<MAX_STRING_SIZE> name)
     : IComChannel(name),
       mp_huart(nullptr),
       m_uart_de_pin()
@@ -102,7 +102,7 @@ void CUartCom::startRx()
  * @param msg Message to send.
  * TODO: Add return value (True if there was space in the queue)
  */
-void CUartCom::send(const std::string msg)
+void CUartCom::send(const etl::string<MAX_STRING_SIZE> msg)
 {
     bool event = NO_MESSAGE_AVAILABLE;
 
@@ -135,7 +135,7 @@ void CUartCom::send(const std::string msg)
  */
 void CUartCom::updateTxBuffer()
 {
-    std::string message = m_tx_queue.get();
+    etl::string<MAX_STRING_SIZE> message = m_tx_queue.get();
     m_tx_msg_length = message.length();
     strcpy(m_tx_buffer, message.c_str());
     m_status = TX;
@@ -221,7 +221,7 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
         }
         else
         {
-            std::string rx_string = getString();
+            etl::string<MAX_STRING_SIZE> rx_string = getString();
             if (m_rx_queue.size() <= MAX_RX_QUEUE_SIZE && !rx_string.empty())
             {
                 m_rx_queue.put(rx_string);
@@ -265,7 +265,7 @@ void CUartCom::uartTxHandler(UART_HandleTypeDef *p_huart)
  * @brief gets string stored in FIFO Buffer
  * @return string
  */
-std::string CUartCom::getString()
+etl::string<MAX_STRING_SIZE> CUartCom::getString()
 {
     uint8_t counter = 0;
     char c_string[RX_BUF_SIZE];
@@ -280,7 +280,7 @@ std::string CUartCom::getString()
         counter++;
     }
     c_string[counter] = '\0';
-    std::string cpp_string = (char *)c_string;
+    etl::string<MAX_STRING_SIZE> cpp_string = (char *)c_string;
 
     return cpp_string;
 }
@@ -302,11 +302,11 @@ bool CUartCom::isCommandAvailable()
  * @brief Get and delete the first element in the RX queue
  * @return Command as string
  */
-std::string CUartCom::getCommand()
+etl::string<MAX_STRING_SIZE> CUartCom::getCommand()
 {
     if (m_rx_queue.size() > 0)
     {
-        std::string command = m_rx_queue.get();
+        etl::string<MAX_STRING_SIZE> command = m_rx_queue.get();
         return command;
     }
     return "";
