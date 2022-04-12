@@ -194,22 +194,38 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
 {
     // Store incoming char
     static uint8_t len_counter = 0;
-    bool full_buffer = (len_counter >= (RX_BUF_SIZE - 3));
-    if (m_rx_char == '\n' || m_rx_char == '\r' || full_buffer)
+    /**
+     * @note The full_buffer flag is TRUE when the counter
+     * reaches (RX_BUF_SIZE -1) because 2 extra characters are
+     * needed for parsing. (See getString())
+     */
+    bool full_buffer = (len_counter >= (RX_BUF_SIZE));
+    if (m_rx_char == '\n' || m_rx_char == '\r')
     {
-        if (full_buffer)
-        {
-            // Add last character before end of string
-            m_rx_buffer.put((char)m_rx_char);
-        }
-
         // '\n' and '\r' are replaced with '\0' to mark the end of the string
         m_rx_buffer.put('\0');
 
-        std::string rx_string = getString();
-        if (m_rx_queue.size() <= MAX_RX_QUEUE_SIZE && !rx_string.empty())
+        if (full_buffer)
         {
-            m_rx_queue.put(rx_string);
+            /**
+             * @note If a command length exceeds the RX_BUF_SIZE, The whole
+             * command will be ignored.
+             */
+            // Check actual buffer length
+
+            // Send warning
+            send("[ERROR]: Command exceeds max. length\n");
+
+            // Reset buffer
+            m_rx_buffer.reset();
+        }
+        else
+        {
+            std::string rx_string = getString();
+            if (m_rx_queue.size() <= MAX_RX_QUEUE_SIZE && !rx_string.empty())
+            {
+                m_rx_queue.put(rx_string);
+            }
         }
         len_counter = 0;
     }
@@ -254,6 +270,10 @@ std::string CUartCom::getString()
     uint8_t counter = 0;
     char c_string[RX_BUF_SIZE];
     char data;
+    /**
+     * @note The counter needs to leave 2 free characters for the
+     *'\n' and '\0' characters, which are needed for the Tokenizer
+     */
     while ((data = m_rx_buffer.get()) != '\0' && counter < (RX_BUF_SIZE - 1))
     {
         c_string[counter] = data;
