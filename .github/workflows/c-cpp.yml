@@ -1,29 +1,41 @@
 name: STM32 C/C++ CI
 
-on: 
+on:
   push:
-    branches: [ develop ]
+    branches: [develop, master]
   pull_request:
-    branches: [ develop ]
+    branches: [develop, master]
 
 jobs:
+  doxygen:
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Generate Doxygen Doc
+        run: docker run --rm -v $PWD:/stm32-app $(docker build -q -f Doxygen/Dockerfile .) /bin/sh -c "doxygen Doxygen/config/Doxyfile"
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Doxygen Doc
+          path: Doxygen/html
+
   build:
     runs-on: ubuntu-latest
     container: mahmedtech/stm32-cubeide-headless:latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Build App
-      run: |
-        chmod +x /opt/st/stm32cubeide_1.9.0/headless-build.sh
-        cd /opt/st/stm32cubeide_1.9.0
-        ./headless-build.sh -data /workspace -import /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control -cleanBuild 'Multichannel temperature sensor' -markerType cdt || { echo "Build Failed"; exit 1; }
-    - uses: actions/upload-artifact@v3
-      with:
-        name: Build Artifact
-        path: |
-          /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Debug/Multichannel\ temperature\ sensor.bin
-          /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Debug/Multichannel\ temperature\ sensor.hex
-          /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Debug/Multichannel\ temperature\ sensor.elf
-          /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Release/Multichannel\ temperature\ sensor.bin
-          /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Release/Multichannel\ temperature\ sensor.hex
-          /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Release/Multichannel\ temperature\ sensor.elf
+      - uses: actions/checkout@v3
+      - name: Build App
+        run: |
+          chmod +x /opt/st/stm32cubeide_1.9.0/headless-build.sh
+          cd /opt/st/stm32cubeide_1.9.0
+          ./headless-build.sh -data /workspace -import /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control -cleanBuild 'Multichannel temperature sensor' -markerType cdt || { echo "Build Failed"; exit 1; }
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Build Artifact
+          path: |
+            /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Debug/Multichannel\ temperature\ sensor.bin
+            /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Debug/Multichannel\ temperature\ sensor.hex
+            /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Debug/Multichannel\ temperature\ sensor.elf
+            /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Release/Multichannel\ temperature\ sensor.bin
+            /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Release/Multichannel\ temperature\ sensor.hex
+            /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Release/Multichannel\ temperature\ sensor.elf
