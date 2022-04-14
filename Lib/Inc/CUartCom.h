@@ -35,7 +35,7 @@ public:
               uint16_t uart_de_pin);
 
     void startRx();
-    void send(const etl::string<MAX_STRING_SIZE> msg);
+    bool send(const etl::string<MAX_STRING_SIZE> msg);
     bool isCommandAvailable();
     etl::string<MAX_STRING_SIZE> getCommand();
     void uartRxHandler(UART_HandleTypeDef *p_huart);
@@ -50,17 +50,12 @@ public:
 private:
     void updateTxBuffer();
     void endTx();
-    void transmit();
+    bool transmit();
     etl::string<MAX_STRING_SIZE> getString();
     enum uart_status
     {
         IDLE,
         TX
-    };
-    enum uart_events
-    {
-        NO_MESSAGE_AVAILABLE,
-        MESSAGE_AVAILABLE
     };
 
     bool mb_half_duplex = false;

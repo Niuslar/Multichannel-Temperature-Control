@@ -98,36 +98,26 @@ void CUartCom::startRx()
 }
 
 /**
- * @brief Start UART Transmission and push message to the TX Queue
+ * @brief Add data to the TX Queue and start transmission
  * @param msg Message to send.
- * TODO: Add return value (True if there was space in the queue)
+ * @return True if message was added to the queue.
  */
-void CUartCom::send(const etl::string<MAX_STRING_SIZE> msg)
+bool CUartCom::send(etl::string<MAX_STRING_SIZE> msg)
 {
-    bool event = NO_MESSAGE_AVAILABLE;
-
+    bool b_success = false;
+    // Add message to queue
     if (m_tx_queue.size() <= MAX_TX_QUEUE_SIZE && (msg.empty() == false))
     {
         m_tx_queue.put(msg);
+        b_success = true;
     }
 
-    if (m_tx_queue.size() > 0)
-    {
-        event = MESSAGE_AVAILABLE;
-    }
-
+    // Start transmission only if UART is idle
     if (m_status == IDLE)
     {
-        if (event == NO_MESSAGE_AVAILABLE)
-        {
-            endTx();
-        }
-        else if (event == MESSAGE_AVAILABLE)
-        {
-            updateTxBuffer();
-            transmit();
-        }
+        b_success = transmit();
     }
+    return b_success;
 }
 
 /**
@@ -141,24 +131,38 @@ void CUartCom::updateTxBuffer()
     m_status = TX;
 }
 
-void CUartCom::transmit()
+/**
+ * @brief Starts UART transmission with interrupt
+ * @return True if starts transmission successfuly
+ */
+bool CUartCom::transmit()
 {
-    if (mb_half_duplex)
+    bool b_success = false;
+    if (m_tx_queue.size() > 0)
     {
-        // Disable RX Interrupts
-        // Disable the UART Parity Error Interrupt
-        __HAL_UART_DISABLE_IT(mp_huart, UART_IT_PE);
+        // If working with half-duplex, disable RX interrupts
+        if (mb_half_duplex)
+        {
+            // UART Parity Error Interrupt
+            __HAL_UART_DISABLE_IT(mp_huart, UART_IT_PE);
 
-        // Disable the UART Error Interrupt: (Frame error, noise error, overrun
-        // error)
-        __HAL_UART_DISABLE_IT(mp_huart, UART_IT_ERR);
+            // UART Error Interrupt: (Frame error, noise error, overrun
+            // error)
+            __HAL_UART_DISABLE_IT(mp_huart, UART_IT_ERR);
 
-        // Disable the UART Data Register not empty Interrupt
-        __HAL_UART_DISABLE_IT(mp_huart, UART_IT_RXNE);
+            // UART Data Register not empty Interrupt
+            __HAL_UART_DISABLE_IT(mp_huart, UART_IT_RXNE);
+        }
+
+        // Enable USART_DE pin
+        m_uart_de_pin.set(true);
+
+        updateTxBuffer();
+        HAL_UART_Transmit_IT(mp_huart, (uint8_t *)m_tx_buffer, m_tx_msg_length);
+        b_success = true;
     }
-    // Enable USART_DE pin
-    m_uart_de_pin.set(true);
-    HAL_UART_Transmit_IT(mp_huart, (uint8_t *)m_tx_buffer, m_tx_msg_length);
+
+    return b_success;
 }
 
 /**
@@ -244,15 +248,9 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
  */
 void CUartCom::uartTxHandler(UART_HandleTypeDef *p_huart)
 {
-    bool event = NO_MESSAGE_AVAILABLE;
+    // Check if queue is empty
     if (m_tx_queue.size() > 0)
     {
-        event = MESSAGE_AVAILABLE;
-    }
-    // Check if queue is empty
-    if (event == MESSAGE_AVAILABLE)
-    {
-        updateTxBuffer();
         transmit();
     }
     else
