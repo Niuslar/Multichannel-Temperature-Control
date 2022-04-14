@@ -45,41 +45,32 @@ bool CUartCom::init(UART_HandleTypeDef *p_huart,
                     GPIO_TypeDef *uart_de_port,
                     uint16_t uart_de_pin)
 {
-    bool b_success = true;
+    bool b_success = false;
 
     if (!p_huart)
     {
         Error_Handler();
         b_success = false;
     }
-    else
-    {
-        mp_huart = p_huart;
-        if (uart_de_port != nullptr)
-        {
-            // When UART_DE pin is used, half-duplex is assumed
-            mb_half_duplex = true;
-        }
-        m_uart_de_pin.init(uart_de_port, uart_de_pin);
 
-        // Check this hardware is not assigned to another instance
-        int8_t index = CUartCom::getIndex(p_huart);
-        if (index >= 0)
+    mp_huart = p_huart;
+    if (uart_de_port != nullptr)
+    {
+        // When UART_DE pin is used, half-duplex is assumed
+        mb_half_duplex = true;
+    }
+    m_uart_de_pin.init(uart_de_port, uart_de_pin);
+
+    // Check this hardware is not assigned to another instance
+    int8_t index = CUartCom::getIndex(p_huart);
+    if (index < 0)
+    {
+        // Assign hardware to instance
+        if (s_uart_instances < MAX_UART_ENGINES)
         {
-            b_success = false;
-        }
-        else
-        {
-            // Assign hardware to instance
-            if (s_uart_instances < MAX_UART_ENGINES)
-            {
-                sp_UART[s_uart_instances] = this;
-                s_uart_instances++;
-            }
-            else
-            {
-                b_success = false;
-            }
+            sp_UART[s_uart_instances] = this;
+            s_uart_instances++;
+            b_success = true;
         }
     }
 
