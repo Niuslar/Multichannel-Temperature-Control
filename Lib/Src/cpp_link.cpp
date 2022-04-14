@@ -24,7 +24,7 @@
  * executing relevant classes can call initialisation methods that will
  * configure the hardware.
  */
-CUartCom g_debug_uart(&huart2);
+CUartCom g_debug_uart("Main");
 CDispatcher g_dispatcher(&g_debug_uart);
 
 /* controllers */
