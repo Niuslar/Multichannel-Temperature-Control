@@ -189,11 +189,7 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
 {
     // Store incoming char
     static uint8_t len_counter = 0;
-    /**
-     * @note The full_buffer flag is TRUE when the counter
-     * reaches (RX_BUF_SIZE -1) because 2 extra characters are
-     * needed for parsing. (See getString())
-     */
+
     bool full_buffer = (len_counter >= (RX_BUF_SIZE));
     if (m_rx_char == '\n' || m_rx_char == '\r')
     {
@@ -206,7 +202,6 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
              * @note If a command length exceeds the RX_BUF_SIZE, The whole
              * command will be ignored.
              */
-            // Check actual buffer length
 
             // Send warning
             send("[ERROR]: Command exceeds max. length\n");
@@ -260,8 +255,8 @@ etl::string<MAX_STRING_SIZE> CUartCom::getString()
     char c_string[RX_BUF_SIZE];
     char data;
     /**
-     * @note The counter needs to leave 2 free characters for the
-     *'\n' and '\0' characters, which are needed for the Tokenizer
+     * @note while loop stops when the counter is (RX_BUF_SIZE - 1) because
+     * an extra space is needed for the '\0' character.
      */
     while ((data = m_rx_buffer.get()) != '\0' && counter < (RX_BUF_SIZE - 1))
     {
