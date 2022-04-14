@@ -29,7 +29,7 @@ public:
 
     virtual bool isCommandAvailable() = 0;
     virtual etl::string<MAX_STRING_SIZE> getCommand() = 0;
-    virtual void send(etl::string<MAX_STRING_SIZE> message) = 0;
+    virtual bool send(etl::string<MAX_STRING_SIZE> message) = 0;
 
 private:
     etl::string<MAX_STRING_SIZE> const m_name;
