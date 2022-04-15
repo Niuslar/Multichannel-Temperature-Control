@@ -10,6 +10,7 @@
 #include "CAdcData.h"
 #include "CDebugController.h"
 #include "CDispatcher.h"
+#include "CParser.h"
 #include "CUartCom.h"
 #include "adc.h"
 
@@ -26,9 +27,18 @@
  */
 CUartCom g_debug_uart("Main");
 CDispatcher g_dispatcher(&g_debug_uart);
+CParser g_CParser_parser;
 
 /* controllers */
 CDebugController g_debug_controller("debug", 100);
+
+etl::string<60> token_types[] = {"WHITESPACE",
+                                 "IDENTIFIER",
+                                 "INTEGER",
+                                 "FLOAT",
+                                 "STRING_LITERAL",
+                                 "OPERATOR",
+                                 "INVALID"};
 
 #ifdef __cplusplus
 extern "C"
@@ -50,13 +60,38 @@ extern "C"
         //        CAdcData adc_1(&hadc);
         //        adc_1.init();
 
-        // Infinite Loop
+        g_debug_uart.init(&huart2);
+        g_debug_uart.startRx();
 
+#ifdef DEBUG
+        g_debug_uart.send("[INFO]: Entered cpp_main function\n");
+#endif
+
+        // Infinite Loop
+        while (1)
+        {
+            if (g_debug_uart.isCommandAvailable())
+            {
+                etl::string<60> command = g_debug_uart.getCommand();
+                g_CParser_parser.parse(command);
+                std::vector<CParser::token_t> tokens =
+                    g_CParser_parser.m_tokens;
+                for (CParser::token_t token : tokens)
+                {
+                    g_debug_uart.send("Token: ");
+                    g_debug_uart.send(token.text);
+                    g_debug_uart.send(" | ");
+                    g_debug_uart.send("Type: ");
+                    g_debug_uart.send(token_types[token.type]);
+                    g_debug_uart.send("\n");
+                }
+            }
+        }
         /**
          * @note Dispatcher run() method will not return. At this point
          * scheduling of controllers will start.
          */
-        g_dispatcher.run();
+        // g_dispatcher.run();
         //        while (1)
         //        {
         //#ifdef DEBUG
@@ -67,10 +102,10 @@ extern "C"
         //            uint16_t adc_ch_2 = adc_1[1];
         //            uint16_t adc_ch_14 = adc_1[13];
         //
-        //            std::string value1 = "ADC1 = " + std::to_string(adc_ch_1);
-        //            std::string value2 = "ADC2 = " + std::to_string(adc_ch_2);
-        //            std::string value3 = "ADC14 = " +
-        //            std::to_string(adc_ch_14);
+        //            std::string value1 = "ADC1 = " +
+        //            std::to_string(adc_ch_1); std::string value2 = "ADC2 =
+        //            " + std::to_string(adc_ch_2); std::string value3 =
+        //            "ADC14 = " + std::to_string(adc_ch_14);
         //
         //            log_main.log(CLog::LOG_INFO, value1);
         //            log_main.log(CLog::LOG_INFO, value2);

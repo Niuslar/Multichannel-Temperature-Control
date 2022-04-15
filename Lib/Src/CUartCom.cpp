@@ -192,7 +192,7 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
     // Store incoming char
     static uint8_t len_counter = 0;
 
-    bool full_buffer = (len_counter >= (RX_BUF_SIZE));
+    bool full_buffer = (len_counter >= (RX_BUF_SIZE - 1));
     if (m_rx_char == '\n' || m_rx_char == '\r')
     {
         // '\n' and '\r' are replaced with '\0' to mark the end of the string
@@ -260,11 +260,12 @@ etl::string<MAX_STRING_SIZE> CUartCom::getString()
      * @note while loop stops when the counter is (RX_BUF_SIZE - 1) because
      * an extra space is needed for the '\0' character.
      */
-    while ((data = m_rx_buffer.get()) != '\0' && counter < (RX_BUF_SIZE - 1))
+    while ((data = m_rx_buffer.get()) != '\0' && counter < (RX_BUF_SIZE - 2))
     {
         c_string[counter] = data;
         counter++;
     }
+    c_string[counter++] = '\n';
     c_string[counter] = '\0';
     etl::string<MAX_STRING_SIZE> cpp_string = (char *)c_string;
 
