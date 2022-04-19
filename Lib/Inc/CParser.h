@@ -10,11 +10,12 @@
 #ifndef CPARSER_H_
 #define CPARSER_H_
 
-#include <vector>
 #include "../etl/string.h"
+#include "../etl/vector.h"
 
 #define MAX_COMMANDS    40
 #define MAX_STRING_SIZE 60
+#define MAX_TOKENS      60
 
 class CParser
 {
@@ -40,7 +41,7 @@ public:
     // Public methods
     void parse(const etl::string<MAX_STRING_SIZE> &string);
 
-    std::vector<token_t> m_tokens;
+    etl::vector<token_t, MAX_TOKENS> m_tokens;
 
 private:
     void getTokens(const etl::string<MAX_STRING_SIZE> &string);

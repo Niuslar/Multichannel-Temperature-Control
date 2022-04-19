@@ -74,7 +74,7 @@ extern "C"
             {
                 etl::string<60> command = g_debug_uart.getCommand();
                 g_CParser_parser.parse(command);
-                std::vector<CParser::token_t> tokens =
+                etl::vector<CParser::token_t, MAX_TOKENS> tokens =
                     g_CParser_parser.m_tokens;
                 for (CParser::token_t token : tokens)
                 {
