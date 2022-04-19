@@ -37,8 +37,18 @@ etl::string<60> token_types[] = {"WHITESPACE",
                                  "INTEGER",
                                  "FLOAT",
                                  "STRING_LITERAL",
+                                 "BEGIN_OPERATOR",
+                                 "END_OPERATOR",
                                  "OPERATOR",
                                  "INVALID"};
+
+etl::string<30> parser_status[] = {"IDLE",
+                                   "BEGIN_KEY",
+                                   "END_KEY",
+                                   "BEGIN_VALUE",
+                                   "END_VALUE",
+                                   "FINISHED",
+                                   "ERROR"};
 
 #ifdef __cplusplus
 extern "C"
@@ -72,17 +82,21 @@ extern "C"
         {
             if (g_debug_uart.isCommandAvailable())
             {
-                etl::string<60> command = g_debug_uart.getCommand();
-                g_CParser_parser.parse(command);
-                etl::vector<CParser::token_t, MAX_TOKENS> tokens =
-                    g_CParser_parser.m_tokens;
-                for (CParser::token_t token : tokens)
+                etl::string<60> string = g_debug_uart.getCommand();
+
+                CParser::parse_status_t status = g_CParser_parser.parse(string);
+
+                CParser::command_t command = g_CParser_parser.getCommand();
+                g_debug_uart.send("Parsing status :");
+                g_debug_uart.send(parser_status[status]);
+                g_debug_uart.send("\n");
+                if (status == CParser::FINISHED)
                 {
-                    g_debug_uart.send("Token: ");
-                    g_debug_uart.send(token.text);
-                    g_debug_uart.send(" | ");
-                    g_debug_uart.send("Type: ");
-                    g_debug_uart.send(token_types[token.type]);
+                    g_debug_uart.send("Command name: ");
+                    g_debug_uart.send(command.name);
+                    g_debug_uart.send("\n");
+                    g_debug_uart.send("Argument: ");
+                    g_debug_uart.send(command.argument);
                     g_debug_uart.send("\n");
                 }
             }
