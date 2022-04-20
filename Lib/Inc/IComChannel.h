@@ -27,8 +27,8 @@ public:
         return m_name;
     };
 
-    virtual bool isCommandAvailable() = 0;
-    virtual etl::string<MAX_STRING_SIZE> getCommand() = 0;
+    virtual bool isDataAvailable() = 0;
+    virtual etl::string<MAX_STRING_SIZE> getData() = 0;
     virtual bool send(etl::string<MAX_STRING_SIZE> message) = 0;
 
 private:

@@ -275,7 +275,7 @@ etl::string<MAX_STRING_SIZE> CUartCom::getString()
  * @brief Check if the queue has any commands to read
  * @return True if the queue is not empty
  */
-bool CUartCom::isCommandAvailable()
+bool CUartCom::isDataAvailable()
 {
     if (m_rx_queue.size() > 0)
     {
@@ -288,7 +288,7 @@ bool CUartCom::isCommandAvailable()
  * @brief Get and delete the first element in the RX queue
  * @return Command as string
  */
-etl::string<MAX_STRING_SIZE> CUartCom::getCommand()
+etl::string<MAX_STRING_SIZE> CUartCom::getData()
 {
     if (m_rx_queue.size() > 0)
     {
