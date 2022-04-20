@@ -17,6 +17,7 @@ CParser::parse_status_t CParser::parse(
     const etl::string<MAX_STRING_SIZE> &string)
 {
     m_status = IDLE;
+    m_argument_counter = 0;
 
     // Get tokens from string
     getTokens(string);
@@ -39,13 +40,24 @@ CParser::parse_status_t CParser::parse(
                     m_command.name = m_tokens[i].text;
                     m_status = END_KEY;
                 }
-                else if (m_status == BEGIN_VALUE)
+                break;
+            case START_ARRAY_OP:
+                if (m_status == BEGIN_VALUE)
                 {
-                    m_command.argument = m_tokens[i].text;
-                    m_status = END_VALUE;
+                    m_status = BEGIN_ARRAY;
                 }
                 break;
-            case OPERATOR:
+            case ARGUMENT_DELIMITER:
+                if (m_status == BEGIN_ARRAY || m_status == VALUE_ADDED)
+                {
+                    m_status = ADD_VALUE;
+                }
+                else
+                {
+                    m_status = ERROR;
+                }
+                break;
+            case KEY_VALUE_DIV:
                 if (m_status == END_KEY)
                 {
                     m_status = BEGIN_VALUE;
@@ -55,10 +67,25 @@ CParser::parse_status_t CParser::parse(
             case FLOAT:
                 if (m_status == BEGIN_VALUE)
                 {
-                    m_command.argument = m_tokens[i].text;
+                    m_command.argument[m_argument_counter] = m_tokens[i].text;
                     m_status = END_VALUE;
                 }
+                else if (m_status == BEGIN_ARRAY || m_status == ADD_VALUE)
+                {
+                    if (m_argument_counter < MAX_ARGUMENTS)
+                    {
+                        m_command.argument[m_argument_counter] =
+                            m_tokens[i].text;
+                        m_argument_counter++;
+                        m_status = VALUE_ADDED;
+                    }
+                }
                 break;
+            case END_ARRAY_OP:
+                if (m_status == VALUE_ADDED)
+                {
+                    m_status = END_VALUE;
+                }
             case END_OPERATOR:
                 if (m_status == END_VALUE)
                 {
@@ -148,7 +175,7 @@ void CParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
                 if (current_token.type != STRING_LITERAL)
                 {
                     endToken(current_token);
-                    current_token.type = OPERATOR;
+                    current_token.type = KEY_VALUE_DIV;
                     current_token.text.append(1, current_char);
                     endToken(current_token);
                 }
@@ -183,6 +210,45 @@ void CParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
                     current_token.text.append(1, current_char);
                 }
                 break;
+            case '[':
+                if (current_token.type != STRING_LITERAL)
+                {
+                    endToken(current_token);
+                    current_token.type = START_ARRAY_OP;
+                    current_token.text.append(1, current_char);
+                    endToken(current_token);
+                }
+                else
+                {
+                    current_token.text.append(1, current_char);
+                }
+                break;
+            case ']':
+                if (current_token.type != STRING_LITERAL)
+                {
+                    endToken(current_token);
+                    current_token.type = END_ARRAY_OP;
+                    current_token.text.append(1, current_char);
+                    endToken(current_token);
+                }
+                else
+                {
+                    current_token.text.append(1, current_char);
+                }
+                break;
+            case ',':
+                if (current_token.type != STRING_LITERAL)
+                {
+                    endToken(current_token);
+                    current_token.type = ARGUMENT_DELIMITER;
+                    current_token.text.append(1, current_char);
+                    endToken(current_token);
+                }
+                else
+                {
+                    current_token.text.append(1, current_char);
+                }
+                break;
 
             case '"':
                 if (current_token.type != STRING_LITERAL)
@@ -202,7 +268,7 @@ void CParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
                     current_token.type == FLOAT)
                 {
                     endToken(current_token);
-                    current_token.type = IDENTIFIER;
+                    current_token.type = INVALID;
                     current_token.text.append(1, current_char);
                 }
                 else

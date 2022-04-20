@@ -15,6 +15,7 @@
 
 #define MAX_STRING_SIZE 60
 #define MAX_TOKENS      60
+#define MAX_ARGUMENTS   10
 
 class CParser
 {
@@ -22,13 +23,15 @@ public:
     typedef enum TOKEN_TYPES
     {
         WHITESPACE,
-        IDENTIFIER,
         INTEGER,
         FLOAT,
         STRING_LITERAL,
         BEGIN_OPERATOR,
         END_OPERATOR,
-        OPERATOR,
+        START_ARRAY_OP,
+        END_ARRAY_OP,
+        ARGUMENT_DELIMITER,
+        KEY_VALUE_DIV,
         INVALID
     } token_type_t;
 
@@ -38,6 +41,9 @@ public:
         BEGIN_KEY,
         END_KEY,
         BEGIN_VALUE,
+        BEGIN_ARRAY,
+        ADD_VALUE,
+        VALUE_ADDED,
         END_VALUE,
         FINISHED,
         ERROR
@@ -53,13 +59,14 @@ public:
     typedef struct command
     {
         etl::string<MAX_STRING_SIZE> name;
-        etl::string<MAX_STRING_SIZE> argument;
+        etl::string<MAX_STRING_SIZE> argument[MAX_ARGUMENTS];
     } command_t;
 
     // Public methods
     CParser::parse_status_t parse(const etl::string<MAX_STRING_SIZE> &string);
     command_t getCommand();
     etl::vector<token_t, MAX_TOKENS> m_tokens;
+    uint8_t m_argument_counter = 0;
 
 private:
     void getTokens(const etl::string<MAX_STRING_SIZE> &string);

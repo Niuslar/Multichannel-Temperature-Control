@@ -214,7 +214,7 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
         else
         {
             etl::string<MAX_STRING_SIZE> rx_string = getString();
-            if (m_rx_queue.size() <= MAX_RX_QUEUE_SIZE && !rx_string.empty())
+            if ((m_rx_queue.size() <= MAX_RX_QUEUE_SIZE) && (len_counter != 0))
             {
                 m_rx_queue.put(rx_string);
             }

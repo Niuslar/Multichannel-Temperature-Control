@@ -32,20 +32,13 @@ CParser g_CParser_parser;
 /* controllers */
 CDebugController g_debug_controller("debug", 100);
 
-etl::string<60> token_types[] = {"WHITESPACE",
-                                 "IDENTIFIER",
-                                 "INTEGER",
-                                 "FLOAT",
-                                 "STRING_LITERAL",
-                                 "BEGIN_OPERATOR",
-                                 "END_OPERATOR",
-                                 "OPERATOR",
-                                 "INVALID"};
-
 etl::string<30> parser_status[] = {"IDLE",
                                    "BEGIN_KEY",
                                    "END_KEY",
                                    "BEGIN_VALUE",
+                                   "BEGIN_ARRAY",
+                                   "ADD_VALUE",
+                                   "VALUE_ADDED",
                                    "END_VALUE",
                                    "FINISHED",
                                    "ERROR"};
@@ -95,9 +88,13 @@ extern "C"
                     g_debug_uart.send("Command name: ");
                     g_debug_uart.send(command.name);
                     g_debug_uart.send("\n");
-                    g_debug_uart.send("Argument: ");
-                    g_debug_uart.send(command.argument);
-                    g_debug_uart.send("\n");
+                    for (uint8_t i = 0; i < g_CParser_parser.m_argument_counter;
+                         i++)
+                    {
+                        g_debug_uart.send("Argument: ");
+                        g_debug_uart.send(command.argument[i]);
+                        g_debug_uart.send("\n");
+                    }
                 }
             }
         }
