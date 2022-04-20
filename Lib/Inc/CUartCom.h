@@ -36,8 +36,8 @@ public:
 
     void startRx();
     bool send(const etl::string<MAX_STRING_SIZE> msg);
-    bool isCommandAvailable();
-    etl::string<MAX_STRING_SIZE> getCommand();
+    bool isDataAvailable();
+    etl::string<MAX_STRING_SIZE> getData();
     void uartRxHandler(UART_HandleTypeDef *p_huart);
     void uartTxHandler(UART_HandleTypeDef *p_huart);
 
