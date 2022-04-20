@@ -69,6 +69,9 @@ public:
     uint8_t m_argument_counter = 0;
 
 private:
+    void addOperator(CParser::token_t &token,
+                     CParser::token_type_t operator_type,
+                     char character);
     void getTokens(const etl::string<MAX_STRING_SIZE> &string);
     void endToken(CParser::token_t &token);
     uint16_t m_token_counter = 0;

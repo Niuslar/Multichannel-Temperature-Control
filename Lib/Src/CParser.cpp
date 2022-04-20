@@ -174,84 +174,23 @@ void CParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
                 endToken(current_token);
                 break;
             case ':':
-                if (current_token.type != STRING_LITERAL)
-                {
-                    endToken(current_token);
-                    current_token.type = KEY_VALUE_DIV;
-                    current_token.text.append(1, current_char);
-                    endToken(current_token);
-                }
-                else
-                {
-                    current_token.text.append(1, current_char);
-                }
+                addOperator(current_token, KEY_VALUE_DIV, current_char);
                 break;
             case '{':
-                if (current_token.type != STRING_LITERAL)
-                {
-                    endToken(current_token);
-                    current_token.type = BEGIN_OPERATOR;
-                    current_token.text.append(1, current_char);
-                    endToken(current_token);
-                }
-                else
-                {
-                    current_token.text.append(1, current_char);
-                }
+                addOperator(current_token, BEGIN_OPERATOR, current_char);
                 break;
             case '}':
-                if (current_token.type != STRING_LITERAL)
-                {
-                    endToken(current_token);
-                    current_token.type = END_OPERATOR;
-                    current_token.text.append(1, current_char);
-                    endToken(current_token);
-                }
-                else
-                {
-                    current_token.text.append(1, current_char);
-                }
+                addOperator(current_token, END_OPERATOR, current_char);
                 break;
             case '[':
-                if (current_token.type != STRING_LITERAL)
-                {
-                    endToken(current_token);
-                    current_token.type = START_ARRAY_OP;
-                    current_token.text.append(1, current_char);
-                    endToken(current_token);
-                }
-                else
-                {
-                    current_token.text.append(1, current_char);
-                }
+                addOperator(current_token, START_ARRAY_OP, current_char);
                 break;
             case ']':
-                if (current_token.type != STRING_LITERAL)
-                {
-                    endToken(current_token);
-                    current_token.type = END_ARRAY_OP;
-                    current_token.text.append(1, current_char);
-                    endToken(current_token);
-                }
-                else
-                {
-                    current_token.text.append(1, current_char);
-                }
+                addOperator(current_token, END_ARRAY_OP, current_char);
                 break;
             case ',':
-                if (current_token.type != STRING_LITERAL)
-                {
-                    endToken(current_token);
-                    current_token.type = ARGUMENT_DELIMITER;
-                    current_token.text.append(1, current_char);
-                    endToken(current_token);
-                }
-                else
-                {
-                    current_token.text.append(1, current_char);
-                }
+                addOperator(current_token, ARGUMENT_DELIMITER, current_char);
                 break;
-
             case '"':
                 if (current_token.type != STRING_LITERAL)
                 {
@@ -298,6 +237,28 @@ void CParser::endToken(CParser::token_t &token)
     }
     token.type = WHITESPACE;
     token.text.clear();
+}
+
+/**
+ * @brief Add operator token
+ * @param token
+ * @param operator type
+ */
+void CParser::addOperator(CParser::token_t &token,
+                          CParser::token_type_t operator_type,
+                          char character)
+{
+    if (token.type != STRING_LITERAL)
+    {
+        endToken(token);
+        token.type = operator_type;
+        token.text.append(1, character);
+        endToken(token);
+    }
+    else
+    {
+        token.text.append(1, character);
+    }
 }
 
 /**
