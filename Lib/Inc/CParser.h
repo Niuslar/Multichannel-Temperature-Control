@@ -59,7 +59,7 @@ public:
     typedef struct command
     {
         etl::string<MAX_STRING_SIZE> name;
-        etl::string<MAX_STRING_SIZE> argument[MAX_ARGUMENTS];
+        float argument[MAX_ARGUMENTS];
     } command_t;
 
     // Public methods

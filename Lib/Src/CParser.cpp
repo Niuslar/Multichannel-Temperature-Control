@@ -67,15 +67,17 @@ CParser::parse_status_t CParser::parse(
             case FLOAT:
                 if (m_status == BEGIN_VALUE)
                 {
-                    m_command.argument[m_argument_counter] = m_tokens[i].text;
+                    // We need to convert string to float
+                    float number = std::stof(m_tokens[i].text.c_str());
+                    m_command.argument[m_argument_counter] = number;
                     m_status = END_VALUE;
                 }
                 else if (m_status == BEGIN_ARRAY || m_status == ADD_VALUE)
                 {
                     if (m_argument_counter < MAX_ARGUMENTS)
                     {
-                        m_command.argument[m_argument_counter] =
-                            m_tokens[i].text;
+                        float number = std::stof(m_tokens[i].text.c_str());
+                        m_command.argument[m_argument_counter] = number;
                         m_argument_counter++;
                         m_status = VALUE_ADDED;
                     }

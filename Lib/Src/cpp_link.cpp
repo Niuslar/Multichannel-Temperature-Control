@@ -88,13 +88,6 @@ extern "C"
                     g_debug_uart.send("Command name: ");
                     g_debug_uart.send(command.name);
                     g_debug_uart.send("\n");
-                    for (uint8_t i = 0; i < g_CParser_parser.m_argument_counter;
-                         i++)
-                    {
-                        g_debug_uart.send("Argument: ");
-                        g_debug_uart.send(command.argument[i]);
-                        g_debug_uart.send("\n");
-                    }
                 }
             }
         }
