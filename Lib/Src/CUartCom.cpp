@@ -192,7 +192,7 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
     // Store incoming char
     static uint8_t len_counter = 0;
 
-    bool full_buffer = (len_counter >= (RX_BUF_SIZE - 1));
+    bool full_buffer = (len_counter >= (RX_BUF_SIZE));
     if (m_rx_char == '\n' || m_rx_char == '\r')
     {
         // '\n' and '\r' are replaced with '\0' to mark the end of the string
@@ -214,7 +214,7 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
         else
         {
             etl::string<MAX_STRING_SIZE> rx_string = getString();
-            if ((m_rx_queue.size() <= MAX_RX_QUEUE_SIZE) && (len_counter != 0))
+            if (m_rx_queue.size() <= MAX_RX_QUEUE_SIZE && !rx_string.empty())
             {
                 m_rx_queue.put(rx_string);
             }
@@ -257,17 +257,14 @@ etl::string<MAX_STRING_SIZE> CUartCom::getString()
     char c_string[RX_BUF_SIZE];
     char data;
     /**
-     * @note while loop stops when the counter is (RX_BUF_SIZE - 2) because
-     * two extra spaces are needed for the '\n' and '\0' characters.
-     * If the string does not end in '\n' the tokeniser does not recognise it
+     * @note while loop stops when the counter is (RX_BUF_SIZE - 1) because
+     * an extra space is needed for the '\0' character.
      */
-    while (((data = m_rx_buffer.get()) != '\0') &&
-           (counter < (RX_BUF_SIZE - 2)))
+    while ((data = m_rx_buffer.get()) != '\0' && counter < (RX_BUF_SIZE - 1))
     {
         c_string[counter] = data;
         counter++;
     }
-    c_string[counter++] = '\n';
     c_string[counter] = '\0';
     etl::string<MAX_STRING_SIZE> cpp_string = (char *)c_string;
 
