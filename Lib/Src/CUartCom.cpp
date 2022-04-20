@@ -257,10 +257,12 @@ etl::string<MAX_STRING_SIZE> CUartCom::getString()
     char c_string[RX_BUF_SIZE];
     char data;
     /**
-     * @note while loop stops when the counter is (RX_BUF_SIZE - 1) because
-     * an extra space is needed for the '\0' character.
+     * @note while loop stops when the counter is (RX_BUF_SIZE - 2) because
+     * two extra spaces are needed for the '\n' and '\0' characters.
+     * If the string does not end in '\n' the tokeniser does not recognise it
      */
-    while ((data = m_rx_buffer.get()) != '\0' && counter < (RX_BUF_SIZE - 2))
+    while (((data = m_rx_buffer.get()) != '\0') &&
+           (counter < (RX_BUF_SIZE - 2)))
     {
         c_string[counter] = data;
         counter++;

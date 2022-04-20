@@ -104,8 +104,8 @@ CParser::parse_status_t CParser::parse(
 
 /**
  * @brief Retrieve tokens from a string
- * @param String to be parsed
- * @return vector containing tokens
+ * @param String to be tokenised
+ * @return etl::vector containing tokens
  */
 void CParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
 {
@@ -282,6 +282,10 @@ void CParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
     }
 }
 
+/**
+ * @brief Add token to m_tokens vector
+ * @param token to be added
+ */
 void CParser::endToken(CParser::token_t &token)
 {
     if (token.type != WHITESPACE)
@@ -296,6 +300,10 @@ void CParser::endToken(CParser::token_t &token)
     token.text.clear();
 }
 
+/**
+ * @brief Retrieve command
+ * @return Command
+ */
 CParser::command_t CParser::getCommand()
 {
     return m_command;
