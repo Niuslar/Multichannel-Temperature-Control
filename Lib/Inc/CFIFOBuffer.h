@@ -18,6 +18,7 @@ private:
     uint16_t m_head = 0;
     uint16_t m_tail = 0;
     uint16_t m_count = 0;
+    bool m_busy_flag = false;
 
 public:
     /**
@@ -25,6 +26,7 @@ public:
      */
     bool put(T data)
     {
+        m_busy_flag = true;
         bool b_success = false;
         if (m_count < BUF_SIZE)
         {
@@ -36,6 +38,7 @@ public:
             m_count++;
             b_success = true;
         }
+        m_busy_flag = false;
         return b_success;
     }
 
@@ -45,6 +48,7 @@ public:
      */
     T get()
     {
+        m_busy_flag = true;
         T data = m_rx_buffer[m_tail];
         if (m_count > 0)
         {
@@ -54,6 +58,7 @@ public:
             }
             m_count--;
         }
+        m_busy_flag = false;
         return data;
     }
 
@@ -70,6 +75,11 @@ public:
     uint16_t size() const
     {
         return m_count;
+    }
+
+    bool isBusy()
+    {
+        return m_busy_flag;
     }
 };
 
