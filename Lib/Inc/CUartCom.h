@@ -17,12 +17,15 @@
 #include "IComChannel.h"
 #include "usart.h"
 
-#define UART_TIMEOUT      100
-#define MAX_RX_QUEUE_SIZE 40
-#define MAX_TX_QUEUE_SIZE 40
-#define MAX_UART_ENGINES  8
-#define TX_BUF_SIZE       (MAX_STRING_SIZE + 1)
-#define RX_BUF_SIZE       60
+#define UART_TIMEOUT     100
+#define MAX_UART_ENGINES 8
+
+/**
+*@note TX_BUF_SIZE needs to be greater than MAX_STRING_SIZE
+*/
+#define TX_BUF_SIZE      (MAX_STRING_SIZE + 1)
+#define RX_QUEUE_SIZE    100
+#define TX_QUEUE_SIZE    100
 
 class CUartCom : public IComChannel
 {
@@ -35,7 +38,11 @@ public:
               uint16_t uart_de_pin);
 
     void startRx();
+    void stopRx();
+
+    bool send(uint8_t *p_data_buf, uint32_t len);
     bool send(const etl::string<MAX_STRING_SIZE> msg);
+
     bool isDataAvailable();
     uint8_t getData();
 
@@ -43,13 +50,11 @@ public:
     void uartTxHandler(UART_HandleTypeDef *p_huart);
 
     static int8_t getIndex(UART_HandleTypeDef *p_huart);
-
     static CUartCom *sp_UART[MAX_UART_ENGINES];
     static uint8_t s_uart_instances;
     UART_HandleTypeDef *mp_huart;
 
 private:
-    void updateTxBuffer();
     void endTx();
     bool transmit();
     enum uart_status
@@ -58,15 +63,19 @@ private:
         TX
     };
 
+    typedef struct
+    {
+        uint32_t length;
+        char buffer[TX_BUF_SIZE];
+    } tx_data_t;
+
     bool mb_half_duplex = false;
     uint8_t m_status = IDLE;
     CGpioWrapper m_uart_de_pin;
-    CFIFOBuffer<char, RX_BUF_SIZE> m_rx_buffer;
-    char m_tx_buffer[TX_BUF_SIZE] = {0};
-    uint8_t m_tx_msg_length = 0;
-    uint8_t m_rx_char;
-    CFIFOBuffer<etl::string<MAX_STRING_SIZE>, MAX_RX_QUEUE_SIZE> m_rx_queue;
-    CFIFOBuffer<etl::string<MAX_STRING_SIZE>, MAX_TX_QUEUE_SIZE> m_tx_queue;
+    CFIFOBuffer<uint8_t, RX_QUEUE_SIZE> m_rx_queue;
+    CFIFOBuffer<tx_data_t, TX_QUEUE_SIZE> m_tx_queue;
+    tx_data_t m_data;
+    uint8_t m_rx_byte;
 };
 
 #endif /* CUARTCOM_H_ */

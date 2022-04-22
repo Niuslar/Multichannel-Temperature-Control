@@ -85,22 +85,73 @@ bool CUartCom::init(UART_HandleTypeDef *p_huart,
  */
 void CUartCom::startRx()
 {
-    HAL_UART_Receive_IT(mp_huart, &m_rx_char, 1);
+    HAL_UART_Receive_IT(mp_huart, &m_rx_byte, 1);
 }
 
 /**
- * @brief Add data to the TX Queue and start transmission if possible
+ * @brief Disable UART RX Interrupts
+ * @note used when using half-duplex
+ */
+void CUartCom::stopRx()
+{
+    HAL_UART_AbortReceive_IT(mp_huart);
+}
+
+/**
+ * @brief Add string to the TX Queue and start transmission if UART is IDLE
  * @param msg Message to send.
- * @return True if message was added to the queue and transmission started
- * successfully.
+ * @return True if message was added to the queue. If transmission is attempted,
+ * it returns true if it was successful.
  */
 bool CUartCom::send(etl::string<MAX_STRING_SIZE> msg)
 {
     bool b_success = false;
-    // Add message to queue
-    if (m_tx_queue.size() <= MAX_TX_QUEUE_SIZE && (msg.empty() == false))
+
+    CUartCom::tx_data_t data;
+
+    // Copy message to uint8_t buffer in data object
+    if ((m_tx_queue.size() < TX_QUEUE_SIZE) && (msg.empty() == false))
     {
-        m_tx_queue.put(msg);
+        strcpy(data.buffer, msg.c_str());
+        data.length = msg.length();
+        if (m_tx_queue.put(data))
+        {
+            b_success = true;
+        }
+    }
+
+    // Start transmission only if UART is idle
+    if (m_status == IDLE)
+    {
+        b_success = transmit();
+    }
+    return b_success;
+}
+
+/**
+ * @brief Add data to the TX Queue and start transmission if possible
+ * @param Pointer to data buffer
+ * @param Length of the data buffer (in bytes)
+ * @return True if message was added to the queue and transmission started
+ * successfully.
+ */
+bool CUartCom::send(uint8_t *p_data_buf, uint32_t len)
+{
+    bool b_success = false;
+
+    // Data object to be added to the queue
+    CUartCom::tx_data_t data;
+
+    data.length = len;
+    // Add data to buffer in data object
+    for (uint32_t i = 0; i < len; i++)
+    {
+        data.buffer[i] = p_data_buf[i];
+    }
+
+    // Insert data into TX queue
+    if (m_tx_queue.put(data))
+    {
         b_success = true;
     }
 
@@ -113,17 +164,6 @@ bool CUartCom::send(etl::string<MAX_STRING_SIZE> msg)
 }
 
 /**
- * @brief Update TX Buffer with next element on queue
- */
-void CUartCom::updateTxBuffer()
-{
-    etl::string<MAX_STRING_SIZE> message = m_tx_queue.get();
-    m_tx_msg_length = message.length();
-    strcpy(m_tx_buffer, message.c_str());
-    m_status = TX;
-}
-
-/**
  * @brief Start UART transmission with interrupt
  * @return True if starts transmission successfully
  */
@@ -133,24 +173,18 @@ bool CUartCom::transmit()
     if (m_tx_queue.size() > 0)
     {
         // If working with half-duplex, disable RX interrupts
-        if (mb_half_duplex)
+        if (mb_half_duplex && m_status == IDLE)
         {
-            // UART Parity Error Interrupt
-            __HAL_UART_DISABLE_IT(mp_huart, UART_IT_PE);
-
-            // UART Error Interrupt: (Frame error, noise error, overrun
-            // error)
-            __HAL_UART_DISABLE_IT(mp_huart, UART_IT_ERR);
-
-            // UART Data Register not empty Interrupt
-            __HAL_UART_DISABLE_IT(mp_huart, UART_IT_RXNE);
+            stopRx();
         }
 
         // Enable USART_DE pin
         m_uart_de_pin.set(true);
 
-        updateTxBuffer();
-        HAL_UART_Transmit_IT(mp_huart, (uint8_t *)m_tx_buffer, m_tx_msg_length);
+        m_status = TX;
+
+        m_data = m_tx_queue.get();
+        HAL_UART_Transmit_IT(mp_huart, (uint8_t *)m_data.buffer, m_data.length);
         b_success = true;
     }
 
@@ -158,23 +192,14 @@ bool CUartCom::transmit()
 }
 
 /**
- * @brief Disable UART TX Interrupt, Enable RX Interrupts and and disable
- * UART_DE Pin
+ * @brief Re-enable UART RX Interrupts, Disable UART TX Interrupt and and
+ * disable UART_DE Pin
  */
 void CUartCom::endTx()
 {
     if (mb_half_duplex)
     {
-        // Re-enable RX Interrupts
-        // Enable the UART Parity Error Interrupt
-        __HAL_UART_ENABLE_IT(mp_huart, UART_IT_PE);
-
-        // Enable the UART Error Interrupt: (Frame error, noise error, overrun
-        // error)
-        __HAL_UART_ENABLE_IT(mp_huart, UART_IT_ERR);
-
-        // Enable the UART Data Register not empty Interrupt
-        __HAL_UART_ENABLE_IT(mp_huart, UART_IT_RXNE);
+        startRx();
     }
 
     // Disable TX interrupt, disable pin
@@ -189,50 +214,18 @@ void CUartCom::endTx()
  */
 void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
 {
-    // Store incoming char
-    static uint8_t len_counter = 0;
-
-    bool full_buffer = (len_counter >= (RX_BUF_SIZE));
-    if (m_rx_char == '\n' || m_rx_char == '\r')
+    if (!m_rx_queue.put(m_rx_byte))
     {
-        // '\n' and '\r' are replaced with '\0' to mark the end of the string
-        m_rx_buffer.put('\0');
-
-        if (full_buffer)
-        {
-            /**
-             * @note If a command length exceeds the RX_BUF_SIZE, The whole
-             * command will be ignored.
-             */
-
-            // Send warning
-            send("[ERROR]: Command exceeds max. length\n");
-
-            // Reset buffer
-            m_rx_buffer.reset();
-        }
-        else
-        {
-            etl::string<MAX_STRING_SIZE> rx_string = getString();
-            if (m_rx_queue.size() <= MAX_RX_QUEUE_SIZE && !rx_string.empty())
-            {
-                m_rx_queue.put(rx_string);
-            }
-        }
-        len_counter = 0;
-    }
-    else
-    {
-        m_rx_buffer.put((char)m_rx_char);
-        len_counter++;
+        send("[ERROR]: Data exceeds max. buffer capacity\n");
+        m_rx_queue.reset();
     }
 
-    HAL_UART_Receive_IT(p_huart, &m_rx_char, 1);
+    HAL_UART_Receive_IT(p_huart, &m_rx_byte, 1);
 }
 
 /**
  * @brief UART Transmission Complete Interrupt Handler
- * @arg p_huart Pointer to UART Handler
+ * @param p_huart Pointer to UART Handler
  */
 void CUartCom::uartTxHandler(UART_HandleTypeDef *p_huart)
 {
@@ -245,30 +238,6 @@ void CUartCom::uartTxHandler(UART_HandleTypeDef *p_huart)
     {
         endTx();
     }
-}
-
-/**
- * @brief Get next string stored in FIFO Buffer
- * @return string
- */
-etl::string<MAX_STRING_SIZE> CUartCom::getString()
-{
-    uint8_t counter = 0;
-    char c_string[RX_BUF_SIZE];
-    char data;
-    /**
-     * @note while loop stops when the counter is (RX_BUF_SIZE - 1) because
-     * an extra space is needed for the '\0' character.
-     */
-    while ((data = m_rx_buffer.get()) != '\0' && counter < (RX_BUF_SIZE - 1))
-    {
-        c_string[counter] = data;
-        counter++;
-    }
-    c_string[counter] = '\0';
-    etl::string<MAX_STRING_SIZE> cpp_string = (char *)c_string;
-
-    return cpp_string;
 }
 
 /**
@@ -286,16 +255,12 @@ bool CUartCom::isDataAvailable()
 
 /**
  * @brief Get and delete the first element in the RX queue
- * @return Data as string
+ * @return byte of data
  */
-etl::string<MAX_STRING_SIZE> CUartCom::getData()
+uint8_t CUartCom::getData()
 {
-    if (m_rx_queue.size() > 0)
-    {
-        etl::string<MAX_STRING_SIZE> data = m_rx_queue.get();
-        return data;
-    }
-    return "";
+    uint8_t data = m_rx_queue.get();
+    return data;
 }
 
 /**
