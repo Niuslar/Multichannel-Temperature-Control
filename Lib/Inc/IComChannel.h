@@ -28,7 +28,7 @@ public:
     };
 
     virtual bool isDataAvailable() = 0;
-    virtual etl::string<MAX_STRING_SIZE> getData() = 0;
+    virtual uint8_t getData() = 0;
     virtual bool send(etl::string<MAX_STRING_SIZE> message) = 0;
 
 private:

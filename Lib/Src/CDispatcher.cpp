@@ -205,8 +205,9 @@ void CDispatcher::processComChannels()
         while (mp_comchannels[channel]->isDataAvailable())
         {
             bool b_command_recognised;
-            etl::string<MAX_STRING_SIZE> command =
-                mp_comchannels[channel]->getData();
+            // TODO: Change this method to work with the future command parser
+            etl::string<MAX_STRING_SIZE> command = "";
+            //    mp_comchannels[channel]->getData();
             /* first check if this command is for CDispatcher. */
             b_command_recognised = newCommand(command, mp_comchannels[channel]);
             uint8_t controller = 0;

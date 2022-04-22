@@ -37,7 +37,8 @@ public:
     void startRx();
     bool send(const etl::string<MAX_STRING_SIZE> msg);
     bool isDataAvailable();
-    etl::string<MAX_STRING_SIZE> getData();
+    uint8_t getData();
+
     void uartRxHandler(UART_HandleTypeDef *p_huart);
     void uartTxHandler(UART_HandleTypeDef *p_huart);
 
@@ -51,7 +52,6 @@ private:
     void updateTxBuffer();
     void endTx();
     bool transmit();
-    etl::string<MAX_STRING_SIZE> getString();
     enum uart_status
     {
         IDLE,
