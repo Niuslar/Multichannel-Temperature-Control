@@ -98,33 +98,14 @@ void CUartCom::stopRx()
 }
 
 /**
- * @brief Add string to the TX Queue and start transmission if UART is IDLE
+ * @brief Send string message
  * @param msg Message to send.
- * @return True if message was added to the queue. If transmission is attempted,
- * it returns true if it was successful.
+ * @return True if successful
  */
 bool CUartCom::send(etl::string<MAX_STRING_SIZE> msg)
 {
-    bool b_success = false;
-
-    CUartCom::tx_data_t data;
-
-    // Copy message to uint8_t buffer in data object
-    if ((m_tx_queue.size() < TX_QUEUE_SIZE) && (msg.empty() == false))
-    {
-        strcpy(data.buffer, msg.c_str());
-        data.length = msg.length();
-        if (m_tx_queue.put(data))
-        {
-            b_success = true;
-        }
-    }
-
-    // Start transmission only if UART is idle
-    if (m_status == IDLE)
-    {
-        b_success = transmit();
-    }
+    uint32_t msg_len = msg.length();
+    bool b_success = send((uint8_t *)msg.c_str(), msg_len);
     return b_success;
 }
 
@@ -139,23 +120,22 @@ bool CUartCom::send(uint8_t *p_data_buf, uint32_t len)
 {
     bool b_success = false;
 
-    // Data object to be added to the queue
-    CUartCom::tx_data_t data;
+    CUartCom::tx_data_t data_obj;
 
-    data.length = len;
-    // Add data to buffer in data object
+    data_obj.length = len;
+    // Store data in internal data_obj buffer
     for (uint32_t i = 0; i < len; i++)
     {
-        data.buffer[i] = p_data_buf[i];
+        data_obj.buffer[i] = p_data_buf[i];
     }
 
-    // Insert data into TX queue
-    if (m_tx_queue.put(data))
+    // Insert data_obj into TX queue
+    if (m_tx_queue.put(data_obj))
     {
         b_success = true;
     }
 
-    // Start transmission only if UART is idle
+    // Start transmission only if UART is not transmitting already
     if (m_status == IDLE)
     {
         b_success = transmit();
