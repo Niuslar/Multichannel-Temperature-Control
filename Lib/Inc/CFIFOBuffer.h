@@ -28,6 +28,10 @@ public:
     bool put(T data)
     {
         bool b_success = false;
+        /**
+         * @note Disable interrupts while calling put() to avoid simultaneous
+         * access to the buffer and its variables.
+         */
         __disable_irq();
         if (m_count < BUF_SIZE)
         {
