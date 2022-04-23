@@ -21,11 +21,11 @@
 #define MAX_UART_ENGINES 8
 
 /**
-*@note TX_BUF_SIZE needs to be greater than MAX_STRING_SIZE
-*/
-#define TX_BUF_SIZE      (MAX_STRING_SIZE + 1)
-#define RX_QUEUE_SIZE    100
-#define TX_QUEUE_SIZE    100
+ *@note TX_BUF_SIZE needs to be greater than MAX_STRING_SIZE
+ */
+#define TX_BUF_SIZE   500
+#define RX_QUEUE_SIZE 100
+#define TX_QUEUE_SIZE 100
 
 class CUartCom : public IComChannel
 {

@@ -196,7 +196,7 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
 {
     if (!m_rx_queue.put(m_rx_byte))
     {
-        send("[ERROR]: Data exceeds max. buffer capacity\n");
+        send("[ERROR]: Buffer overflow -> m_rx_queue\n");
         m_rx_queue.reset();
     }
 
