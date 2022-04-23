@@ -113,8 +113,7 @@ bool CUartCom::send(etl::string<MAX_STRING_SIZE> msg)
  * @brief Add data to the TX Queue and start transmission if possible
  * @param Pointer to data buffer
  * @param Length of the data buffer (in bytes)
- * @return True if message was added to the queue and transmission started
- * successfully.
+ * @return True if message was added to the queue
  */
 bool CUartCom::send(uint8_t *p_data_buf, uint32_t len)
 {
@@ -138,7 +137,7 @@ bool CUartCom::send(uint8_t *p_data_buf, uint32_t len)
     // Start transmission only if UART is not transmitting already
     if (m_status == IDLE)
     {
-        b_success = transmit();
+        transmit();
     }
     return b_success;
 }
