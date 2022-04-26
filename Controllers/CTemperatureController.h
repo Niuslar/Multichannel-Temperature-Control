@@ -18,8 +18,12 @@
 class CTemperatureController : public CController
 {
 public:
-    CTemperatureController(etl::string<MAX_STRING_SIZE> name, uint32_t run_period_ms);
-    virtual ~CTemperatureController();
+    CTemperatureController(etl::string<MAX_STRING_SIZE> name,
+                           uint32_t run_period_ms);
+
+    virtual void run();
+    virtual bool newCommand(ICommand *p_command, IComChannel *p_comchannel);
+    virtual void reset() = 0;
 };
 
 #endif /* CTEMPERATURECONTROLLER_H_ */
