@@ -21,8 +21,9 @@ CTemperatureController::CTemperatureController(
 
 void CTemperatureController::run() {}
 
-bool CTemperatureController::newCommand(etl::string<MAX_STRING_SIZE> command,
+bool CTemperatureController::newCommand(ICommand *p_command,
                                         IComChannel *p_comchannel)
 {
+    return false;
 }
 void CTemperatureController::reset() {}
