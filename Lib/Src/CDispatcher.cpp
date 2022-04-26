@@ -212,9 +212,11 @@ void CDispatcher::processComChannels()
             uint8_t controller = 0;
             while (!b_command_recognised && (controller < m_controller_count))
             {
-                b_command_recognised = mp_controllers[controller]->newCommand(
+                // TODO: this needs to be refactored once command parser is
+                // implemented.
+                /*b_command_recognised = mp_controllers[controller]->newCommand(
                     command,
-                    mp_comchannels[channel]);
+                    mp_comchannels[channel]);*/
                 controller++;
             }
             if (!b_command_recognised)
