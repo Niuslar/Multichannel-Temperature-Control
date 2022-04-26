@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include "../etl/string.h"
 #include "IComChannel.h"
+#include "ICommand.h"
 
 #define MAX_STRING_SIZE 60
 
@@ -30,8 +31,7 @@ public:
     etl::string<MAX_STRING_SIZE> getName() const;
     virtual bool tick(uint32_t current_time);
     virtual void run();
-    virtual bool newCommand(etl::string<MAX_STRING_SIZE> command,
-                            IComChannel *p_comchannel);
+    virtual bool newCommand(ICommand *p_command, IComChannel *p_comchannel);
     virtual void reset() = 0;
     virtual void stop();
     virtual void start();
