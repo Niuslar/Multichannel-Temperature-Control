@@ -26,8 +26,7 @@ public:
     virtual ~CDebugController();
 
     virtual void run();
-    virtual bool newCommand(etl::string<MAX_STRING_SIZE> command,
-                            IComChannel *p_comchannel);
+    virtual bool newCommand(ICommand *p_command, IComChannel *p_comchannel);
     virtual void reset();
 
 private:
