@@ -35,14 +35,12 @@ public:
     } status_t;
 
     /**
-     * @brief Parse a null-terminated string into a command.
-     * @note This will erase all traces of previously parsed command.
+     * @brief Get status of command.
+     * @note Command is considered valid if status is returned as COMMAND_OK.
      *
-     * @param p_command Pointer to raw null-terminated string that contains a
-     * command.
-     * @return Status of the parsing process.
+     * @return Last parsing status.
      */
-    virtual status_t parse(char *p_command) = 0;
+    virtual status_t getStatus() const = 0;
 
     /**
      * @brief Get name of the last parsed command.
