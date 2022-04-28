@@ -23,25 +23,6 @@ class ICommand
 public:
     ICommand();
 
-    typedef enum STATUS_T
-    {
-        COMMAND_OK = 0,
-        ERROR_INVALID_NAME,
-        ERROR_MAX_SIZE,
-        ERROR_MAX_ARGUMENT_COUNT,
-        ERROR_MAX_ARGUMENT_SIZE,
-        ERROR_INVALID_ARGUMENT,
-        ERROR_MALFORMATTED
-    } status_t;
-
-    /**
-     * @brief Get status of command.
-     * @note Command is considered valid if status is returned as COMMAND_OK.
-     *
-     * @return Last parsing status.
-     */
-    virtual status_t getStatus() const = 0;
-
     /**
      * @brief Get name of the last parsed command.
      *
