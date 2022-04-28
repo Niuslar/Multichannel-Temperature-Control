@@ -21,7 +21,7 @@
 class ICommand
 {
 public:
-    ICommand();
+    ICommand() {}
 
     /**
      * @brief Get name of the last parsed command.
