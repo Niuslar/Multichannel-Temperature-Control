@@ -50,7 +50,9 @@ public:
         ADD_VALUE,
         VALUE_ADDED,
         END_VALUES,
-        PARSING_OK,
+        COMMAND_OK,
+        ERROR_MAX_ARGS,
+        ERROR_NESTED_JSON,
         ERROR
     } parser_state_t;
 
