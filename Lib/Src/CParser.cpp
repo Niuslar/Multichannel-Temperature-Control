@@ -20,7 +20,7 @@ CParser::CParser() {}
  * @param String to be parsed
  * @return Parsing status
  */
-CParser::parser_status_t CParser::parse(
+CParser::parser_state_t CParser::parse(
     const etl::string<MAX_STRING_SIZE> &string)
 {
     // Reset command variables
@@ -158,12 +158,6 @@ void CParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
                     current_token.type = FLOAT;
                     current_token.text.append(1, current_char);
                 }
-                else
-                {
-                    current_token.type = INVALID;
-                    current_token.text.append(1, current_char);
-                    endToken(current_token);
-                }
                 break;
 
             // Token end characters
@@ -223,12 +217,6 @@ void CParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
                     current_token.type == FLOAT)
                 {
                     endToken(current_token);
-                    current_token.type = INVALID;
-                    current_token.text.append(1, current_char);
-                }
-                else
-                {
-                    current_token.text.append(1, current_char);
                 }
                 break;
         }

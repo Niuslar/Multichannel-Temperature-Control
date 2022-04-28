@@ -37,11 +37,10 @@ public:
         START_ARRAY_OP,
         END_ARRAY_OP,
         ARGUMENT_DELIMITER,
-        KEY_VALUE_DIV,
-        INVALID
+        KEY_VALUE_DIV
     } token_type_t;
 
-    typedef enum PARSING_STATUS
+    typedef enum PARSING_STATE
     {
         IDLE,
         BEGIN_KEY,
@@ -53,7 +52,7 @@ public:
         END_VALUES,
         PARSING_OK,
         ERROR
-    } parser_status_t;
+    } parser_state_t;
 
     typedef struct token
     {
@@ -64,7 +63,7 @@ public:
 
     // Public methods
     CParser();
-    CParser::parser_status_t parse(const etl::string<MAX_STRING_SIZE> &string);
+    CParser::parser_state_t parse(const etl::string<MAX_STRING_SIZE> &string);
     etl::string<MAX_STRING_SIZE> getName() const;
     unsigned int getArgumentCount() const;
     float operator[](unsigned int index);
@@ -83,7 +82,7 @@ private:
     uint16_t m_token_counter = 0;
     etl::string<MAX_STRING_SIZE> m_command_name;
     float m_arguments[MAX_ARGUMENT_COUNT];
-    parser_status_t m_status = IDLE;
+    parser_state_t m_status = IDLE;
 };
 
 #endif /* CPARSER_H_ */
