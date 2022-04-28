@@ -18,7 +18,7 @@ CParser::CParser() {}
 /**
  * @brief Parse string
  * @param String to be parsed
- * @return Parsing status
+ * @return Last parsing state
  */
 CParser::parser_state_t CParser::parse(
     const etl::string<MAX_STRING_SIZE> &string)
@@ -44,7 +44,7 @@ CParser::parser_state_t CParser::parse(
                 }
                 else
                 {
-                	m_status = ERROR_NESTED_JSON;
+                    m_status = ERROR_NESTED_JSON;
                 }
                 break;
             case STRING_LITERAL:
@@ -77,7 +77,6 @@ CParser::parser_state_t CParser::parse(
             case FLOAT:
                 if (m_status == BEGIN_VALUE)
                 {
-                    // We need to convert string to float
                     float number = std::stof(m_tokens[i].text.c_str());
                     m_arguments[m_argument_counter] = number;
                     m_argument_counter++;
@@ -119,7 +118,7 @@ CParser::parser_state_t CParser::parse(
 }
 
 /**
- * @brief Retrieve tokens from a string
+ * @brief Process string to get tokens
  * @param String to be tokenised
  */
 void CParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
@@ -254,6 +253,7 @@ void CParser::endToken(CParser::token_t &token)
  * @brief Add operator token
  * @param token
  * @param operator type
+ * @param character to be appended
  */
 void CParser::addOperator(CParser::token_t &token,
                           CParser::token_type_t operator_type,
@@ -273,8 +273,9 @@ void CParser::addOperator(CParser::token_t &token,
 }
 
 /**
- * @brief Get command name
- * @return etl::string with command name
+ * @brief Get name of the last parsed command.
+ *
+ * @return Name of the last parsed command.
  */
 etl::string<MAX_STRING_SIZE> CParser::getName() const
 {
@@ -282,7 +283,9 @@ etl::string<MAX_STRING_SIZE> CParser::getName() const
 }
 
 /**
- * @brief Get arguments for a given command
+ * @brief Get number of arguments.
+ *
+ * @return Number of parsed arguments.
  */
 unsigned int CParser::getArgumentCount() const
 {
@@ -290,7 +293,11 @@ unsigned int CParser::getArgumentCount() const
 }
 
 /**
- * @brief get argument from index
+ * @brief Access parsed arguments by index of their position in the command
+ * string.
+ *
+ * @param index Position of the argument to be accessed. Zero-based index.
+ * @return Value of the argument at the requested index.
  */
 float CParser::operator[](unsigned int index)
 {
