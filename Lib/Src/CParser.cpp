@@ -42,6 +42,10 @@ CParser::parser_state_t CParser::parse(
                 {
                     m_status = BEGIN_KEY;
                 }
+                else
+                {
+                	m_status = ERROR_NESTED_JSON;
+                }
                 break;
             case STRING_LITERAL:
                 if (m_status == BEGIN_KEY)
@@ -61,10 +65,6 @@ CParser::parser_state_t CParser::parse(
                 if (m_status == BEGIN_ARRAY || m_status == VALUE_ADDED)
                 {
                     m_status = ADD_VALUE;
-                }
-                else
-                {
-                    m_status = ERROR;
                 }
                 break;
             case KEY_VALUE_DIV:
@@ -92,6 +92,10 @@ CParser::parser_state_t CParser::parse(
                         m_argument_counter++;
                         m_status = VALUE_ADDED;
                     }
+                    else
+                    {
+                        m_status = ERROR_MAX_ARGS;
+                    }
                 }
                 break;
             case END_ARRAY_OP:
@@ -99,10 +103,11 @@ CParser::parser_state_t CParser::parse(
                 {
                     m_status = END_VALUES;
                 }
+                break;
             case END_OPERATOR:
                 if (m_status == END_VALUES)
                 {
-                    m_status = PARSING_OK;
+                    m_status = COMMAND_OK;
                 }
                 break;
             default:
@@ -217,6 +222,10 @@ void CParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
                     current_token.type == FLOAT)
                 {
                     endToken(current_token);
+                }
+                else
+                {
+                    current_token.text.append(1, current_char);
                 }
                 break;
         }
