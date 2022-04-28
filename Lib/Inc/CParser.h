@@ -78,12 +78,13 @@ private:
     void getTokens(const etl::string<MAX_STRING_SIZE> &string);
     void endToken(CParser::token_t &token);
 
-    // Private variables
+    // Private member variables
     uint8_t m_argument_counter = 0;
-    etl::vector<token_t, MAX_TOKENS> m_tokens;
-    uint16_t m_token_counter = 0;
     etl::string<MAX_STRING_SIZE> m_command_name;
     float m_arguments[MAX_ARGUMENT_COUNT];
+
+    etl::vector<token_t, MAX_TOKENS> m_tokens;
+    uint16_t m_token_counter = 0;
     parser_state_t m_status = IDLE;
 };
 
