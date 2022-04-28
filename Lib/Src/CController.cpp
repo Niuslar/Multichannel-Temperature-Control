@@ -18,7 +18,8 @@
  * @param p_name Name of the controller
  * @param run_period_ms How often should run() method be called.
  */
-CController::CController(etl::string<MAX_STRING_SIZE> name, uint32_t run_period_ms)
+CController::CController(etl::string<MAX_STRING_SIZE> name,
+                         uint32_t run_period_ms)
     : m_name(name),
       m_run_period_ms(run_period_ms),
       mb_stopped(false),
@@ -78,10 +79,11 @@ void CController::run()
 /**
  * @brief Give a new command to controller.
  *
- * @param p_command Pointer to NULL terminated command string.
+ * @param p_command Pointer to a command object that contains command name and
+ * arguments.
  * @return True if command was recognised.
  */
-bool CController::newCommand(etl::string<MAX_STRING_SIZE> command, IComChannel *p_comchannel)
+bool CController::newCommand(ICommand *p_command, IComChannel *p_comchannel)
 {
     return false;
 }

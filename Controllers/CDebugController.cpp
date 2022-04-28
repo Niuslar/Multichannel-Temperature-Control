@@ -29,10 +29,10 @@ void CDebugController::run()
     m_breather_light.toggle();
 }
 
-bool CDebugController::newCommand(etl::string<MAX_STRING_SIZE> command,
+bool CDebugController::newCommand(ICommand *p_command,
                                   IComChannel *p_comchannel)
 {
-    return CController::newCommand(command,
+    return CController::newCommand(p_command,
                                    p_comchannel);  // todo: temporary plug
 }
 

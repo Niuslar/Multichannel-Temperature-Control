@@ -1,0 +1,50 @@
+/**
+ * @file ICommand.h
+ *
+ */
+
+/*
+ * ICommand.h
+ *
+ *  Created on: Apr 26, 2022
+ *      Author: salavat.magazov
+ */
+
+#ifndef ICOMMAND_H_
+#define ICOMMAND_H_
+
+#include "../etl/string.h"
+
+#define MAX_COMMAND_SIZE   100
+#define MAX_ARGUMENT_COUNT 10
+
+class ICommand
+{
+public:
+    ICommand();
+
+    /**
+     * @brief Get name of the last parsed command.
+     *
+     * @return Name of the last parsed command.
+     */
+    virtual etl::string<MAX_STRING_SIZE> *getName() const = 0;
+
+    /**
+     * @brief Get number of arguments.
+     *
+     * @return Number of parsed arguments.
+     */
+    virtual unsigned int getArgumentCount() const = 0;
+
+    /**
+     * @brief Access parsed arguments by index of their position in the command
+     * string.
+     *
+     * @param index Position of the argument to be accessed. Zero-based index.
+     * @return Value of the argument at the requested index.
+     */
+    virtual float operator[](unsigned int index) = 0;
+};
+
+#endif /* CCOMMAND_H_ */
