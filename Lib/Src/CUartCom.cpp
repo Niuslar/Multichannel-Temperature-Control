@@ -89,6 +89,15 @@ void CUartCom::startRx()
 }
 
 /**
+ * @brief Disable UART RX Interrupts
+ * @note used when using half-duplex
+ */
+void CUartCom::stopRx()
+{
+    HAL_UART_AbortReceive_IT(mp_huart);
+}
+
+/**
  * @brief Add data to the TX Queue and start transmission if possible
  * @param msg Message to send.
  * @return True if message was added to the queue and transmission started
@@ -133,17 +142,9 @@ bool CUartCom::transmit()
     if (m_tx_queue.size() > 0)
     {
         // If working with half-duplex, disable RX interrupts
-        if (mb_half_duplex)
+        if (mb_half_duplex && m_status == IDLE)
         {
-            // UART Parity Error Interrupt
-            __HAL_UART_DISABLE_IT(mp_huart, UART_IT_PE);
-
-            // UART Error Interrupt: (Frame error, noise error, overrun
-            // error)
-            __HAL_UART_DISABLE_IT(mp_huart, UART_IT_ERR);
-
-            // UART Data Register not empty Interrupt
-            __HAL_UART_DISABLE_IT(mp_huart, UART_IT_RXNE);
+            stopRx();
         }
 
         // Enable USART_DE pin
@@ -165,16 +166,7 @@ void CUartCom::endTx()
 {
     if (mb_half_duplex)
     {
-        // Re-enable RX Interrupts
-        // Enable the UART Parity Error Interrupt
-        __HAL_UART_ENABLE_IT(mp_huart, UART_IT_PE);
-
-        // Enable the UART Error Interrupt: (Frame error, noise error, overrun
-        // error)
-        __HAL_UART_ENABLE_IT(mp_huart, UART_IT_ERR);
-
-        // Enable the UART Data Register not empty Interrupt
-        __HAL_UART_ENABLE_IT(mp_huart, UART_IT_RXNE);
+        startRx();
     }
 
     // Disable TX interrupt, disable pin
