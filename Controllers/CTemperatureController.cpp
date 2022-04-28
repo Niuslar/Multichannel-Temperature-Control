@@ -70,4 +70,23 @@ bool CTemperatureController::newCommand(ICommand *p_command,
     }
     return b_command_recognised;
 }
-void CTemperatureController::reset() {}
+void CTemperatureController::reset()
+{
+    // TODO: reset the controller to original constructed state.
+}
+
+void CTemperatureController::getStatus()
+{
+    // TODO: report current status of the controller.
+}
+
+void CTemperatureController::setTemperature(float target_temperature,
+                                            uint8_t channel)
+{
+    // TODO: set target temperature for the channels
+}
+
+void CTemperatureController::overrideHeater(float power, uint8_t channel)
+{
+    // TODO: override the heaters.
+}
