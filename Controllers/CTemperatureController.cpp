@@ -29,19 +29,45 @@ bool CTemperatureController::newCommand(ICommand *p_command,
                                         IComChannel *p_comchannel)
 {
     bool b_command_recognised = false;
-    etl::string<MAX_STRING_SIZE> command_name;
-    command_name = p_command->getName();
-    /* generic query about current state of all active channels
-     *?temperature()
+    /**
+     * Query about current state of all active channels.
+     *
+     * ?temperature()
      */
-    if (command_name.compare("?temperature"))
+    if (p_command->getName()->compare("?temperature"))
     {
         // todo: compile temperature report and send via p_comchannel.
+        b_command_recognised = true;
     }
-    /* set target temperature [for specific channel]. If channel argument is
-     * missing, target is applied to all channels.
-     *  temperature(target, [channel])
+    /**
+     * Set target temperature [for specific channel]. If channel argument is
+     * missing, target is applied to all channels. If target is zero, then
+     * disable control.
+     *
+     * temperature(target, [channel])
      */
-    if (command_name.compare("temperature")) return b_command_recognised;
+    if (p_command->getName()->compare("temperature"))
+    {
+        // todo: process input arguments to set channel target temperatures
+        b_command_recognised = true;
+    }
+    /**
+     * Set heater power to specified level. If channel argument is missing, then
+     * apply to all channels. if power argument is negative value, disable
+     * heater override.
+     * @note This command suspends operation of the control on
+     * the channel, but does not disable it. Once override is removed, channel
+     * returns to pre-override state. If it was idle, it returns to idle, if it
+     * was under control, then control execution resumes.
+     *
+     * heater(power, [channel])
+     */
+    if (p_command->getName()->compare("heater"))
+    {
+        // todo: process input arguments to set heater output to specified
+        // level.
+        b_command_recognised = true;
+    }
+    return b_command_recognised;
 }
 void CTemperatureController::reset() {}
