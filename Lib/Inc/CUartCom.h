@@ -52,6 +52,7 @@ public:
 private:
     void updateTxBuffer();
     void endTx();
+    void stopRx();
     bool transmit();
     etl::string<MAX_STRING_SIZE> getString();
     enum uart_status
