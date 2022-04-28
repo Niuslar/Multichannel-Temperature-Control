@@ -10,6 +10,8 @@
 #ifndef CFIFOBUFFER_H_
 #define CFIFOBUFFER_H_
 
+#include "main.h"
+
 template <typename T, uint16_t BUF_SIZE>
 class CFIFOBuffer
 {
@@ -26,6 +28,11 @@ public:
     bool put(T data)
     {
         bool b_success = false;
+        /**
+         * @note Disable interrupts while calling put() to avoid simultaneous
+         * access to the buffer and its variables.
+         */
+        __disable_irq();
         if (m_count < BUF_SIZE)
         {
             m_rx_buffer[m_head] = data;
@@ -36,6 +43,7 @@ public:
             m_count++;
             b_success = true;
         }
+        __enable_irq();
         return b_success;
     }
 
