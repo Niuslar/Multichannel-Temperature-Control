@@ -21,7 +21,7 @@
 class ICommand
 {
 public:
-    ICommand();
+    ICommand() {}
 
     /**
      * @brief Possible outcomes of processing new command.
