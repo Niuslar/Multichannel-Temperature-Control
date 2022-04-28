@@ -24,6 +24,11 @@ public:
     virtual void run();
     virtual bool newCommand(ICommand *p_command, IComChannel *p_comchannel);
     virtual void reset() = 0;
+
+private:
+    void getStatus();
+    void setTemperature(float target_temperature, uint8_t channel = 0);
+    void overrideHeater(float power, uint8_t channel = 0);
 };
 
 #endif /* CTEMPERATURECONTROLLER_H_ */
