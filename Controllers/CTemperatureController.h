@@ -14,6 +14,9 @@
 #define CTEMPERATURECONTROLLER_H_
 
 #include "CController.h"
+#include "CHeater.h"
+
+#define CHANNEL_NUMBER 10
 
 class CTemperatureController : public CController
 {
@@ -29,6 +32,8 @@ private:
     void getStatus();
     void setTemperature(float target_temperature, uint8_t channel = 0);
     void overrideHeater(float power, uint8_t channel = 0);
+
+    CHeater m_heaters[CHANNEL_NUMBER];
 };
 
 #endif /* CTEMPERATURECONTROLLER_H_ */
