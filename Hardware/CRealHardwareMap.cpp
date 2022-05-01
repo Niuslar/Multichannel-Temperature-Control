@@ -11,13 +11,14 @@
  */
 
 #include "CRealHardwareMap.h"
+#include "tim.h"
 
 /**
  * @note All of these parameters are subject to PCB design layout. Refer to
  * specific PCB this code will run on for correct information on what
  * peripherals are being used.
  */
-#define VREF 5.0
+#define V_REF 5.0
 
 #define INPUT_VOLTAGE_CHANNEL   10
 #define TOTAL_CURRENT_CHANNEL   11
@@ -30,6 +31,18 @@
 #define AD22100_SCALE         ((V_REF / 5.0) * (1 / 22.5E-3))
 #define AD22100_OFFSET        ((V_REF / 5.0) * (-1.375 / 22.5E-3))
 
+const CRealHardwareMap::timer_init_map_t CRealHardwareMap::s_timer_init_map[] =
+    {{&htim1, TIM_CHANNEL_1},
+     {&htim1, TIM_CHANNEL_2},
+     {&htim1, TIM_CHANNEL_3},
+     {&htim1, TIM_CHANNEL_4},
+     {&htim3, TIM_CHANNEL_1},
+     {&htim3, TIM_CHANNEL_2},
+     {&htim3, TIM_CHANNEL_3},
+     {&htim3, TIM_CHANNEL_4},
+     {&htim2, TIM_CHANNEL_3},
+     {&htim2, TIM_CHANNEL_2}};
+
 CRealHardwareMap::CRealHardwareMap() : m_adc(&hadc1)
 {
     // TODO Auto-generated constructor stub
@@ -39,6 +52,11 @@ void CRealHardwareMap::init()
 {
     /* all hardware initialisation of peripherals goes here. */
     m_adc.init();
+    for (unsigned int i = 0; i < HARD_PWM_OUTPUTS; i++)
+    {
+        m_pwm_output[i].init(s_timer_init_map[i].p_timer,
+                             s_timer_init_map[i].channel);
+    }
 }
 
 float CRealHardwareMap::getInputVoltage() const
@@ -69,3 +87,5 @@ float CRealHardwareMap::getChanneTemp(uint8_t channel) const
     // TODO: calibration for thermistor goes here.
     return temperature;
 }
+
+float CRealHardwareMap::setPwmOutput(float power, uint8_t channel) {}
