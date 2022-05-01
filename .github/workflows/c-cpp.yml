@@ -31,11 +31,23 @@ jobs:
           ./headless-build.sh -data /workspace -import /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control -cleanBuild 'Multichannel temperature sensor' -markerType cdt || { echo "Build Failed"; exit 1; }
       - uses: actions/upload-artifact@v3
         with:
-          name: Build Artifact
-          path: |
-            /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Debug/Multichannel\ temperature\ sensor.bin
-            /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Debug/Multichannel\ temperature\ sensor.hex
-            /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Debug/Multichannel\ temperature\ sensor.elf
-            /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Release/Multichannel\ temperature\ sensor.bin
-            /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Release/Multichannel\ temperature\ sensor.hex
-            /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Release/Multichannel\ temperature\ sensor.elf
+          name: debug_build
+          path: /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Debug/Multichannel\ temperature\ sensor.bin
+      - uses: actions/upload-artifact@v3
+        with:
+          name: release_build
+          path: /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Release/Multichannel\ temperature\ sensor.bin
+  
+  flash_debug:
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - name: Download debug artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: debug_build
+      - shell: bash
+        run: 
+        python3 /home/pi/Documents/actions-runner/_work/Multichannel-Temperature-Control/Multichannel-Temperature-Control/CI/stm32_flash_loader.py /home/pi/Documents/actions-runner/_work/Multichannel\ temperature\ sensor.bin
+
+      
