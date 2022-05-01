@@ -48,6 +48,6 @@ jobs:
           name: debug_build
       - shell: bash
         run: |
-        python3 /home/pi/Documents/actions-runner/_work/Multichannel-Temperature-Control/Multichannel-Temperature-Control/CI/stm32_flash_loader.py "/home/pi/Documents/actions-runner/_work/Multichannel temperature sensor.bin"
+        pwd
 
       
