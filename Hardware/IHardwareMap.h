@@ -16,6 +16,10 @@
 #include "stdint.h"
 
 #define HARD_PWM_OUTPUTS 10
+/**
+ * @note Declare this value to the number of soft PWM outputs that are needed.
+ */
+//#define SOFT_PWM_OUTPUTS 0
 
 class IHardwareMap
 {
@@ -37,7 +41,17 @@ public:
     virtual float getChanneTemp(uint8_t channel) const = 0;
 
     /* PWM control */
-    virtual float setPwmOutput(float power, uint8_t channel) = 0;
+    virtual float setHardPwmOutput(float power, uint8_t channel) = 0;
+    virtual float getHardPwmOutput(uint8_t channel) = 0;
+
+#ifdef SOFT_PWM_OUTPUTS
+    virtual float setSoftPwmOutput(float power, uint8_t channel) = 0;
+    virtual float getSoftPwmOutput(uint8_t channel) = 0;
+#endif
+
+    virtual void setBreathingLight(float duty_cycle) = 0;
+
+    virtual void enableControlPower(bool b_enable) = 0;
 };
 
 #endif /* IHARDWAREMAP_H_ */
