@@ -2,7 +2,7 @@ name: STM32 C/C++ CI
 
 on:
   push:
-    branches: [develop, master]
+    branches: [develop, master, feature/nu_hil_yml]
   pull_request:
     branches: [develop, master]
 
