@@ -17,16 +17,18 @@
  * specific PCB this code will run on for correct information on what
  * peripherals are being used.
  */
-#define INPUT_VOLTAGE_CHANNEL   10
-#define TOTAL_CURRENT_CHANNEL   9
-#define CONTROL_CURRENT_CHANNEL 8
-#define AMBIENT_TEMP_CHANNEL    7
+#define VREF 5.0
 
-#define INPUT_VOLTAGE_SCALE   10
-#define TOTAL_CURRENT_SCALE   3
-#define CONTROL_CURRENT_SCALE 3
-#define AD22100_SCALE         1
-#define AD22100_OFFSET        1
+#define INPUT_VOLTAGE_CHANNEL   10
+#define TOTAL_CURRENT_CHANNEL   11
+#define CONTROL_CURRENT_CHANNEL 12
+#define AMBIENT_TEMP_CHANNEL    13
+
+#define INPUT_VOLTAGE_SCALE   ((28.0 + 3.01) / 3.01)  // voltage divider on PCB
+#define TOTAL_CURRENT_SCALE   (750E-6 * 200)  // 750uOhm resistor 200x amplifier
+#define CONTROL_CURRENT_SCALE (750E-6 * 200)
+#define AD22100_SCALE         ((V_REF / 5.0) * (1 / 22.5E-3))
+#define AD22100_OFFSET        ((V_REF / 5.0) * (-1.375 / 22.5E-3))
 
 CRealHardwareMap::CRealHardwareMap() : m_adc(&hadc1)
 {
