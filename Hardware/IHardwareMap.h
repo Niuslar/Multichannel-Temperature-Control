@@ -15,6 +15,8 @@
 
 #include "stdint.h"
 
+#define HARD_PWM_OUTPUTS 10
+
 class IHardwareMap
 {
 public:
@@ -35,6 +37,7 @@ public:
     virtual float getChanneTemp(uint8_t channel) const = 0;
 
     /* PWM control */
+    virtual float setPwmOutput(float power, uint8_t channel) = 0;
 };
 
 #endif /* IHARDWAREMAP_H_ */
