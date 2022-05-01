@@ -13,10 +13,11 @@
 #ifndef IHARDWAREMAP_H_
 #define IHARDWAREMAP_H_
 
+#include "stdint.h"
+
 class IHardwareMap
 {
 public:
-    IHardwareMap();
     virtual void init() = 0;
 
     /**
@@ -25,6 +26,15 @@ public:
      * If access is required, then the procedure is to create a virtual method
      * here, then add corresponding implementations in all child classes.
      */
+
+    /* ADC access */
+    virtual float getInputVoltage() const = 0;
+    virtual float getTotalCurrent() const = 0;
+    virtual float getControlCurrent() const = 0;
+    virtual float getAmbientTemp() const = 0;
+    virtual float getChanneTemp(uint8_t channel) const = 0;
+
+    /* PWM control */
 };
 
 #endif /* IHARDWAREMAP_H_ */
