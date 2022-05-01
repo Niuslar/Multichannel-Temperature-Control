@@ -49,7 +49,7 @@ jobs:
       - shell: bash
         run: |
           touch /home/pi/Documents/actions-runner/flash_log.txt
-          { python3 /home/pi/Documents/actions-runner/stm32_flash_loader.py "/home/pi/Documents/actions-runner/_work/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Multichannel temperature sensor.bin"; } > flash_log.txt
+          { python3 /home/pi/Documents/actions-runner/stm32_flash_loader.py "/home/pi/Documents/actions-runner/_work/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Multichannel temperature sensor.bin"; } > /home/pi/Documents/actions-runner/flash_log.txt
       - uses: actions/upload-artifact@v3
         with:
           name: flash_log
