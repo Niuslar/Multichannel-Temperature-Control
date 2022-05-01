@@ -29,7 +29,8 @@ CHardPwmOutput::CHardPwmOutput()
  * @param p_timer Pointer to Timer control register structure.
  * @param channel PWM channel.
  */
-void CHardPwmOutput::init(TIM_HandleTypeDef *p_timer, uint8_t channel)
+void CHardPwmOutput::init(TIM_HandleTypeDef *const p_timer,
+                          const uint8_t channel)
 {
     /* sanitise all inputs */
     if (p_timer == nullptr)
