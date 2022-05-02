@@ -23,7 +23,7 @@ CMockHardwareMap::CMockHardwareMap(etl::string<MAX_STRING_SIZE> name,
 
 void CMockHardwareMap::init()
 {
-    /* all mock initialisation of mock hardware layer goes here. */
+    /* all initialisation of mock hardware layer goes here. */
 }
 
 float CMockHardwareMap::getInputVoltage() const
@@ -106,9 +106,9 @@ bool CMockHardwareMap::newCommand(ICommand *p_command,
     bool b_command_recognised = false;
     /**
      * Command to modify mock hardware ambient temperature
-     * >setambientt(20);
+     * >setambient(20);
      */
-    if (p_command->getName()->compare("setAmbientT"))
+    if (p_command->getName()->compare("setAmbient"))
     {
         m_ambient_temperature = (*p_command)[0];
         b_command_recognised = true;
