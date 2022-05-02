@@ -44,8 +44,12 @@ public:
     //    virtual void start();
 
 private:
+    void setrating(float rating, uint8_t channel);
+
     float m_heater_power[HARD_PWM_OUTPUTS];
-    float m_temperature[HARD_PWM_OUTPUTS];
+    float m_temperature[HARD_PWM_OUTPUTS][2];
+    float m_heat_capacity[HARD_PWM_OUTPUTS][2];
+    float m_heater_rating[HARD_PWM_OUTPUTS];
     float m_incubator_temperature;
     float m_ambient_temperature;
     bool mb_power_enable;
