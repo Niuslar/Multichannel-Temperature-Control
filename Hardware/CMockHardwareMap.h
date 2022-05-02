@@ -13,12 +13,13 @@
 #ifndef CMOCKHARDWAREMAP_H_
 #define CMOCKHARDWAREMAP_H_
 
+#include "CController.h"
 #include "IHardwareMap.h"
 
-class CMockHardwareMap : public IHardwareMap
+class CMockHardwareMap : public IHardwareMap, public CController
 {
 public:
-    CMockHardwareMap();
+    CMockHardwareMap(etl::string<MAX_STRING_SIZE> name, uint32_t run_period_ms);
 
     virtual void init();
 
@@ -40,6 +41,16 @@ public:
 
     virtual void enableControlPower(bool b_enable);
 
+    /* CController methods. */
+    etl::string<MAX_STRING_SIZE> getName() const;
+    //    virtual bool tick(uint32_t current_time);
+    virtual void run();
+    virtual bool newCommand(ICommand *p_command, IComChannel *p_comchannel);
+    virtual void reset();
+    //    virtual void stop();
+    //    virtual void start();
+
+private:
 };
 
 #endif /* CMOCKHARDWAREMAP_H_ */
