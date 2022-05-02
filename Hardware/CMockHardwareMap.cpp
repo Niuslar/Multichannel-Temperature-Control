@@ -12,7 +12,9 @@
 
 #include "CMockHardwareMap.h"
 
-CMockHardwareMap::CMockHardwareMap()
+CMockHardwareMap::CMockHardwareMap(etl::string<MAX_STRING_SIZE> name,
+                                   uint32_t run_period_ms)
+    : CController(name, run_period_ms)
 {
     // TODO Auto-generated constructor stub
 }
@@ -76,3 +78,12 @@ void CMockHardwareMap::enableControlPower(bool b_enable)
     // flow and temperature control.
 }
 
+void CMockHardwareMap::run() {}
+
+bool CMockHardwareMap::newCommand(ICommand *p_command,
+                                  IComChannel *p_comchannel)
+{
+    return false;
+}
+
+void CMockHardwareMap::reset() {}
