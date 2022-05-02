@@ -13,17 +13,23 @@
 #include "CMockHardwareMap.h"
 
 #define DEFAULT_AMBIENT_T 20
+#define MIN_TEMP          0
+#define MAX_TEMP          100
+#define HEATER_CAPACITY   1
+#define HEATER_FLOW       0.1
+#define RADIATOR_CAPACITY 1
+#define RADIATOR_FLOW     0.1
 
 CMockHardwareMap::CMockHardwareMap(etl::string<MAX_STRING_SIZE> name,
                                    uint32_t run_period_ms)
     : CController(name, run_period_ms)
 {
-    reset();
 }
 
 void CMockHardwareMap::init()
 {
     /* all initialisation of mock hardware layer goes here. */
+    reset();
 }
 
 float CMockHardwareMap::getInputVoltage() const
@@ -87,9 +93,12 @@ void CMockHardwareMap::run()
     {
         for (int i = 0; i < HARD_PWM_OUTPUTS; i++)
         {
-            // TODO: run model here and update temperatures for sensors and
-            // total incubator temperature. Also, calculate total control
-            // current.
+            if (m_heater_power[i] > 0)
+            {
+                // incoming power
+                float q_heat;
+                q_heat =
+            }
         }
     }
 }
@@ -108,9 +117,58 @@ bool CMockHardwareMap::newCommand(ICommand *p_command,
      * Command to modify mock hardware ambient temperature
      * >setambient(20);
      */
-    if (p_command->getName()->compare("setAmbient"))
+    if (p_command->getName()->compare("setambient"))
     {
-        m_ambient_temperature = (*p_command)[0];
+        float temperature = (*p_command)[0];
+        if ((temperature < MIN_TEMP) || (MAX_TEMP < temperature))
+        {
+            p_comchannel->send("Arguments out of bounds.");
+        }
+        else
+        {
+            m_ambient_temperature = temperature;
+        }
+        b_command_recognised = true;
+    }
+    /**
+     * Command to modify power rating of the heater. Rating refers to heater
+     * full power output. Channel is optional and if omitted command is applied
+     * to all channels.
+     * >setRating(rating, [channel])
+     */
+    if (p_command->getName()->compare("setrating"))
+    {
+        uint8_t channel = (uint8_t)(*p_command)[1];
+        float rating = (*p_command)[0];
+        if ((rating < 0) || (channel > HARD_PWM_OUTPUTS))
+        {
+            p_comchannel->send("Arguments out of bounds.");
+        }
+        else
+        {
+            setrating(rating, channel);
+        }
+        b_command_recognised = true;
+    }
+    /**
+     * Command to modify heat capacity of the heater. Channel is optional and if
+     * omitted command is applied to all channels.
+     * >setcapacity(heater_capacity, radiator_capacity, [channel])
+     */
+    if (p_command->getName()->compare("setcapacity"))
+    {
+        uint8_t channel = (uint8_t)(*p_command)[2];
+        float heater_capacity = (*p_command)[0];
+        float radiator_capacity = (*p_command)[1];
+        if ((heater_capacity < 0) || (radiator_capacity < 0) ||
+            (channel > HARD_PWM_OUTPUTS))
+        {
+            p_comchannel->send("Arguments out of bounds.");
+        }
+        else
+        {
+            setcapacity(heater_capacity, radiator_capacity, channel);
+        }
         b_command_recognised = true;
     }
     return b_command_recognised;
@@ -124,6 +182,42 @@ void CMockHardwareMap::reset()
     for (int i = 0; i < HARD_PWM_OUTPUTS; i++)
     {
         m_heater_power[i] = 0;
-        m_temperature[i] = m_ambient_temperature;
+        m_temperature[i][0] = m_ambient_temperature;
+        m_temperature[i][1] = m_ambient_temperature;
+        m_heat_capacity[i][0] =
+    }
+}
+
+void CMockHardwareMap::setrating(float rating, uint8_t channel)
+{
+    if (channel == 0)
+    {
+        for (int i = 0; i < HARD_PWM_OUTPUTS; i++)
+        {
+            m_heater_rating[i] = rating;
+        }
+    }
+    else
+    {
+        m_heater_rating[channel - 1] = rating;
+    }
+}
+
+void CMockHardwareMap::setcapacity(float heater_capacity,
+                                   float radiator_capacity,
+                                   uint8_t channel)
+{
+    if (channel == 0)
+    {
+        for (int i = 0; i < HARD_PWM_OUTPUTS; i++)
+        {
+            m_heat_capacity[i][0] = heater_capacity;
+            m_heat_capacity[i][1] = radiator_capacity;
+        }
+    }
+    else
+    {
+        m_heat_capacity[channel - 1][0] = heater_capacity;
+        m_heat_capacity[channel - 1][1] = radiator_capacity;
     }
 }
