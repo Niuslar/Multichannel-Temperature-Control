@@ -22,54 +22,55 @@ void CMockHardwareMap::init()
     /* all mock initialisation of mock hardware layer goes here. */
 }
 
-float getInputVoltage() const
+float CMockHardwareMap::getInputVoltage() const
 {
     return 24.0;
 }
 
-float getTotalCurrent() const
+float CMockHardwareMap::getTotalCurrent() const
 {
     // TODO: model current consumption based control current + some for digital
     // logic.
     return getControlCurrent() + 0.1;
 }
 
-float getControlCurrent() const
+float CMockHardwareMap::getControlCurrent() const
 {
     // TODO: model current consumption based on number of heaters powered on.
+    return 0;
 }
 
-float getAmbientTemp() const
+float CMockHardwareMap::getAmbientTemp() const
 {
     // TODO: consider modelling this.
     return 21.0;
 }
 
-float getChanneTemp(uint8_t channel) const
+float CMockHardwareMap::getChanneTemp(uint8_t channel) const
 {
     return getAmbientTemp();
 }
 
-float setHardPwmOutput(float power, uint8_t channel)
+float CMockHardwareMap::setHardPwmOutput(float power, uint8_t channel)
 {
     // TODO: This sets power parameters for the model.
     return 0;
 }
 
-float getHardPwmOutput(uint8_t channel)
+float CMockHardwareMap::getHardPwmOutput(uint8_t channel)
 {
     // TODO: this just returns what's been recorded for heater power
     return 0;
 }
 
 #ifdef SOFT_PWM_OUTPUTS
-float setSoftPwmOutput(float power, uint8_t channel) = 0;
-float getSoftPwmOutput(uint8_t channel) = 0;
+float CMockHardwareMap::setSoftPwmOutput(float power, uint8_t channel) = 0;
+float CMockHardwareMap::getSoftPwmOutput(uint8_t channel) = 0;
 #endif
 
-void setBreathingLight(float duty_cycle);
+void CMockHardwareMap::setBreathingLight(float duty_cycle) {}
 
-void enableControlPower(bool b_enable)
+void CMockHardwareMap::enableControlPower(bool b_enable)
 {
     // todo: this should probably participate in the model of control current
     // flow and temperature control.
