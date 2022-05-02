@@ -109,7 +109,10 @@ bool CUartCom::send(etl::string<MAX_STRING_SIZE> msg)
     // Add message to queue
     if (m_tx_queue.size() <= MAX_TX_QUEUE_SIZE && (msg.empty() == false))
     {
-        m_tx_queue.put(msg);
+        if (m_tx_queue.put(msg) == false)
+        {
+            send("Error: Buffer overflow -> TX Queue\n");
+        }
         b_success = true;
     }
 
@@ -208,14 +211,20 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
             etl::string<MAX_STRING_SIZE> rx_string = getString();
             if (m_rx_queue.size() <= MAX_RX_QUEUE_SIZE && !rx_string.empty())
             {
-                m_rx_queue.put(rx_string);
+                if (m_rx_queue.put(rx_string) == false)
+                {
+                    send("Error: Buffer overflow -> RX Queue\n");
+                }
             }
         }
         len_counter = 0;
     }
     else
     {
-        m_rx_buffer.put((char)m_rx_char);
+        if (m_rx_buffer.put((char)m_rx_char) == false)
+        {
+            send("Error: Buffer overflow -> RX BUFFER\n");
+        }
         len_counter++;
     }
 
