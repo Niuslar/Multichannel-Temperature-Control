@@ -12,11 +12,13 @@
 
 #include "CMockHardwareMap.h"
 
+#define DEFAULT_AMBIENT_T 20
+
 CMockHardwareMap::CMockHardwareMap(etl::string<MAX_STRING_SIZE> name,
                                    uint32_t run_period_ms)
     : CController(name, run_period_ms)
 {
-    // TODO Auto-generated constructor stub
+    reset();
 }
 
 void CMockHardwareMap::init()
@@ -78,12 +80,50 @@ void CMockHardwareMap::enableControlPower(bool b_enable)
     // flow and temperature control.
 }
 
-void CMockHardwareMap::run() {}
+void CMockHardwareMap::run()
+{
+    /* if control power enabled, then need to model total heat input. */
+    if (mb_power_enable)
+    {
+        for (int i = 0; i < HARD_PWM_OUTPUTS; i++)
+        {
+            // TODO: run model here and update temperatures for sensors and
+            // total incubator temperature. Also, calculate total control
+            // current.
+        }
+    }
+}
 
+/**
+ * @note: This method is not for sending commands like >setHeaterPower(). This
+ * method is to simulate input from real world conditions changing as the device
+ * is being tested. For example: induce failure of a heater or thermistor. Or
+ * set different ambient temperature.
+ */
 bool CMockHardwareMap::newCommand(ICommand *p_command,
                                   IComChannel *p_comchannel)
 {
-    return false;
+    bool b_command_recognised = false;
+    /**
+     * Command to modify mock hardware ambient temperature
+     * >setambientt(20);
+     */
+    if (p_command->getName()->compare("setAmbientT"))
+    {
+        m_ambient_temperature = (*p_command)[0];
+        b_command_recognised = true;
+    }
+    return b_command_recognised;
 }
 
-void CMockHardwareMap::reset() {}
+void CMockHardwareMap::reset()
+{
+    m_ambient_temperature = DEFAULT_AMBIENT_T;
+    m_incubator_temperature = m_ambient_temperature;
+    mb_power_enable = false;
+    for (int i = 0; i < HARD_PWM_OUTPUTS; i++)
+    {
+        m_heater_power[i] = 0;
+        m_temperature[i] = m_ambient_temperature;
+    }
+}
