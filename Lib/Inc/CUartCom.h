@@ -18,10 +18,10 @@
 #include "usart.h"
 
 #define UART_TIMEOUT      100
-#define MAX_RX_QUEUE_SIZE 40
-#define MAX_TX_QUEUE_SIZE 40
+#define MAX_RX_QUEUE_SIZE 50
+#define MAX_TX_QUEUE_SIZE 100
 #define MAX_UART_ENGINES  8
-#define TX_BUF_SIZE       (MAX_STRING_SIZE + 1)
+#define TX_BUF_SIZE       70
 #define RX_BUF_SIZE       60
 
 class CUartCom : public IComChannel
