@@ -48,12 +48,34 @@ jobs:
           name: debug_build
       - shell: bash
         run: |
-          touch /home/pi/Documents/actions-runner/flash_log.txt
-          { python3 /home/pi/Documents/actions-runner/stm32_flash_loader.py "/home/pi/Documents/actions-runner/_work/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Multichannel temperature sensor.bin"; } > /home/pi/Documents/actions-runner/flash_log.txt
+          touch /home/pi/Documents/actions-runner/db_flash_log.txt
+          { python3 /home/pi/Documents/actions-runner/stm32_flash_loader.py "/home/pi/Documents/actions-runner/_work/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Multichannel temperature sensor.bin"; } > /home/pi/Documents/actions-runner/db_flash_log.txt
       - uses: actions/upload-artifact@v3
         with:
-          name: flash_log
-          path: /home/pi/Documents/actions-runner/flash_log.txt
+          name: debug_flash_log
+          path: /home/pi/Documents/actions-runner/db_flash_log.txt
       - shell: bash
-        run: rm /home/pi/Documents/actions-runner/flash_log.txt
+        run: |
+          rm /home/pi/Documents/actions-runner/db_flash_log.txt
+          rm "/home/pi/Documents/actions-runner/_work/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Multichannel temperature sensor.bin"
+  flash_release:
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - name: Download debug artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: release_build
+      - shell: bash
+        run: |
+          touch /home/pi/Documents/actions-runner/rb_flash_log.txt
+          { python3 /home/pi/Documents/actions-runner/stm32_flash_loader.py "/home/pi/Documents/actions-runner/_work/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Multichannel temperature sensor.bin"; } > /home/pi/Documents/actions-runner/rb_flash_log.txt
+      - uses: actions/upload-artifact@v3
+        with:
+          name: flash_release_log
+          path: /home/pi/Documents/actions-runner/rb_flash_log.txt
+      - shell: bash
+        run: |
+          rm /home/pi/Documents/actions-runner/rb_flash_log.txt
+          rm "/home/pi/Documents/actions-runner/_work/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Multichannel temperature sensor.bin"
       
