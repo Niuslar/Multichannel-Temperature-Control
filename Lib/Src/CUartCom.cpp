@@ -109,11 +109,14 @@ bool CUartCom::send(etl::string<MAX_STRING_SIZE> msg)
     // Add message to queue
     if (m_tx_queue.size() <= MAX_TX_QUEUE_SIZE && (msg.empty() == false))
     {
-        if (m_tx_queue.put(msg) == false)
+        if (m_tx_queue.put(msg) == true)
+        {
+            b_success = true;
+        }
+        else
         {
             send("Error: Buffer overflow -> TX Queue\n");
         }
-        b_success = true;
     }
 
     // Start transmission only if UART is idle
