@@ -12,13 +12,16 @@
 
 #include "CMockHardwareMap.h"
 
-#define DEFAULT_AMBIENT_T 20
-#define MIN_TEMP          0
-#define MAX_TEMP          100
-#define HEATER_CAPACITY   1
-#define HEATER_FLOW       0.1
-#define RADIATOR_CAPACITY 1
-#define RADIATOR_FLOW     0.1
+#define AMBIENT_T            20    // [degC]
+#define MIN_TEMP             0     // [degC]
+#define MAX_TEMP             100   // [degC]
+#define HEATER_RATING        50    // [Watt]
+#define HEATER_CAPACITY      1     // [Watt/degC]
+#define HEATER_CONDUCTANCE   0.1   // [degC/Watt]
+#define RADIATOR_CAPACITY    1     // [Watt/degC]
+#define RADIATOR_CONDUCTANCE 0.1   // [degC/Watt]
+#define INCUBATOR_CAPACITY   10    // [Watt/degC]
+#define INCUBATOR_LOSS       0.01  // [degC/Watt]
 
 CMockHardwareMap::CMockHardwareMap(etl::string<MAX_STRING_SIZE> name,
                                    uint32_t run_period_ms)
@@ -88,19 +91,44 @@ void CMockHardwareMap::enableControlPower(bool b_enable)
 
 void CMockHardwareMap::run()
 {
-    /* if control power enabled, then need to model total heat input. */
-    if (mb_power_enable)
+    float total_radiator_flow = 0;
+    for (int i = 0; i < HARD_PWM_OUTPUTS; i++)
     {
-        for (int i = 0; i < HARD_PWM_OUTPUTS; i++)
-        {
-            if (m_heater_power[i] > 0)
-            {
-                // incoming power
-                float q_heat;
-                q_heat =
-            }
-        }
+        float heater_flow;
+        float radiator_flow;
+        /**
+         * Update temperature of the heater stage. heater_flow is heat flowing
+         * from heater to radiator due to temperature gradient. From heater
+         * point of view this is net loss of heat.
+         * The heater temperature is then updated based on heater power input
+         * and heater power loss to radiator. */
+        heater_flow = (m_temperature[i][0] - m_temperature[i][1]) /
+                      m_heat_conductance[i][0];
+        m_temperature[i][0] +=
+            (m_heater_power[i] * m_heater_rating[i] - heater_flow) /
+            m_heat_capacity[i][0];
+
+        /**
+         * Update temperature of the radiator stage. radiator_flow is heat
+         * flowing from radiator into incubator ambient air. From radiator point
+         * of view this is net loss of heat.
+         * The radiator temperature is then updated based on positive flow from
+         * heater and loss of heat to incubator.
+         * Total radiator heat flow is also accumulated to calculate incubator
+         * temperature. Negative sign is due to radiator loss being net positive
+         * flow for incubator.
+         */
+        radiator_flow = (m_temperature[i][1] - m_incubator_temperature) /
+                        m_heat_conductance[i][1];
+        m_temperature[i][1] +=
+            (heater_flow - radiator_flow) / m_heat_capacity[i][1];
+        total_radiator_flow -= radiator_flow;
     }
+    float incubator_flow;
+    incubator_flow =
+        (m_incubator_temperature - m_ambient_temperature) / m_incubator_loss;
+    m_incubator_temperature +=
+        (total_radiator_flow - incubator_flow) / m_incubator_capacity;
 }
 
 /**
@@ -171,21 +199,48 @@ bool CMockHardwareMap::newCommand(ICommand *p_command,
         }
         b_command_recognised = true;
     }
+    /**
+     * Command to modify heat conductance of the heater. Channel is optional and
+     * if omitted command is applied to all channels.
+     * >setconductance(heater_conductance, radiator_conductance, [channel])
+     */
+    if (p_command->getName()->compare("setconductance"))
+    {
+        uint8_t channel = (uint8_t)(*p_command)[2];
+        float heater_conductance = (*p_command)[0];
+        float radiator_conductance = (*p_command)[1];
+        if ((heater_conductance < 0) || (radiator_conductance < 0) ||
+            (channel > HARD_PWM_OUTPUTS))
+        {
+            p_comchannel->send("Arguments out of bounds.");
+        }
+        else
+        {
+            setconductance(heater_conductance, radiator_conductance, channel);
+        }
+        b_command_recognised = true;
+    }
     return b_command_recognised;
 }
 
 void CMockHardwareMap::reset()
 {
-    m_ambient_temperature = DEFAULT_AMBIENT_T;
-    m_incubator_temperature = m_ambient_temperature;
     mb_power_enable = false;
+    m_ambient_temperature = AMBIENT_T;
     for (int i = 0; i < HARD_PWM_OUTPUTS; i++)
     {
         m_heater_power[i] = 0;
-        m_temperature[i][0] = m_ambient_temperature;
-        m_temperature[i][1] = m_ambient_temperature;
-        m_heat_capacity[i][0] =
+        m_heater_rating[i] = HEATER_RATING;
+        m_temperature[i][0] = AMBIENT_T;
+        m_temperature[i][1] = AMBIENT_T;
+        m_heat_capacity[i][0] = HEATER_CAPACITY;
+        m_heat_capacity[i][1] = RADIATOR_CAPACITY;
+        m_heat_conductance[i][0] = HEATER_CONDUCTANCE;
+        m_heat_conductance[i][1] = RADIATOR_CONDUCTANCE;
     }
+    m_incubator_temperature = m_ambient_temperature;
+    m_incubator_capacity = AMBIENT_T;
+    m_incubator_loss = INCUBATOR_LOSS;
 }
 
 void CMockHardwareMap::setrating(float rating, uint8_t channel)
@@ -219,5 +274,24 @@ void CMockHardwareMap::setcapacity(float heater_capacity,
     {
         m_heat_capacity[channel - 1][0] = heater_capacity;
         m_heat_capacity[channel - 1][1] = radiator_capacity;
+    }
+}
+
+void CMockHardwareMap::setconductance(float heater_conductance,
+                                      float radiator_conductance,
+                                      uint8_t channel)
+{
+    if (channel == 0)
+    {
+        for (int i = 0; i < HARD_PWM_OUTPUTS; i++)
+        {
+            m_heat_conductance[i][0] = heater_conductance;
+            m_heat_conductance[i][1] = radiator_conductance;
+        }
+    }
+    else
+    {
+        m_heat_conductance[channel - 1][0] = heater_conductance;
+        m_heat_conductance[channel - 1][1] = radiator_conductance;
     }
 }

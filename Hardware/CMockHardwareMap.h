@@ -45,14 +45,27 @@ public:
 
 private:
     void setrating(float rating, uint8_t channel);
+    void setcapacity(float heater_capacity,
+                     float radiator_capacity,
+                     uint8_t channel);
+    void setconductance(float heater_conductance,
+                        float radiator_conductance,
+                        uint8_t channel);
 
+    bool mb_power_enable;
+    /* Modelling parameters for heater and incubator heat transfer.
+     * Two stage heat transfer
+     * power -> heater -> radiator -> incubator
+     */
+    float m_ambient_temperature;
     float m_heater_power[HARD_PWM_OUTPUTS];
+    float m_heater_rating[HARD_PWM_OUTPUTS];
     float m_temperature[HARD_PWM_OUTPUTS][2];
     float m_heat_capacity[HARD_PWM_OUTPUTS][2];
-    float m_heater_rating[HARD_PWM_OUTPUTS];
+    float m_heat_conductance[HARD_PWM_OUTPUTS][2];
     float m_incubator_temperature;
-    float m_ambient_temperature;
-    bool mb_power_enable;
+    float m_incubator_capacity;  // heat capacity of incubator
+    float m_incubator_loss;      // rate of heat loss to ambient air.
 };
 
 #endif /* CMOCKHARDWAREMAP_H_ */
