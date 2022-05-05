@@ -8,7 +8,7 @@
 
 #include "CParser.h"
 
-#define ERROR_VALUE (999.99)
+#define ERROR_VALUE (0.00)
 
 /**
  * @brief Constructor
