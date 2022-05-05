@@ -59,7 +59,7 @@ float CMockHardwareMap::getAmbientTemp() const
     return 21.0;
 }
 
-float CMockHardwareMap::getChanneTemp(uint8_t channel) const
+float CMockHardwareMap::getChannelTemp(uint8_t channel) const
 {
     return getAmbientTemp();
 }
@@ -145,12 +145,16 @@ bool CMockHardwareMap::newCommand(ICommand *p_command,
      * Command to modify mock hardware ambient temperature
      * >setambient(20);
      */
-    if (p_command->getName()->compare("setambient"))
+    if (p_command->getName()->compare("setambient") == 0)
     {
         float temperature = (*p_command)[0];
-        if ((temperature < MIN_TEMP) || (MAX_TEMP < temperature))
+        if (p_command->getArgumentCount() != 1)
         {
-            p_comchannel->send("Arguments out of bounds.");
+            p_comchannel->send("Command must have one argument.");
+        }
+        else if ((temperature < MIN_TEMP) || (MAX_TEMP < temperature))
+        {
+            p_comchannel->send("Argument out of bounds.");
         }
         else
         {
@@ -164,16 +168,25 @@ bool CMockHardwareMap::newCommand(ICommand *p_command,
      * to all channels.
      * >setRating(rating, [channel])
      */
-    if (p_command->getName()->compare("setrating"))
+    if (p_command->getName()->compare("setrating") == 0)
     {
         uint8_t channel = (uint8_t)(*p_command)[1];
         float rating = (*p_command)[0];
-        if ((rating < 0) || (channel > HARD_PWM_OUTPUTS))
+        if ((p_command->getArgumentCount() < 1) ||
+            (p_command->getArgumentCount() > 2))
+        {
+            p_comchannel->send("Command must have one or two arguments");
+        }
+        else if ((rating < 0) || (channel > HARD_PWM_OUTPUTS))
         {
             p_comchannel->send("Arguments out of bounds.");
         }
         else
         {
+            if (p_command->getArgumentCount() == 1)
+            {
+                channel = 0;
+            }
             setrating(rating, channel);
         }
         b_command_recognised = true;
@@ -183,18 +196,27 @@ bool CMockHardwareMap::newCommand(ICommand *p_command,
      * omitted command is applied to all channels.
      * >setcapacity(heater_capacity, radiator_capacity, [channel])
      */
-    if (p_command->getName()->compare("setcapacity"))
+    if (p_command->getName()->compare("setcapacity") == 0)
     {
         uint8_t channel = (uint8_t)(*p_command)[2];
         float heater_capacity = (*p_command)[0];
         float radiator_capacity = (*p_command)[1];
-        if ((heater_capacity < 0) || (radiator_capacity < 0) ||
-            (channel > HARD_PWM_OUTPUTS))
+        if ((p_command->getArgumentCount() < 2) ||
+            (p_command->getArgumentCount() > 3))
+        {
+            p_comchannel->send("Command must have two or three arguments");
+        }
+        else if ((heater_capacity < 0) || (radiator_capacity < 0) ||
+                 (channel > HARD_PWM_OUTPUTS))
         {
             p_comchannel->send("Arguments out of bounds.");
         }
         else
         {
+            if (p_command->getArgumentCount() == 2)
+            {
+                channel = 0;
+            }
             setcapacity(heater_capacity, radiator_capacity, channel);
         }
         b_command_recognised = true;
@@ -204,18 +226,27 @@ bool CMockHardwareMap::newCommand(ICommand *p_command,
      * if omitted command is applied to all channels.
      * >setconductance(heater_conductance, radiator_conductance, [channel])
      */
-    if (p_command->getName()->compare("setconductance"))
+    if (p_command->getName()->compare("setconductance") == 0)
     {
         uint8_t channel = (uint8_t)(*p_command)[2];
         float heater_conductance = (*p_command)[0];
         float radiator_conductance = (*p_command)[1];
-        if ((heater_conductance < 0) || (radiator_conductance < 0) ||
-            (channel > HARD_PWM_OUTPUTS))
+        if ((p_command->getArgumentCount() < 2) ||
+            (p_command->getArgumentCount() > 3))
+        {
+            p_comchannel->send("Command must have two or three arguments");
+        }
+        else if ((heater_conductance < 0) || (radiator_conductance < 0) ||
+                 (channel > HARD_PWM_OUTPUTS))
         {
             p_comchannel->send("Arguments out of bounds.");
         }
         else
         {
+            if (p_command->getArgumentCount() == 2)
+            {
+                channel = 0;
+            }
             setconductance(heater_conductance, radiator_conductance, channel);
         }
         b_command_recognised = true;
@@ -229,7 +260,7 @@ bool CMockHardwareMap::newCommand(ICommand *p_command,
     {
         if (p_command->getArgumentCount() != 0)
         {
-            p_comchannel->send("Command should have two arguments.");
+            p_comchannel->send("Command must have two arguments.");
         }
         else if (((*p_command)[0] < 0) || ((*p_command)[1] < 0))
         {
