@@ -25,7 +25,7 @@ public:
     virtual float getTotalCurrent() const;
     virtual float getControlCurrent() const;
     virtual float getAmbientTemp() const;
-    virtual float getChanneTemp(uint8_t channel) const;
+    virtual float getChannelTemp(uint8_t channel) const;
     virtual float setHardPwmOutput(float power, uint8_t channel);
     virtual float getHardPwmOutput(uint8_t channel);
 #ifdef SOFT_PWM_OUTPUTS
