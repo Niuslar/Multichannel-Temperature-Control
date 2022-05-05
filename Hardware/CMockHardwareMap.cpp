@@ -220,6 +220,28 @@ bool CMockHardwareMap::newCommand(ICommand *p_command,
         }
         b_command_recognised = true;
     }
+    /**
+     * Command to modify incubator parameters. Incubator heat capacity and heat
+     * loss rate to ambient.
+     * >setincubator(incubator_capacity, incubator_conductance)
+     */
+    if (p_command->getName()->compare("setincubator") == 0)
+    {
+        if (p_command->getArgumentCount() != 0)
+        {
+            p_comchannel->send("Command should have two arguments.");
+        }
+        else if (((*p_command)[0] < 0) || ((*p_command)[1] < 0))
+        {
+            p_comchannel->send("Arguments out of bounds.");
+        }
+        else
+        {
+            m_incubator_capacity = (*p_command)[0];
+            m_incubator_loss = (*p_command)[1];
+        }
+        b_command_recognised = true;
+    }
     return b_command_recognised;
 }
 
