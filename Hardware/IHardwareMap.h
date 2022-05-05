@@ -36,7 +36,7 @@ public:
     virtual float getTotalCurrent() const = 0;
     virtual float getControlCurrent() const = 0;
     virtual float getAmbientTemp() const = 0;
-    virtual float getChanneTemp(uint8_t channel) const = 0;
+    virtual float getChannelTemp(uint8_t channel) const = 0;
     /* PWM control */
     virtual float setHardPwmOutput(float power, uint8_t channel) = 0;
     virtual float getHardPwmOutput(uint8_t channel) = 0;

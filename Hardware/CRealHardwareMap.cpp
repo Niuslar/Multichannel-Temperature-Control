@@ -98,7 +98,7 @@ float CRealHardwareMap::getAmbientTemp() const
     return temperature;
 }
 
-float CRealHardwareMap::getChanneTemp(uint8_t channel) const
+float CRealHardwareMap::getChannelTemp(uint8_t channel) const
 {
     float temperature = m_adc[channel];
     // TODO: calibration for thermistor goes here.
