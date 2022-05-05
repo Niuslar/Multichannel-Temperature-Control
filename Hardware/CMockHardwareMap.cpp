@@ -23,6 +23,8 @@
 #define INCUBATOR_CAPACITY   10    // [Watt/degC]
 #define INCUBATOR_LOSS       0.01  // [degC/Watt]
 
+#define DIGITAL_CURRENT_CONSUMPTION 0.5  // half an amp for digital part of PCB
+
 CMockHardwareMap::CMockHardwareMap(etl::string<MAX_STRING_SIZE> name,
                                    uint32_t run_period_ms)
     : CController(name, run_period_ms)
@@ -44,7 +46,7 @@ float CMockHardwareMap::getTotalCurrent() const
 {
     // TODO: model current consumption based control current + some for digital
     // logic.
-    return getControlCurrent() + 0.1;
+    return getControlCurrent() + DIGITAL_CURRENT_CONSUMPTION;
 }
 
 float CMockHardwareMap::getControlCurrent() const
@@ -55,25 +57,50 @@ float CMockHardwareMap::getControlCurrent() const
 
 float CMockHardwareMap::getAmbientTemp() const
 {
-    // TODO: consider modelling this.
-    return 21.0;
+    return m_ambient_temperature;
 }
 
 float CMockHardwareMap::getChannelTemp(uint8_t channel) const
 {
-    return getAmbientTemp();
+    if (channel < HARD_PWM_OUTPUTS)
+    {
+        return m_temperature[channel - 1][1];
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 float CMockHardwareMap::setHardPwmOutput(float power, uint8_t channel)
 {
-    // TODO: This sets power parameters for the model.
-    return 0;
+    if (channel < HARD_PWM_OUTPUTS)
+    {
+        if (power < 0)
+        {
+            power = 0;
+        }
+        if (power > 100)
+        {
+            power = 100;
+        }
+        m_heater_power[channel - 1] = power;
+    }
+    else
+    {
+        power = 0;
+    }
+    return power;
 }
 
 float CMockHardwareMap::getHardPwmOutput(uint8_t channel)
 {
-    // TODO: this just returns what's been recorded for heater power
-    return 0;
+    float power = 0;
+    if (channel < HARD_PWM_OUTPUTS)
+    {
+        power = m_heater_power[channel - 1];
+    }
+    return power;
 }
 
 #ifdef SOFT_PWM_OUTPUTS
@@ -85,16 +112,17 @@ void CMockHardwareMap::setBreathingLight(float duty_cycle) {}
 
 void CMockHardwareMap::enableControlPower(bool b_enable)
 {
-    // todo: this should probably participate in the model of control current
-    // flow and temperature control.
+    mb_power_enable = b_enable;
 }
 
 void CMockHardwareMap::run()
 {
     float total_radiator_flow = 0;
+    m_control_current = 0;
     for (int i = 0; i < HARD_PWM_OUTPUTS; i++)
     {
         float heater_flow;
+        float heater_power;
         float radiator_flow;
         /**
          * Update temperature of the heater stage. heater_flow is heat flowing
@@ -104,9 +132,20 @@ void CMockHardwareMap::run()
          * and heater power loss to radiator. */
         heater_flow = (m_temperature[i][0] - m_temperature[i][1]) /
                       m_heat_conductance[i][0];
-        m_temperature[i][0] +=
-            (m_heater_power[i] * m_heater_rating[i] - heater_flow) *
-            m_run_period_ms / 1000 / m_heat_capacity[i][0];
+        if (mb_power_enable)
+        {
+            heater_power = m_heater_power[i] * m_heater_rating[i] / 100;
+            /**
+               Calculate control current based on each heater consumption and
+               current input voltage.          */
+            m_control_current += heater_power / getInputVoltage();
+        }
+        else
+        {
+            heater_power = 0;
+        }
+        m_temperature[i][0] += heater_power - heater_flow * m_run_period_ms /
+                                                  1000 / m_heat_capacity[i][0];
 
         /**
          * Update temperature of the radiator stage. radiator_flow is heat
@@ -294,6 +333,7 @@ void CMockHardwareMap::reset()
     m_incubator_temperature = m_ambient_temperature;
     m_incubator_capacity = AMBIENT_T;
     m_incubator_loss = INCUBATOR_LOSS;
+    m_control_current = 0;
 }
 
 void CMockHardwareMap::setrating(float rating, uint8_t channel)

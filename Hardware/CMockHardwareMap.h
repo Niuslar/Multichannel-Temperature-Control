@@ -66,6 +66,7 @@ private:
     float m_incubator_temperature;
     float m_incubator_capacity;  // heat capacity of incubator
     float m_incubator_loss;      // rate of heat loss to ambient air.
+    float m_control_current;     // total current flowing through the heaters.
 };
 
 #endif /* CMOCKHARDWAREMAP_H_ */
