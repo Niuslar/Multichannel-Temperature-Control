@@ -105,8 +105,8 @@ void CMockHardwareMap::run()
         heater_flow = (m_temperature[i][0] - m_temperature[i][1]) /
                       m_heat_conductance[i][0];
         m_temperature[i][0] +=
-            (m_heater_power[i] * m_heater_rating[i] - heater_flow) /
-            m_heat_capacity[i][0];
+            (m_heater_power[i] * m_heater_rating[i] - heater_flow) *
+            m_run_period_ms / 1000 / m_heat_capacity[i][0];
 
         /**
          * Update temperature of the radiator stage. radiator_flow is heat
@@ -120,15 +120,15 @@ void CMockHardwareMap::run()
          */
         radiator_flow = (m_temperature[i][1] - m_incubator_temperature) /
                         m_heat_conductance[i][1];
-        m_temperature[i][1] +=
-            (heater_flow - radiator_flow) / m_heat_capacity[i][1];
+        m_temperature[i][1] += (heater_flow - radiator_flow) * m_run_period_ms /
+                               1000 / m_heat_capacity[i][1];
         total_radiator_flow -= radiator_flow;
     }
     float incubator_flow;
     incubator_flow =
         (m_incubator_temperature - m_ambient_temperature) / m_incubator_loss;
-    m_incubator_temperature +=
-        (total_radiator_flow - incubator_flow) / m_incubator_capacity;
+    m_incubator_temperature += (total_radiator_flow - incubator_flow) *
+                               m_run_period_ms / 1000 / m_incubator_capacity;
 }
 
 /**
