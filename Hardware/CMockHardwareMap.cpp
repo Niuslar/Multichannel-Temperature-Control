@@ -239,7 +239,7 @@ bool CMockHardwareMap::setambient(float temperature)
 bool CMockHardwareMap::setincubator(float capacity, float loss)
 {
     bool b_success = false;
-    if (capacity >= 0 || loss >= 0)
+    if (capacity >= 0 && loss >= 0)
     {
         m_incubator_capacity = capacity;
         m_incubator_loss = loss;
