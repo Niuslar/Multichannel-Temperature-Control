@@ -19,6 +19,15 @@
 class CMockHardwareMap : public IHardwareMap, public CController
 {
 public:
+    typedef enum COMMAND_ERROR_CODE_T
+    {
+        COMMAND_OK = 0,
+        ERROR_ARG_COUNT,      // wrong number of arguments
+        ERROR_OUT_OF_BOUNDS,  // arguments out of bounds
+        ERROR_TYPE_MISMATCH   // argument is wrong type, e.g. float when int
+                              // expected
+    } command_error_code_t;
+
     CMockHardwareMap(etl::string<MAX_STRING_SIZE> name, uint32_t run_period_ms);
     virtual void init();
     virtual float getInputVoltage() const;
@@ -44,13 +53,11 @@ public:
     //    virtual void start();
 
 private:
-    void setrating(float rating, uint8_t channel);
-    void setcapacity(float heater_capacity,
-                     float radiator_capacity,
-                     uint8_t channel);
-    void setconductance(float heater_conductance,
-                        float radiator_conductance,
-                        uint8_t channel);
+    command_error_code_t setAmbient(ICommand *p_command);
+    command_error_code_t setRating(ICommand *p_command);
+    command_error_code_t setCapacity(ICommand *p_command);
+    command_error_code_t setConductance(ICommand *p_command);
+    command_error_code_t setIncubator(ICommand *p_command);
 
     bool mb_power_enable;
     /* Modelling parameters for heater and incubator heat transfer.
