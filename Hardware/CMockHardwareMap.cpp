@@ -222,7 +222,7 @@ bool CMockHardwareMap::newCommand(ICommand *p_command,
 bool CMockHardwareMap::setambient(float temperature)
 {
     bool b_success = false;
-    if ((temperature > MIN_TEMP) || (temperature < MAX_TEMP))
+    if ((temperature > MIN_TEMP) && (temperature < MAX_TEMP))
     {
         m_ambient_temperature = temperature;
         b_success = true;
@@ -272,7 +272,7 @@ void CMockHardwareMap::reset()
 bool CMockHardwareMap::setrating(float rating, uint8_t channel)
 {
     bool b_success = false;
-    if ((rating >= 0) || (channel <= HARD_PWM_OUTPUTS))
+    if ((rating >= 0) && (channel <= HARD_PWM_OUTPUTS))
     {
         if (channel == 0)
         {
@@ -296,7 +296,7 @@ bool CMockHardwareMap::setcapacity(float heater_capacity,
                                    uint8_t channel)
 {
     bool b_success = false;
-    if ((heater_capacity >= 0) || (radiator_capacity >= 0) ||
+    if ((heater_capacity >= 0) && (radiator_capacity >= 0) &&
         (channel <= HARD_PWM_OUTPUTS))
     {
         if (channel == 0)
@@ -322,7 +322,7 @@ bool CMockHardwareMap::setconductance(float heater_conductance,
                                       uint8_t channel)
 {
     bool b_success = false;
-    if ((heater_conductance >= 0) || (radiator_conductance >= 0) ||
+    if ((heater_conductance >= 0) && (radiator_conductance >= 0) &&
         (channel <= HARD_PWM_OUTPUTS))
     {
         if (channel == 0)
