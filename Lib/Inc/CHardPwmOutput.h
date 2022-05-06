@@ -21,7 +21,7 @@ class CHardPwmOutput : public IPwmOutput
 public:
     CHardPwmOutput();
 
-    void init(TIM_HandleTypeDef *p_timer, uint8_t channel);
+    void init(TIM_HandleTypeDef *const p_timer, const uint8_t channel);
     TIM_HandleTypeDef *getTimer() const
     {
         return mp_timer;

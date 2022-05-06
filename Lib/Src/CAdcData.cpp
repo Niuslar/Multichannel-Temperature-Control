@@ -48,7 +48,7 @@ void CAdcData::init()
  * @param adc_channel Number of channel starting from 0
  * @retval Volts
  */
-float CAdcData::operator[](uint8_t adc_channel)
+float CAdcData::operator[](uint8_t adc_channel) const
 {
     // Check channel is within defined range
     if (adc_channel >= m_adc_channels)
