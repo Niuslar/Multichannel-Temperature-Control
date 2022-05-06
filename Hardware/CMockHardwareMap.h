@@ -84,7 +84,7 @@ private:
     float m_incubator_loss;      // rate of heat loss to ambient air.
     float m_control_current;     // total current flowing through the heaters.
 
-    // Table of function pointers to call with commands
+    // Table of commands
     command_t commands_table[COMMANDS_COUNT] = {
         {"setrating", 2, &CMockHardwareMap::setratingwrapper},
         {"setcapacity", 3, &CMockHardwareMap::setcapacity},
