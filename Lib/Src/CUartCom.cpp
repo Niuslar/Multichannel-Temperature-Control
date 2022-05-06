@@ -115,22 +115,18 @@ bool CUartCom::send(etl::string<MAX_STRING_SIZE> msg)
  * @brief Add data to the TX Queue and start transmission if possible
  * @param p_data_buf Reference to array of uint8_t data
  * @param len Size of data that needs to be stored
- * @return True if data was added to the queue
+ * @return True if data was added to the queue, false in case of buffer overflow
  */
 bool CUartCom::send(uint8_t *p_data_buf, uint32_t len)
 {
-    bool b_success = false;
+    bool b_success = true;
 
     // Store data in tx_queue
     for (uint32_t i = 0; i < len; i++)
     {
         if (m_tx_queue.put(p_data_buf[i]) == false)
         {
-            send("Error: buffer overflow-> TX queue");
-        }
-        else
-        {
-            b_success = true;
+            b_success = false;
         }
     }
 
