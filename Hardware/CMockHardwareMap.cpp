@@ -199,13 +199,15 @@ bool CMockHardwareMap::newCommand(ICommand *p_command,
                     (this->*(commands_table[i].execute))(arg_1, arg_2, channel);
                 if (b_success == false)
                 {
-                    p_comchannel->send("Arguments out of bounds\n");
+                    p_comchannel->send(commands_table[i].name);
+                    p_comchannel->send(": Arguments out of bounds\n");
                 }
                 b_command_recognised = true;
             }
             else
             {
-                p_comchannel->send("Argument count check failed\n");
+                p_comchannel->send(commands_table[i].name);
+                p_comchannel->send(": Argument count check failed\n");
             }
         }
     }
