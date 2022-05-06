@@ -196,48 +196,25 @@ void CUartCom::endTx()
  */
 void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
 {
-    // Store incoming char
-    static uint8_t len_counter = 0;
+    // Store char in buffer
+    if (m_rx_buffer.put((char)m_rx_char) == false)
+    {
+        // Reset buffer and log error
+        send("Error: Max string size is RX_BUF_SIZE\n");
+        m_rx_buffer.reset();
+    }
 
-    bool full_buffer = (len_counter >= (RX_BUF_SIZE));
     if (m_rx_char == '\n' || m_rx_char == '\r')
     {
-        // '\n' and '\r' are replaced with '\0' to mark the end of the string
-        m_rx_buffer.put('\0');
-
-        if (full_buffer)
+        // Get string and store it in RX QUEUE
+        etl::string<MAX_STRING_SIZE> rx_string = getString();
+        if (m_rx_queue.size() <= MAX_RX_QUEUE_SIZE && !rx_string.empty())
         {
-            /**
-             * @note If a command length exceeds the RX_BUF_SIZE, The whole
-             * command will be ignored.
-             */
-
-            // Send warning
-            send("[ERROR]: Command exceeds max. length\n");
-
-            // Reset buffer
-            m_rx_buffer.reset();
-        }
-        else
-        {
-            etl::string<MAX_STRING_SIZE> rx_string = getString();
-            if (m_rx_queue.size() <= MAX_RX_QUEUE_SIZE && !rx_string.empty())
+            if (m_rx_queue.put(rx_string) == false)
             {
-                if (m_rx_queue.put(rx_string) == false)
-                {
-                    send("Error: Buffer overflow -> RX Queue\n");
-                }
+                send("Error: Buffer overflow -> RX Queue\n");
             }
         }
-        len_counter = 0;
-    }
-    else
-    {
-        if (m_rx_buffer.put((char)m_rx_char) == false)
-        {
-            send("Error: Buffer overflow -> RX BUFFER\n");
-        }
-        len_counter++;
     }
 
     HAL_UART_Receive_IT(p_huart, &m_rx_char, 1);
@@ -268,18 +245,22 @@ etl::string<MAX_STRING_SIZE> CUartCom::getString()
 {
     uint8_t counter = 0;
     char c_string[RX_BUF_SIZE];
-    char data;
+    char data = m_rx_buffer.get();
     /**
      * @note while loop stops when the counter is (RX_BUF_SIZE - 1) because
      * an extra space is needed for the '\0' character.
      */
-    while ((data = m_rx_buffer.get()) != '\0' && counter < (RX_BUF_SIZE - 1))
+
+    while ((data != '\0') && (data != '\n') && (data != '\r') &&
+           (counter < (RX_BUF_SIZE - 1)))
     {
         c_string[counter] = data;
+        data = m_rx_buffer.get();
         counter++;
     }
     c_string[counter] = '\0';
     etl::string<MAX_STRING_SIZE> cpp_string = (char *)c_string;
+    m_rx_buffer.reset();
 
     return cpp_string;
 }
