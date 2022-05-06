@@ -350,7 +350,7 @@ bool CMockHardwareMap::setambientwrapper(float x, float y, uint8_t z)
 {
     return setambient(x);
 }
-bool CMockHardwareMap::setincubatortwrapper(float x, float y, uint8_t z)
+bool CMockHardwareMap::setincubatorwrapper(float x, float y, uint8_t z)
 {
     return setincubator(x, y);
 }

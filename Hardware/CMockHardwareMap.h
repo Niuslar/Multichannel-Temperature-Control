@@ -66,7 +66,7 @@ private:
     // Wrappers for function pointer
     bool setratingwrapper(float x, float y, uint8_t z);
     bool setambientwrapper(float x, float y, uint8_t z);
-    bool setincubatortwrapper(float x, float y, uint8_t z);
+    bool setincubatorwrapper(float x, float y, uint8_t z);
 
     bool mb_power_enable;
     /* Modelling parameters for heater and incubator heat transfer.
@@ -90,7 +90,7 @@ private:
         {"setcapacity", 3, &CMockHardwareMap::setcapacity},
         {"setconductance", 3, &CMockHardwareMap::setconductance},
         {"setambient", 1, &CMockHardwareMap::setambientwrapper},
-        {"setincubator", 2, &CMockHardwareMap::setincubatortwrapper}};
+        {"setincubator", 2, &CMockHardwareMap::setincubatorwrapper}};
 };
 
 #endif /* CMOCKHARDWAREMAP_H_ */
