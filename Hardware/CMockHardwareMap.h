@@ -16,6 +16,8 @@
 #include "CController.h"
 #include "IHardwareMap.h"
 
+#define COMMANDS_COUNT 5
+
 class CMockHardwareMap : public IHardwareMap, public CController
 {
 public:
@@ -44,13 +46,27 @@ public:
     //    virtual void start();
 
 private:
-    void setrating(float rating, uint8_t channel);
-    void setcapacity(float heater_capacity,
+    typedef bool (CMockHardwareMap::*function_pointer_t)(float, float, uint8_t);
+    typedef struct COMMAND_T
+    {
+        etl::string<MAX_STRING_SIZE> name;
+        uint8_t argument_count;
+        function_pointer_t execute;
+    } command_t;
+    bool setrating(float rating, uint8_t channel);
+    bool setcapacity(float heater_capacity,
                      float radiator_capacity,
                      uint8_t channel);
-    void setconductance(float heater_conductance,
+    bool setconductance(float heater_conductance,
                         float radiator_conductance,
                         uint8_t channel);
+    bool setambient(float temperature);
+    bool setincubator(float capacity, float loss);
+
+    // Wrappers for function pointer
+    bool setratingwrapper(float x, float y, uint8_t z);
+    bool setambientwrapper(float x, float y, uint8_t z);
+    bool setincubatortwrapper(float x, float y, uint8_t z);
 
     bool mb_power_enable;
     /* Modelling parameters for heater and incubator heat transfer.
@@ -67,6 +83,14 @@ private:
     float m_incubator_capacity;  // heat capacity of incubator
     float m_incubator_loss;      // rate of heat loss to ambient air.
     float m_control_current;     // total current flowing through the heaters.
+
+    // Table of function pointers to call with commands
+    command_t commands_table[COMMANDS_COUNT] = {
+        {"setrating", 2, &CMockHardwareMap::setratingwrapper},
+        {"setcapacity", 3, &CMockHardwareMap::setcapacity},
+        {"setconductance", 3, &CMockHardwareMap::setconductance},
+        {"setambient", 1, &CMockHardwareMap::setambientwrapper},
+        {"setincubator", 2, &CMockHardwareMap::setincubatortwrapper}};
 };
 
 #endif /* CMOCKHARDWAREMAP_H_ */
