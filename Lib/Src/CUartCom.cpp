@@ -10,6 +10,8 @@
 
 #include "CUartCom.h"
 
+#define BYTE 1
+
 CUartCom *CUartCom::sp_UART[MAX_UART_ENGINES] = {nullptr};
 uint8_t CUartCom::s_uart_instances = 0;
 
@@ -98,31 +100,44 @@ void CUartCom::stopRx()
 }
 
 /**
- * @brief Add data to the TX Queue and start transmission if possible
- * @param msg Message to send.
- * @return True if message was added to the queue and transmission started
- * successfully.
+ * @brief send string
+ * @param msg Message to be sent via UART
+ * @return success if message was successfully stored in TX Queue.
  */
 bool CUartCom::send(etl::string<MAX_STRING_SIZE> msg)
 {
+    uint32_t msg_len = msg.length();
+    bool b_success = send((uint8_t *)msg.c_str(), msg_len);
+    return b_success;
+}
+
+/**
+ * @brief Add data to the TX Queue and start transmission if possible
+ * @param p_data_buf Reference to array of uint8_t data
+ * @param len Size of data that needs to be stored
+ * @return True if data was added to the queue
+ */
+bool CUartCom::send(uint8_t *p_data_buf, uint32_t len)
+{
     bool b_success = false;
-    // Add message to queue
-    if (m_tx_queue.size() <= MAX_TX_QUEUE_SIZE && (msg.empty() == false))
+
+    // Store data in tx_queue
+    for (uint32_t i = 0; i < len; i++)
     {
-        if (m_tx_queue.put(msg) == true)
+        if (m_tx_queue.put(p_data_buf[i]) == false)
         {
-            b_success = true;
+            send("Error: buffer overflow-> TX queue");
         }
         else
         {
-            send("Error: Buffer overflow -> TX Queue\n");
+            b_success = true;
         }
     }
 
-    // Start transmission only if UART is idle
+    // Start transmission only if UART is not transmitting already
     if (m_status == IDLE)
     {
-        b_success = transmit();
+        transmit();
     }
     return b_success;
 }
@@ -132,9 +147,7 @@ bool CUartCom::send(etl::string<MAX_STRING_SIZE> msg)
  */
 void CUartCom::updateTxBuffer()
 {
-    etl::string<MAX_STRING_SIZE> message = m_tx_queue.get();
-    m_tx_msg_length = message.length();
-    strcpy(m_tx_buffer, message.c_str());
+    m_tx_char = m_tx_queue.get();
     m_status = TX;
 }
 
@@ -157,7 +170,7 @@ bool CUartCom::transmit()
         m_uart_de_pin.set(true);
 
         updateTxBuffer();
-        HAL_UART_Transmit_IT(mp_huart, (uint8_t *)m_tx_buffer, m_tx_msg_length);
+        HAL_UART_Transmit_IT(mp_huart, &m_tx_char, BYTE);
         b_success = true;
     }
 
