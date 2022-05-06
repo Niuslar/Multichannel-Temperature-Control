@@ -61,6 +61,12 @@ CRealHardwareMap::CRealHardwareMap() : m_adc(&hadc1)
     // TODO Auto-generated constructor stub
 }
 
+/**
+ * @brief Initialise hardware peripherals.
+ * @note This method must be called as it sets up all hardware that cannot be
+ * setup at construction time. Example: timers and ADC.
+ *
+ */
 void CRealHardwareMap::init()
 {
     /* all hardware initialisation of peripherals goes here. */
@@ -76,20 +82,41 @@ void CRealHardwareMap::init()
     m_power_enable.init(BREATHING_GPIO_Port, BREATHING_Pin);
 }
 
+/**
+ * @brief Get instantaneous measure of input voltage.
+ *
+ * @return Input power supply voltage in [Volt].
+ */
 float CRealHardwareMap::getInputVoltage() const
 {
     return m_adc[INPUT_VOLTAGE_CHANNEL] * INPUT_VOLTAGE_SCALE;
 }
 
+/**
+ * @brief Get instantaneous measure of total consumed current.
+ *
+ * @return Instant total current in [Amp].
+ */
 float CRealHardwareMap::getTotalCurrent() const
 {
     return m_adc[TOTAL_CURRENT_CHANNEL] * TOTAL_CURRENT_SCALE;
 }
 
+/**
+ * @brief Get instantaneous measure of current consumed by control peripherals.
+ *
+ * @return Instant control current in [Amp].
+ */
 float CRealHardwareMap::getControlCurrent() const
 {
     return m_adc[CONTROL_CURRENT_CHANNEL] * CONTROL_CURRENT_SCALE;
 }
+
+/**
+ * @brief Get ambient temperature from on-board sensor.
+ *
+ * @return Instant temperature from sensor mounted on the PCB.
+ */
 float CRealHardwareMap::getAmbientTemp() const
 {
     float temperature = m_adc[AMBIENT_TEMP_CHANNEL];
@@ -98,6 +125,12 @@ float CRealHardwareMap::getAmbientTemp() const
     return temperature;
 }
 
+/**
+ * @brief Get temperature for off-board thermistor sensor.
+ *
+ * @param channel Number of the channel to query.
+ * @return Temperature for requested channel in [degC].
+ */
 float CRealHardwareMap::getChannelTemp(uint8_t channel) const
 {
     float temperature = m_adc[channel];
