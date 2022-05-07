@@ -180,7 +180,7 @@ bool CMockHardwareMap::newCommand(ICommand *p_command,
                                   IComChannel *p_comchannel)
 {
     bool b_command_recognised = false;
-    command_error_code_t result = COMMAND_OK;
+    ICommand::command_error_code_t result = ICommand::COMMAND_OK;
     /**
      * Command to modify mock hardware ambient temperature
      * >setambient(20);
@@ -238,16 +238,16 @@ bool CMockHardwareMap::newCommand(ICommand *p_command,
     {
         switch (result)
         {
-            case COMMAND_OK:
+            case ICommand::COMMAND_OK:
                 p_comchannel->send("OK.\n");
                 break;
-            case ERROR_ARG_COUNT:
+            case ICommand::ERROR_ARG_COUNT:
                 p_comchannel->send("Wrong number of arguments.\n");
                 break;
-            case ERROR_OUT_OF_BOUNDS:
+            case ICommand::ERROR_OUT_OF_BOUNDS:
                 p_comchannel->send("Argument out of bounds.\n");
                 break;
-            case ERROR_TYPE_MISMATCH:
+            case ICommand::ERROR_TYPE_MISMATCH:
                 p_comchannel->send("Argument type mismatch.\n");
                 break;
             default:
@@ -278,38 +278,38 @@ void CMockHardwareMap::reset()
     m_control_current = 0;
 }
 
-CMockHardwareMap::command_error_code_t CMockHardwareMap::setAmbient(
+ICommand::command_error_code_t CMockHardwareMap::setAmbient(
     ICommand *p_command)
 {
     // Sanitise command arguments
     if (p_command->getArgumentCount() != 1)
     {
-        return ERROR_ARG_COUNT;
+        return ICommand::ERROR_ARG_COUNT;
     }
     float temperature = (*p_command)[0];
     if ((temperature < MIN_TEMP) || (MAX_TEMP < temperature))
     {
-        return ERROR_OUT_OF_BOUNDS;
+        return ICommand::ERROR_OUT_OF_BOUNDS;
     }
     // Apply command
     m_ambient_temperature = temperature;
-    return COMMAND_OK;
+    return ICommand::COMMAND_OK;
 }
 
-CMockHardwareMap::command_error_code_t CMockHardwareMap::setRating(
+ICommand::command_error_code_t CMockHardwareMap::setRating(
     ICommand *p_command)
 {
     // Sanitise command arguments
     if ((p_command->getArgumentCount() < 1) ||
         (p_command->getArgumentCount() > 2))
     {
-        return ERROR_ARG_COUNT;
+        return ICommand::ERROR_ARG_COUNT;
     }
     float rating = (*p_command)[0];
     uint8_t channel = (uint8_t)(*p_command)[1];
     if ((rating < 0) || (channel > HARD_PWM_OUTPUTS))
     {
-        return ERROR_OUT_OF_BOUNDS;
+        return ICommand::ERROR_OUT_OF_BOUNDS;
     }
     if (p_command->getArgumentCount() == 1)
     {
@@ -320,7 +320,7 @@ CMockHardwareMap::command_error_code_t CMockHardwareMap::setRating(
         // compare typecast value to original to find out if there is fraction.
         if (channel != (*p_command)[1])
         {
-            return ERROR_TYPE_MISMATCH;
+            return ICommand::ERROR_TYPE_MISMATCH;
         }
     }
     // Execute command
@@ -335,17 +335,17 @@ CMockHardwareMap::command_error_code_t CMockHardwareMap::setRating(
     {
         m_heater_rating[channel - 1] = rating;
     }
-    return COMMAND_OK;
+    return ICommand::COMMAND_OK;
 }
 
-CMockHardwareMap::command_error_code_t CMockHardwareMap::setCapacity(
+ICommand::command_error_code_t CMockHardwareMap::setCapacity(
     ICommand *p_command)
 {
     // Sanitise command arguments
     if ((p_command->getArgumentCount() < 2) ||
         (p_command->getArgumentCount() > 3))
     {
-        return ERROR_ARG_COUNT;
+        return ICommand::ERROR_ARG_COUNT;
     }
     float heater_capacity = (*p_command)[0];
     float radiator_capacity = (*p_command)[1];
@@ -353,7 +353,7 @@ CMockHardwareMap::command_error_code_t CMockHardwareMap::setCapacity(
     if ((heater_capacity < 0) || (radiator_capacity < 0) ||
         (channel > HARD_PWM_OUTPUTS))
     {
-        return ERROR_OUT_OF_BOUNDS;
+        return ICommand::ERROR_OUT_OF_BOUNDS;
     }
     if (p_command->getArgumentCount() == 2)
     {
@@ -363,7 +363,7 @@ CMockHardwareMap::command_error_code_t CMockHardwareMap::setCapacity(
     {
         if (channel != (*p_command)[2])
         {
-            return ERROR_TYPE_MISMATCH;
+            return ICommand::ERROR_TYPE_MISMATCH;
         }
     }
     // Execute command
@@ -380,17 +380,17 @@ CMockHardwareMap::command_error_code_t CMockHardwareMap::setCapacity(
         m_heat_capacity[channel - 1][0] = heater_capacity;
         m_heat_capacity[channel - 1][1] = radiator_capacity;
     }
-    return COMMAND_OK;
+    return ICommand::COMMAND_OK;
 }
 
-CMockHardwareMap::command_error_code_t CMockHardwareMap::setConductance(
+ICommand::command_error_code_t CMockHardwareMap::setConductance(
     ICommand *p_command)
 {
     // Sanitise command arguments
     if ((p_command->getArgumentCount() < 2) ||
         (p_command->getArgumentCount() > 3))
     {
-        return ERROR_ARG_COUNT;
+        return ICommand::ERROR_ARG_COUNT;
     }
     float heater_conductance = (*p_command)[0];
     float radiator_conductance = (*p_command)[1];
@@ -398,7 +398,7 @@ CMockHardwareMap::command_error_code_t CMockHardwareMap::setConductance(
     if ((heater_conductance < 0) || (radiator_conductance < 0) ||
         (channel > HARD_PWM_OUTPUTS))
     {
-        return ERROR_OUT_OF_BOUNDS;
+        return ICommand::ERROR_OUT_OF_BOUNDS;
     }
     if (p_command->getArgumentCount() == 2)
     {
@@ -408,7 +408,7 @@ CMockHardwareMap::command_error_code_t CMockHardwareMap::setConductance(
     {
         if (channel != (*p_command)[2])
         {
-            return ERROR_TYPE_MISMATCH;
+            return ICommand::ERROR_TYPE_MISMATCH;
         }
     }
     // Execute command
@@ -425,23 +425,23 @@ CMockHardwareMap::command_error_code_t CMockHardwareMap::setConductance(
         m_heat_conductance[channel - 1][0] = heater_conductance;
         m_heat_conductance[channel - 1][1] = radiator_conductance;
     }
-    return COMMAND_OK;
+    return ICommand::COMMAND_OK;
 }
 
-CMockHardwareMap::command_error_code_t CMockHardwareMap::setIncubator(
+ICommand::command_error_code_t CMockHardwareMap::setIncubator(
     ICommand *p_command)
 {
     // Sanitise command arguments
     if (p_command->getArgumentCount() != 1)
     {
-        return ERROR_ARG_COUNT;
+        return ICommand::ERROR_ARG_COUNT;
     }
     float temperature = (*p_command)[0];
     if ((temperature < MIN_TEMP) || (MAX_TEMP < temperature))
     {
-        return ERROR_OUT_OF_BOUNDS;
+        return ICommand::ERROR_OUT_OF_BOUNDS;
     }
     // Apply command
     m_incubator_temperature = temperature;
-    return COMMAND_OK;
+    return ICommand::COMMAND_OK;
 }
