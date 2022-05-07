@@ -12,6 +12,7 @@
 #include "CDispatcher.h"
 #include "CMockHardwareMap.h"
 #include "CRealHardwareMap.h"
+#include "CTemperatureController.h"
 #include "CUartCom.h"
 #include "adc.h"
 
@@ -33,16 +34,28 @@ CDispatcher g_dispatcher(&g_debug_uart);
 /**
  * @note This compile time switch allows for defining of whether a real
  * peripherals are used or mock ones. Mock peripherals allow for the logic to be
- * ran without engaging peripherals. I
+ * ran without engaging peripherals.
  */
 #ifdef MOCK_HARDWARE
-CMockHardwareMap g_hardware_map;
+CMockHardwareMap g_hardware_map("mock_hardware", 101);
 #else
 CRealHardwareMap g_hardware_map;
 #endif
 
-/* controllers */
-CDebugController g_debug_controller("debug", 100);
+/**
+ * The controllers are instantiated here. Note that the runtime variables are
+ * prime numbers. This reduces contention between controllers requiring
+ * attention simultaneously. Example: for runtime period of 97ms and 89ms, the
+ * time between simultaneous requests will be 97 * 89 = 8633ms. This is rare
+ * enough that any contention resulting in delay of execution will not stack up.
+ * For three controllers to have contention over execution time period is even
+ * larger. Example: for 89ms, 97ms, and 101ms to cause contention 871'933ms must
+ * pass, which is equivalent to 14.5 hours. This will be very rare event that is
+ * unlikely to cause any issues with clock starvation. For choices of prime
+ * numbers to use see prime_numbers.txt file.
+ */
+CDebugController g_debug_controller("debug", 97);
+CTemperatureController g_temp_controller("temperature", 89);
 
 #ifdef __cplusplus
 extern "C"
@@ -57,44 +70,12 @@ extern "C"
          * initialisation code here.
          */
         g_dispatcher.registerController(&g_debug_controller);
-        //        CUartCom uart_for_errors(&huart2);
-
-        //        CLog log_main(&uart_for_errors, "Main");
-        //        log_main.setLogLevel(CLog::LOG_INFO);
-
-        //        CAdcData adc_1(&hadc);
-        //        adc_1.init();
-
-        // Infinite Loop
-
+        g_dispatcher.registerController(&g_temp_controller);
         /**
          * @note Dispatcher run() method will not return. At this point
          * scheduling of controllers will start.
          */
         g_dispatcher.run();
-        //        while (1)
-        //        {
-        //#ifdef DEBUG
-        //            // Test 3 of the 14 ADC channels
-        //
-        //            // First read channels
-        //            uint16_t adc_ch_1 = adc_1[0];
-        //            uint16_t adc_ch_2 = adc_1[1];
-        //            uint16_t adc_ch_14 = adc_1[13];
-        //
-        //            std::string value1 = "ADC1 = " + std::to_string(adc_ch_1);
-        //            std::string value2 = "ADC2 = " + std::to_string(adc_ch_2);
-        //            std::string value3 = "ADC14 = " +
-        //            std::to_string(adc_ch_14);
-        //
-        //            log_main.log(CLog::LOG_INFO, value1);
-        //            log_main.log(CLog::LOG_INFO, value2);
-        //            log_main.log(CLog::LOG_INFO, value3);
-        //
-        //            HAL_Delay(2000);
-        //            adc_1.trigger();
-        //#endif
-        //        }
     }
 
 #ifdef __cplusplus
