@@ -24,6 +24,18 @@ public:
     ICommand();
 
     /**
+     * @brief Possible outcomes of processing new command.
+     */
+    typedef enum COMMAND_ERROR_CODE_T
+    {
+        COMMAND_OK = 0,       /**< COMMAND_OK */
+        ERROR_ARG_COUNT,      // wrong number of arguments
+        ERROR_OUT_OF_BOUNDS,  // arguments out of bounds
+        ERROR_TYPE_MISMATCH   // argument is wrong type, e.g. float when int
+                              // expected
+    } command_error_code_t;
+
+    /**
      * @brief Get name of the last parsed command.
      *
      * @return Name of the last parsed command.
