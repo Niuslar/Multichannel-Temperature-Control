@@ -36,11 +36,13 @@ CDispatcher g_dispatcher(&g_debug_uart);
  * peripherals are used or mock ones. Mock peripherals allow for the logic to be
  * ran without engaging peripherals.
  */
+
 #ifdef MOCK_HARDWARE
 CMockHardwareMap g_hardware_map("mock_hardware", 101);
 #else
 CRealHardwareMap g_hardware_map;
 #endif
+IHardwareMap* gp_hardware_map = &g_hardware_map;
 
 /**
  * The controllers are instantiated here. Note that the runtime variables are
