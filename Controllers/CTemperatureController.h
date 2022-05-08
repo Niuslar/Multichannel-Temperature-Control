@@ -14,7 +14,7 @@
 #define CTEMPERATURECONTROLLER_H_
 
 #include "CController.h"
-#include "CHeater.h"
+#include "CPIDLoop.h"
 
 #define CHANNEL_NUMBER 10
 
@@ -26,14 +26,16 @@ public:
 
     virtual void run();
     virtual bool newCommand(ICommand *p_command, IComChannel *p_comchannel);
-    virtual void reset() = 0;
+    virtual void reset();
 
 private:
     void getStatus();
-    void setTemperature(float target_temperature, uint8_t channel = 0);
-    void overrideHeater(float power, uint8_t channel = 0);
+    ICommand::command_error_code_t setTemperature(ICommand *p_command);
+    ICommand::command_error_code_t overrideHeater(ICommand *p_command);
 
-    CHeater m_heaters[CHANNEL_NUMBER];
+    float m_target_temperature[CHANNEL_NUMBER];
+    float m_power_override[CHANNEL_NUMBER];
+    CPIDLoop m_control_loop[CHANNEL_NUMBER];
 };
 
 #endif /* CTEMPERATURECONTROLLER_H_ */
