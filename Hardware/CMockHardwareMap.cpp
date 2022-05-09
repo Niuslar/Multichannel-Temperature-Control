@@ -98,7 +98,7 @@ float CMockHardwareMap::getHardPwmOutput(uint8_t channel)
     float power = 0;
     if (channel < HARD_PWM_OUTPUTS)
     {
-        power = m_heater_power[channel - 1];
+        power = m_heater_power[channel];
     }
     return power;
 }
