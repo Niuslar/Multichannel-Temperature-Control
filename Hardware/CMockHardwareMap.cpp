@@ -64,7 +64,7 @@ float CMockHardwareMap::getChannelTemp(uint8_t channel) const
 {
     if (channel < HARD_PWM_OUTPUTS)
     {
-        return m_temperature[channel - 1][1];
+        return m_temperature[channel][1];
     }
     else
     {
@@ -84,7 +84,7 @@ float CMockHardwareMap::setHardPwmOutput(float power, uint8_t channel)
         {
             power = 100;
         }
-        m_heater_power[channel - 1] = power;
+        m_heater_power[channel] = power;
     }
     else
     {
@@ -278,8 +278,7 @@ void CMockHardwareMap::reset()
     m_control_current = 0;
 }
 
-ICommand::command_error_code_t CMockHardwareMap::setAmbient(
-    ICommand *p_command)
+ICommand::command_error_code_t CMockHardwareMap::setAmbient(ICommand *p_command)
 {
     // Sanitise command arguments
     if (p_command->getArgumentCount() != 1)
@@ -296,8 +295,7 @@ ICommand::command_error_code_t CMockHardwareMap::setAmbient(
     return ICommand::COMMAND_OK;
 }
 
-ICommand::command_error_code_t CMockHardwareMap::setRating(
-    ICommand *p_command)
+ICommand::command_error_code_t CMockHardwareMap::setRating(ICommand *p_command)
 {
     // Sanitise command arguments
     if ((p_command->getArgumentCount() < 1) ||
