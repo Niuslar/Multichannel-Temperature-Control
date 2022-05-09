@@ -10,8 +10,6 @@
 
 #include "CUartCom.h"
 
-#define BYTE 1
-
 CUartCom *CUartCom::sp_UART[MAX_UART_ENGINES] = {nullptr};
 uint8_t CUartCom::s_uart_instances = 0;
 
@@ -130,7 +128,6 @@ bool CUartCom::send(uint8_t *p_data_buf, uint32_t len)
         }
     }
 
-    // Start transmission only if UART is not transmitting already
     if (m_status == IDLE)
     {
         transmit();
@@ -166,7 +163,7 @@ bool CUartCom::transmit()
         m_uart_de_pin.set(true);
 
         updateTxBuffer();
-        HAL_UART_Transmit_IT(mp_huart, &m_tx_char, BYTE);
+        HAL_UART_Transmit_IT(mp_huart, &m_tx_char, 1);
         b_success = true;
     }
 
@@ -196,17 +193,14 @@ void CUartCom::endTx()
  */
 void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
 {
-    // Store char in buffer
     if (m_rx_buffer.put((char)m_rx_char) == false)
     {
-        // Reset buffer and log error
         send("Error: Max string size is RX_BUF_SIZE\n");
         m_rx_buffer.reset();
     }
 
     if (m_rx_char == '\n' || m_rx_char == '\r')
     {
-        // Get string and store it in RX QUEUE
         etl::string<MAX_STRING_SIZE> rx_string = getString();
         if (m_rx_queue.size() <= MAX_RX_QUEUE_SIZE && !rx_string.empty())
         {
@@ -226,7 +220,6 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
  */
 void CUartCom::uartTxHandler(UART_HandleTypeDef *p_huart)
 {
-    // Check if queue is empty
     if (m_tx_queue.size() > 0)
     {
         transmit();
