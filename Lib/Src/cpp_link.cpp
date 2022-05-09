@@ -7,15 +7,30 @@
  *      Author: niuslar
  */
 
+#include "../etl/to_string.h"
 #include "CAdcData.h"
 #include "CDebugController.h"
 #include "CDispatcher.h"
+#include "CParser.h"
 #include "CUartCom.h"
 #include "adc.h"
 
 #ifdef CSOFTPWMOUTPUT_H_
 #    warning The software PWM has not been tested, do not use without testing.
 #endif
+
+etl::string<60> parsing_state[] = {"IDLE",
+                                   "BEGIN_KEY",
+                                   "END_KEY",
+                                   "BEGIN_VALUE",
+                                   "BEGIN_ARRAY",
+                                   "ADD_VALUE",
+                                   "VALUE_ADDED",
+                                   "END_VALUES",
+                                   "COMMAND_OK",
+                                   "ERROR_MAX_ARGS",
+                                   "ERROR_NESTED_JSON",
+                                   "ERROR"};
 
 /** @note: Instantiating classes here means the ctor for each class will run
  * before any of the setup code is being executed. Therefore, ctor that relies
@@ -26,6 +41,7 @@
  */
 CUartCom g_debug_uart("Main");
 CDispatcher g_dispatcher(&g_debug_uart);
+CParser g_parser;
 
 /* controllers */
 CDebugController g_debug_controller("debug", 100);
@@ -47,15 +63,45 @@ extern "C"
         //        CLog log_main(&uart_for_errors, "Main");
         //        log_main.setLogLevel(CLog::LOG_INFO);
 
-        //        CAdcData adc_1(&hadc);
-        //        adc_1.init();
+        g_debug_uart.init(&huart2);
+        g_debug_uart.startRx();
 
         // Infinite Loop
-
-        /**
-         * @note Dispatcher run() method will not return. At this point
-         * scheduling of controllers will start.
-         */
+        while (1)
+        {
+            if (g_debug_uart.isDataAvailable())
+            {
+                CParser::parser_state_t state =
+                    g_parser.parse(g_debug_uart.getData());
+                if (state == CParser::COMMAND_OK)
+                {
+                    g_debug_uart.send("Command name: ");
+                    g_debug_uart.send(g_parser.getName());
+                    g_debug_uart.send("\n");
+                    unsigned int arg_count = g_parser.getArgumentCount();
+                    for (unsigned int i = 0; i < arg_count; i++)
+                    {
+                        g_debug_uart.send("Argument ");
+                        etl::string<10> index;
+                        etl::to_string((i + 1), index);
+                        g_debug_uart.send(index);
+                        g_debug_uart.send(": ");
+                        etl::string<30> argument;
+                        etl::to_string(g_parser[i],
+                                       argument,
+                                       etl::format_spec().precision(1),
+                                       true);
+                        g_debug_uart.send(argument);
+                        g_debug_uart.send("\n");
+                    }
+                }
+                else
+                {
+                    g_debug_uart.send(parsing_state[state]);
+                    g_debug_uart.send("\n");
+                }
+            }
+        }
         g_dispatcher.run();
         //        while (1)
         //        {
