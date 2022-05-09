@@ -29,7 +29,7 @@ public:
     virtual void reset();
 
 private:
-    void getStatus();
+    void sendStatus(IComChannel *p_comchannel);
     ICommand::command_error_code_t setTemperature(ICommand *p_command);
     ICommand::command_error_code_t overrideHeater(ICommand *p_command);
 
