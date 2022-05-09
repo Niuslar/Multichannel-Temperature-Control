@@ -18,10 +18,10 @@
 #include "usart.h"
 
 #define UART_TIMEOUT      100
-#define MAX_RX_QUEUE_SIZE 40
-#define MAX_TX_QUEUE_SIZE 40
+#define MAX_RX_QUEUE_SIZE 50
+#define MAX_TX_QUEUE_SIZE 3000  // size in bytes
 #define MAX_UART_ENGINES  8
-#define TX_BUF_SIZE       (MAX_STRING_SIZE + 1)
+#define TX_BUF_SIZE       70
 #define RX_BUF_SIZE       60
 
 class CUartCom : public IComChannel
@@ -36,6 +36,7 @@ public:
 
     void startRx();
     bool send(const etl::string<MAX_STRING_SIZE> msg);
+    bool send(uint8_t *p_data_buf, uint32_t len);
     bool isDataAvailable();
     etl::string<MAX_STRING_SIZE> getData();
     void uartRxHandler(UART_HandleTypeDef *p_huart);
@@ -63,11 +64,11 @@ private:
     uint8_t m_status = IDLE;
     CGpioWrapper m_uart_de_pin;
     CFIFOBuffer<char, RX_BUF_SIZE> m_rx_buffer;
-    char m_tx_buffer[TX_BUF_SIZE] = {0};
+    uint8_t m_tx_char;
     uint8_t m_tx_msg_length = 0;
     uint8_t m_rx_char;
     CFIFOBuffer<etl::string<MAX_STRING_SIZE>, MAX_RX_QUEUE_SIZE> m_rx_queue;
-    CFIFOBuffer<etl::string<MAX_STRING_SIZE>, MAX_TX_QUEUE_SIZE> m_tx_queue;
+    CFIFOBuffer<uint8_t, MAX_TX_QUEUE_SIZE> m_tx_queue;
 };
 
 #endif /* CUARTCOM_H_ */
