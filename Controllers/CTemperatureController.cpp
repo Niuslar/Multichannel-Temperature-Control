@@ -29,7 +29,8 @@ CTemperatureController::CTemperatureController(
     uint32_t run_period_ms)
     : CController(name, run_period_ms)
 {
-    // TODO: need to run PID loop setups.
+    // TODO: need to run PID loop setups. This requires Persistent memory class
+    // to be created first.
     reset();
 }
 
@@ -188,7 +189,7 @@ void CTemperatureController::sendStatus(IComChannel *p_comchannel)
     }
     else
     {
-        power = m_power_override[CHANNEL_NUMBER-1];
+        power = m_power_override[CHANNEL_NUMBER - 1];
     }
     sprintf(value, "%4.1f, ", power);
     message.append(value);
