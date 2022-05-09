@@ -10,7 +10,8 @@
  *      Author: salavat.magazov
  */
 
-#include <CTemperatureController.h>
+#include "CTemperatureController.h"
+#include <stdio.h>
 #include "ICommand.h"
 #include "IHardwareMap.h"
 
@@ -74,7 +75,7 @@ bool CTemperatureController::newCommand(ICommand *p_command,
      */
     if (p_command->getName()->compare("?temperature"))
     {
-        // todo: compile temperature report and send via p_comchannel.
+        sendStatus(p_comchannel);
         b_command_recognised = true;
     }
     /**
@@ -137,9 +138,61 @@ void CTemperatureController::reset()
     }
 }
 
-void CTemperatureController::getStatus()
+void CTemperatureController::sendStatus(IComChannel *p_comchannel)
 {
-    // TODO: report current status of the controller.
+    // TODO: perhaps need to find a way to have this MAX_STRING_SIZE parameter
+    // somehow exposed by the IComChannel? Ideas?
+    etl::string<MAX_STRING_SIZE> message;
+    char value[10];
+    // Send target temperature
+    message.assign("Target:     ");
+    for (int i = 0; i < CHANNEL_NUMBER - 1; i++)
+    {
+        sprintf(value, "%4.1f, ", m_target_temperature[i]);
+        message.append(value);
+    }
+    sprintf(value, " %.1f\n", m_target_temperature[CHANNEL_NUMBER - 1]);
+    message.append(value);
+    p_comchannel->send(message);
+    // Send actual temperature
+    message.assign("Temperature: ");
+    for (int i = 0; i < CHANNEL_NUMBER - 1; i++)
+    {
+        sprintf(value, "%4.1f, ", gp_hardware_map->getChannelTemp(i));
+        message.append(value);
+    }
+    sprintf(value,
+            " %.1f\n",
+            gp_hardware_map->getChannelTemp(CHANNEL_NUMBER - 1));
+    message.append(value);
+    p_comchannel->send(message);
+    // Send heater power
+    message.assign("Power:      ");
+    float power;
+    for (int i = 0; i < CHANNEL_NUMBER - 1; i++)
+    {
+        if (m_power_override[i] == DISABLE_OVERRIDE)
+        {
+            power = gp_hardware_map->getHardPwmOutput(i);
+        }
+        else
+        {
+            power = m_power_override[i];
+        }
+        sprintf(value, "%4.1f, ", power);
+        message.append(value);
+    }
+    if (m_power_override[CHANNEL_NUMBER - 1] == DISABLE_OVERRIDE)
+    {
+        power = gp_hardware_map->getHardPwmOutput(CHANNEL_NUMBER - 1);
+    }
+    else
+    {
+        power = m_power_override[CHANNEL_NUMBER-1];
+    }
+    sprintf(value, "%4.1f, ", power);
+    message.append(value);
+    p_comchannel->send(message);
 }
 
 ICommand::command_error_code_t CTemperatureController::setTemperature(
