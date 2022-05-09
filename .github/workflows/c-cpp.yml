@@ -48,8 +48,8 @@ jobs:
           name: debug_build
       - shell: bash
         run: |
-          python3 /home/pi/Documents/actions-runner/stm32_flash_loader.py "/home/pi/Documents/actions-runner/_work/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Multichannel temperature sensor.bin"
-          rm "/home/pi/Documents/actions-runner/_work/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Multichannel temperature sensor.bin"
+          python3 ../../../stm32_flash_loader.py "Multichannel temperature sensor.bin"
+          rm "Multichannel temperature sensor.bin"
   flash_release:
     runs-on: self-hosted
     needs: build
@@ -60,6 +60,6 @@ jobs:
           name: release_build
       - shell: bash
         run: |
-          python3 /home/pi/Documents/actions-runner/stm32_flash_loader.py "/home/pi/Documents/actions-runner/_work/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Multichannel temperature sensor.bin"
-          rm "/home/pi/Documents/actions-runner/_work/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Multichannel temperature sensor.bin"
+          python3 ../../../stm32_flash_loader.py "Multichannel temperature sensor.bin"
+          rm "Multichannel temperature sensor.bin"
       
