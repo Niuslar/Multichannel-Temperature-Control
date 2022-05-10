@@ -17,8 +17,6 @@
 #include "CGpioWrapper.h"
 #include "main.h"
 
-#define MAX_STRING_SIZE 60
-
 class CDebugController : public CController
 {
 public:
