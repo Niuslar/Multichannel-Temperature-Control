@@ -15,8 +15,6 @@
 
 #include "../etl/string.h"
 
-#define MAX_STRING_SIZE 60
-
 class IComChannel
 {
 public:
