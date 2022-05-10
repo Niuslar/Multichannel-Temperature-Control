@@ -15,13 +15,15 @@
 
 #include "CController.h"
 #include "CPIDLoop.h"
+#include "IHardwareMap.h"
 
 #define CHANNEL_NUMBER 10
 
 class CTemperatureController : public CController
 {
 public:
-    CTemperatureController(etl::string<MAX_STRING_SIZE> name,
+    CTemperatureController(IHardwareMap *p_hardwaremap,
+                           etl::string<MAX_STRING_SIZE> name,
                            uint32_t run_period_ms);
 
     virtual void run();
@@ -32,6 +34,8 @@ private:
     void sendStatus(IComChannel *p_comchannel);
     ICommand::command_error_code_t setTemperature(ICommand *p_command);
     ICommand::command_error_code_t overrideHeater(ICommand *p_command);
+
+    IHardwareMap *mp_hw;
 
     float m_target_temperature[CHANNEL_NUMBER];
     float m_power_override[CHANNEL_NUMBER];
