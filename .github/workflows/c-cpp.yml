@@ -54,7 +54,7 @@ jobs:
     runs-on: self-hosted
     needs: build
     steps:
-      - name: Download debug artifact
+      - name: Download release artifact
         uses: actions/download-artifact@v3
         with:
           name: release_build
