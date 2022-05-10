@@ -74,7 +74,7 @@ bool CTemperatureController::newCommand(ICommand *p_command,
      *
      * ?temperature()
      */
-    if (p_command->getName()->compare("?temperature"))
+    if (p_command->getName()->compare("?temperature") == 0)
     {
         sendStatus(p_comchannel);
         b_command_recognised = true;
@@ -86,7 +86,7 @@ bool CTemperatureController::newCommand(ICommand *p_command,
      *
      * temperature(target, [channel])
      */
-    if (p_command->getName()->compare("temperature"))
+    if (p_command->getName()->compare("temperature") == 0)
     {
         result = setTemperature(p_command);
         b_command_recognised = true;
@@ -102,7 +102,7 @@ bool CTemperatureController::newCommand(ICommand *p_command,
      *
      * heater(power, [channel])
      */
-    if (p_command->getName()->compare("heater"))
+    if (p_command->getName()->compare("heater") == 0)
     {
         result = overrideHeater(p_command);
         b_command_recognised = true;
@@ -162,9 +162,7 @@ void CTemperatureController::sendStatus(IComChannel *p_comchannel)
         sprintf(value, "%4.1f, ", mp_hw->getChannelTemp(i));
         message.append(value);
     }
-    sprintf(value,
-            " %.1f\n",
-            mp_hw->getChannelTemp(CHANNEL_NUMBER - 1));
+    sprintf(value, " %.1f\n", mp_hw->getChannelTemp(CHANNEL_NUMBER - 1));
     message.append(value);
     p_comchannel->send(message);
     // Send heater power
