@@ -42,7 +42,6 @@ CMockHardwareMap g_hardware_map("mock_hardware", 101);
 #else
 CRealHardwareMap g_hardware_map;
 #endif
-IHardwareMap* gp_hardware_map = &g_hardware_map;
 
 /**
  * The controllers are instantiated here. Note that the runtime variables are
@@ -57,7 +56,7 @@ IHardwareMap* gp_hardware_map = &g_hardware_map;
  * numbers to use see prime_numbers.txt file.
  */
 CDebugController g_debug_controller("debug", 97);
-CTemperatureController g_temp_controller("temperature", 89);
+CTemperatureController g_temp_controller(&g_hardware_map, "temperature", 89);
 
 #ifdef __cplusplus
 extern "C"

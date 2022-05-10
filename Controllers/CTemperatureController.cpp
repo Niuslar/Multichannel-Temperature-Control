@@ -15,8 +15,6 @@
 #include "ICommand.h"
 #include "IHardwareMap.h"
 
-extern IHardwareMap *gp_hardware_map;
-
 #define MIN_TEMPERATURE  10
 #define MAX_TEMPERATURE  50
 #define MIN_POWER        0
@@ -25,9 +23,11 @@ extern IHardwareMap *gp_hardware_map;
 #define DISABLE_TARGET   0
 
 CTemperatureController::CTemperatureController(
+    IHardwareMap *p_hardware,
     etl::string<MAX_STRING_SIZE> name,
     uint32_t run_period_ms)
-    : CController(name, run_period_ms)
+    : CController(name, run_period_ms),
+      mp_hw(p_hardware)
 {
     // TODO: need to run PID loop setups. This requires Persistent memory class
     // to be created first.
@@ -47,7 +47,7 @@ void CTemperatureController::run()
         {
             if (m_target_temperature != DISABLE_TARGET)
             {
-                float actual_temperature = gp_hardware_map->getChannelTemp(i);
+                float actual_temperature = mp_hw->getChannelTemp(i);
                 if ((MIN_TEMPERATURE <= actual_temperature) &&
                     (actual_temperature <= MAX_TEMPERATURE))
                 {
@@ -60,7 +60,7 @@ void CTemperatureController::run()
         {
             power = m_power_override[i];
         }
-        gp_hardware_map->setHardPwmOutput(power, i);
+        mp_hw->setHardPwmOutput(power, i);
     }
 }
 
@@ -159,12 +159,12 @@ void CTemperatureController::sendStatus(IComChannel *p_comchannel)
     message.assign("Temperature: ");
     for (int i = 0; i < CHANNEL_NUMBER - 1; i++)
     {
-        sprintf(value, "%4.1f, ", gp_hardware_map->getChannelTemp(i));
+        sprintf(value, "%4.1f, ", mp_hw->getChannelTemp(i));
         message.append(value);
     }
     sprintf(value,
             " %.1f\n",
-            gp_hardware_map->getChannelTemp(CHANNEL_NUMBER - 1));
+            mp_hw->getChannelTemp(CHANNEL_NUMBER - 1));
     message.append(value);
     p_comchannel->send(message);
     // Send heater power
@@ -174,7 +174,7 @@ void CTemperatureController::sendStatus(IComChannel *p_comchannel)
     {
         if (m_power_override[i] == DISABLE_OVERRIDE)
         {
-            power = gp_hardware_map->getHardPwmOutput(i);
+            power = mp_hw->getHardPwmOutput(i);
         }
         else
         {
@@ -185,7 +185,7 @@ void CTemperatureController::sendStatus(IComChannel *p_comchannel)
     }
     if (m_power_override[CHANNEL_NUMBER - 1] == DISABLE_OVERRIDE)
     {
-        power = gp_hardware_map->getHardPwmOutput(CHANNEL_NUMBER - 1);
+        power = mp_hw->getHardPwmOutput(CHANNEL_NUMBER - 1);
     }
     else
     {
