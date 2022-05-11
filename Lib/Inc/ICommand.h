@@ -28,7 +28,7 @@ public:
      *
      * @return Name of the last parsed command.
      */
-    virtual etl::string<MAX_STRING_SIZE> getName() const = 0;
+    virtual const etl::string<MAX_STRING_SIZE> *getName() const = 0;
 
     /**
      * @brief Get number of arguments.
