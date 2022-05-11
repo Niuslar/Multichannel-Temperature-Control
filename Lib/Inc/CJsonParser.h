@@ -43,18 +43,18 @@ public:
         INVALID
     } token_type_t;
 
-    typedef struct Stoken
+    typedef struct SToken
     {
         token_type_t type = WHITESPACE;
         etl::string<MAX_STRING_SIZE> text;
     } token_t;
 
 private:
-    void getTokens(const etl::string<MAX_STRING_SIZE> &string);
+    void stringToTokens(const etl::string<MAX_STRING_SIZE> &string);
     void addSpecialChar(CJsonParser::token_t &token,
                         CJsonParser::token_type_t operator_type,
                         char character);
-    void endToken(CJsonParser::token_t &token);
+    void finishToken(CJsonParser::token_t &token);
 
     /* Parser helper functions */
     bool parseObject();
