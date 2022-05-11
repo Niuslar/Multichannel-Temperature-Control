@@ -98,25 +98,39 @@ void CUartCom::stopRx()
 }
 
 /**
- * @brief Add data to the TX Queue and start transmission if possible
- * @param msg Message to send.
- * @return True if message was added to the queue and transmission started
- * successfully.
+ * @brief send string
+ * @param msg Message to be sent via UART
+ * @return success if message was successfully stored in TX Queue.
  */
 bool CUartCom::send(etl::string<MAX_STRING_SIZE> msg)
 {
-    bool b_success = false;
-    // Add message to queue
-    if (m_tx_queue.size() <= MAX_TX_QUEUE_SIZE && (msg.empty() == false))
+    uint32_t msg_len = msg.length();
+    bool b_success = send((uint8_t *)msg.c_str(), msg_len);
+    return b_success;
+}
+
+/**
+ * @brief Add data to the TX Queue and start transmission if possible
+ * @param p_data_buf Reference to array of uint8_t data
+ * @param len Size of data that needs to be stored
+ * @return True if data was added to the queue, false in case of buffer overflow
+ */
+bool CUartCom::send(uint8_t *p_data_buf, uint32_t len)
+{
+    bool b_success = true;
+
+    // Store data in tx_queue
+    for (uint32_t i = 0; i < len; i++)
     {
-        m_tx_queue.put(msg);
-        b_success = true;
+        if (m_tx_queue.put(p_data_buf[i]) == false)
+        {
+            b_success = false;
+        }
     }
 
-    // Start transmission only if UART is idle
     if (m_status == IDLE)
     {
-        b_success = transmit();
+        transmit();
     }
     return b_success;
 }
@@ -126,9 +140,7 @@ bool CUartCom::send(etl::string<MAX_STRING_SIZE> msg)
  */
 void CUartCom::updateTxBuffer()
 {
-    etl::string<MAX_STRING_SIZE> message = m_tx_queue.get();
-    m_tx_msg_length = message.length();
-    strcpy(m_tx_buffer, message.c_str());
+    m_tx_char = m_tx_queue.get();
     m_status = TX;
 }
 
@@ -151,7 +163,7 @@ bool CUartCom::transmit()
         m_uart_de_pin.set(true);
 
         updateTxBuffer();
-        HAL_UART_Transmit_IT(mp_huart, (uint8_t *)m_tx_buffer, m_tx_msg_length);
+        HAL_UART_Transmit_IT(mp_huart, &m_tx_char, 1);
         b_success = true;
     }
 
@@ -181,42 +193,22 @@ void CUartCom::endTx()
  */
 void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
 {
-    // Store incoming char
-    static uint8_t len_counter = 0;
+    if (m_rx_buffer.put((char)m_rx_char) == false)
+    {
+        send("Error: Max string size is RX_BUF_SIZE\n");
+        m_rx_buffer.reset();
+    }
 
-    bool full_buffer = (len_counter >= (RX_BUF_SIZE));
     if (m_rx_char == '\n' || m_rx_char == '\r')
     {
-        // '\n' and '\r' are replaced with '\0' to mark the end of the string
-        m_rx_buffer.put('\0');
-
-        if (full_buffer)
+        etl::string<MAX_STRING_SIZE> rx_string = getString();
+        if (m_rx_queue.size() <= MAX_RX_QUEUE_SIZE && !rx_string.empty())
         {
-            /**
-             * @note If a command length exceeds the RX_BUF_SIZE, The whole
-             * command will be ignored.
-             */
-
-            // Send warning
-            send("[ERROR]: Command exceeds max. length\n");
-
-            // Reset buffer
-            m_rx_buffer.reset();
-        }
-        else
-        {
-            etl::string<MAX_STRING_SIZE> rx_string = getString();
-            if (m_rx_queue.size() <= MAX_RX_QUEUE_SIZE && !rx_string.empty())
+            if (m_rx_queue.put(rx_string) == false)
             {
-                m_rx_queue.put(rx_string);
+                send("Error: Buffer overflow -> RX Queue\n");
             }
         }
-        len_counter = 0;
-    }
-    else
-    {
-        m_rx_buffer.put((char)m_rx_char);
-        len_counter++;
     }
 
     HAL_UART_Receive_IT(p_huart, &m_rx_char, 1);
@@ -228,7 +220,6 @@ void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
  */
 void CUartCom::uartTxHandler(UART_HandleTypeDef *p_huart)
 {
-    // Check if queue is empty
     if (m_tx_queue.size() > 0)
     {
         transmit();
@@ -247,18 +238,22 @@ etl::string<MAX_STRING_SIZE> CUartCom::getString()
 {
     uint8_t counter = 0;
     char c_string[RX_BUF_SIZE];
-    char data;
+    char data = m_rx_buffer.get();
     /**
      * @note while loop stops when the counter is (RX_BUF_SIZE - 1) because
      * an extra space is needed for the '\0' character.
      */
-    while ((data = m_rx_buffer.get()) != '\0' && counter < (RX_BUF_SIZE - 1))
+
+    while ((data != '\0') && (data != '\n') && (data != '\r') &&
+           (counter < (RX_BUF_SIZE - 1)))
     {
         c_string[counter] = data;
+        data = m_rx_buffer.get();
         counter++;
     }
     c_string[counter] = '\0';
     etl::string<MAX_STRING_SIZE> cpp_string = (char *)c_string;
+    m_rx_buffer.reset();
 
     return cpp_string;
 }
