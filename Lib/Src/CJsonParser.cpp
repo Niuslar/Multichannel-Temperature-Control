@@ -1,5 +1,8 @@
 /**
  * @file CJsonParser.cpp
+ * @brief This is a JSON parser that includes a tokeniser (view getTokens()) and
+ * a parser. The tokeniser breaks up a string into JSON components. The parser
+ * checks if the components follow JSON syntax and returns true if it does.
  */
 /*
  * Created on : Apr 4, 2022
@@ -8,7 +11,7 @@
 
 #include "CJsonParser.h"
 
-#define ERROR_VALUE (0.00)
+#define DEFAULT_VALUE (0.00)
 
 /**
  * @brief Constructor
@@ -18,7 +21,7 @@ CJsonParser::CJsonParser() {}
 /**
  * @brief Parse string
  * @param String to be parsed
- * @return Last parsing state
+ * @return True if a JSON object was recognised
  */
 bool CJsonParser::parse(const etl::string<MAX_STRING_SIZE> &string)
 {
@@ -32,11 +35,13 @@ bool CJsonParser::parse(const etl::string<MAX_STRING_SIZE> &string)
 }
 
 /**
- * @brief Scan a string to get tokens*
+ * @brief Tokeniser* that scans string and breaks it up into tokens
+ *
  * @param String
- * @Note a lexer, tokeniser or scanner takes a string and breaks it up into
+ *
+ * @note A tokeniser or lexer takes a string and breaks it up into
  * tokens. A token is the basic building block of the language. For example, in
- * English single words and punctuation would be tokens.
+ * English, single words and punctuation marks would be tokens.
  */
 void CJsonParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
 {
@@ -45,7 +50,9 @@ void CJsonParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
     m_token_counter = 0;
     token_t current_token;
 
-    // Loop through characters in string
+    // Loop through characters in string with a range-base for-loop
+    // Note: To learn about range-based loops:
+    // https://www.techiedelight.com/iterate-over-characters-string-cpp/
     for (char current_char : string)
     {
         switch (current_char)
@@ -204,7 +211,7 @@ float CJsonParser::operator[](unsigned int index)
     {
         return m_arguments[index];
     }
-    return ERROR_VALUE;
+    return DEFAULT_VALUE;
 }
 
 /**
@@ -231,9 +238,20 @@ void CJsonParser::addSpecialChar(CJsonParser::token_t &token,
 }
 
 /**
- * @brief Parse object
- * @return True if a JSON object was recognised
+ * @note The following methods parse non-terminal symbols. To understand better
+ * the logic behind these methods please Google Recursive Descent Parser or
+ * visit: http://www.cs.binghamton.edu/~zdu/parsdemo/recintro.html
+ *
+ * The rules for this parser:
+        |  Object   | { Pair }     		 |
+        |  Pair     | key : value  		 |
+        |  Key      | string       		 |
+        |  Value    | Number       		 |
+        |  Value    | Array        		 |
+        |  Array    | [ Elements ]       |
+        |  Elements | Number, Number, .. |
  */
+
 bool CJsonParser::parseObject()
 {
     bool b_success = false;
