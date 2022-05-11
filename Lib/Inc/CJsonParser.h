@@ -22,7 +22,7 @@
 class CJsonParser : public ICommand
 {
 public:
-    typedef enum TOKEN_TYPES_T
+    typedef enum TOKEN_TYPE_T
     {
         WHITESPACE,
         INTEGER,
@@ -44,22 +44,27 @@ public:
 
     } token_t;
 
-    // Public methods
-    void getTokens(const etl::string<MAX_STRING_SIZE> &string);
-    etl::vector<token_t, MAX_TOKENS> m_tokens;
-
     CJsonParser();
-    void parse(const etl::string<MAX_STRING_SIZE> &string);
+    bool parse(const etl::string<MAX_STRING_SIZE> &string);
     const etl::string<MAX_STRING_SIZE> *getName() const;
     unsigned int getArgumentCount() const;
     float operator[](unsigned int index);
 
 private:
+    void getTokens(const etl::string<MAX_STRING_SIZE> &string);
     void addSpecialChar(CJsonParser::token_t &token,
                         CJsonParser::token_type_t operator_type,
                         char character);
     void endToken(CJsonParser::token_t &token);
 
+    /* Parser helper functions */
+    bool parseObject();
+    bool parsePair();
+    bool parseValue();
+    bool parseArray();
+
+    uint8_t m_token_index = 0;
+    etl::vector<token_t, MAX_TOKENS> m_tokens;
     uint8_t m_argument_counter = 0;
     etl::string<MAX_STRING_SIZE> m_command_name;
     float m_arguments[MAX_ARGUMENT_COUNT];
