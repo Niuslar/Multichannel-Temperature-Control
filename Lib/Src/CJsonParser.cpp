@@ -180,9 +180,9 @@ void CJsonParser::endToken(CJsonParser::token_t &token)
  *
  * @return Name of the last parsed command.
  */
-etl::string<MAX_STRING_SIZE> CJsonParser::getName() const
+const etl::string<MAX_STRING_SIZE> *CJsonParser::getName() const
 {
-    return m_command_name;
+    return &m_command_name;
 }
 
 /**

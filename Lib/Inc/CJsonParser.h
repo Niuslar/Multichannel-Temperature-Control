@@ -50,7 +50,7 @@ public:
 
     CJsonParser();
     void parse(const etl::string<MAX_STRING_SIZE> &string);
-    etl::string<MAX_STRING_SIZE> getName() const;
+    const etl::string<MAX_STRING_SIZE> *getName() const;
     unsigned int getArgumentCount() const;
     float operator[](unsigned int index);
 
