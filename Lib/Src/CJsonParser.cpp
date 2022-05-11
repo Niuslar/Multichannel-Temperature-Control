@@ -1,8 +1,9 @@
 /**
  * @file CJsonParser.cpp
- * @brief This is a JSON parser that includes a tokeniser (view getTokens()) and
- * a parser. The tokeniser breaks up a string into JSON components. The parser
- * checks if the components follow JSON syntax and returns true if it does.
+ * @brief This is a JSON parser that includes a tokeniser (view
+ * stringToTokens()) and a parser. The tokeniser breaks up a string into JSON
+ * components. The parser checks if the components follow JSON syntax and
+ * returns true if it does.
  */
 /*
  * Created on : Apr 4, 2022
@@ -11,7 +12,7 @@
 
 #include "CJsonParser.h"
 
-#define DEFAULT_VALUE (0.00)
+#define DEFAULT_VALUE 0
 
 /**
  * @brief Constructor
@@ -29,8 +30,7 @@ bool CJsonParser::parse(const etl::string<MAX_STRING_SIZE> &string)
     m_argument_counter = 0;
     m_command_name = "";
 
-    getTokens(string);
-    m_token_index = 0;
+    stringToTokens(string);
     return parseObject();
 }
 
@@ -43,7 +43,7 @@ bool CJsonParser::parse(const etl::string<MAX_STRING_SIZE> &string)
  * tokens. A token is the basic building block of the language. For example, in
  * English, single words and punctuation marks would be tokens.
  */
-void CJsonParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
+void CJsonParser::stringToTokens(const etl::string<MAX_STRING_SIZE> &string)
 {
     // Reset variables
     m_tokens.clear();
@@ -75,7 +75,7 @@ void CJsonParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
                 }
                 else
                 {
-                    endToken(current_token);
+                    finishToken(current_token);
                     current_token.text.append(1, current_char);
                     current_token.type = INTEGER;
                 }
@@ -88,7 +88,7 @@ void CJsonParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
                 }
                 else
                 {
-                    endToken(current_token);
+                    finishToken(current_token);
                     current_token.text.append(1, current_char);
                     current_token.type = INVALID;
                 }
@@ -101,13 +101,13 @@ void CJsonParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
                 }
                 else
                 {
-                    endToken(current_token);
+                    finishToken(current_token);
                 }
                 break;
             case '\n':
             case '\0':
             case '\r':
-                endToken(current_token);
+                finishToken(current_token);
                 break;
             case ':':
                 addSpecialChar(current_token, COLON, current_char);
@@ -131,12 +131,12 @@ void CJsonParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
             case '"':
                 if (current_token.type != STRING)
                 {
-                    endToken(current_token);
+                    finishToken(current_token);
                     current_token.type = STRING;
                 }
                 else
                 {
-                    endToken(current_token);
+                    finishToken(current_token);
                 }
                 break;
 
@@ -145,7 +145,7 @@ void CJsonParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
                     current_token.type == INTEGER ||
                     current_token.type == FLOAT)
                 {
-                    endToken(current_token);
+                    finishToken(current_token);
                     current_token.text.append(1, current_char);
                     current_token.type = INVALID;
                 }
@@ -157,14 +157,14 @@ void CJsonParser::getTokens(const etl::string<MAX_STRING_SIZE> &string)
         }
     }
     // Finish any token that might have not been stored
-    endToken(current_token);
+    finishToken(current_token);
 }
 
 /**
  * @brief Add token to m_tokens vector
  * @param token to be added
  */
-void CJsonParser::endToken(CJsonParser::token_t &token)
+void CJsonParser::finishToken(CJsonParser::token_t &token)
 {
     if (token.type != WHITESPACE)
     {
@@ -207,7 +207,7 @@ unsigned int CJsonParser::getArgumentCount() const
  */
 float CJsonParser::operator[](unsigned int index)
 {
-    if (index < MAX_ARGUMENT_COUNT)
+    if (index < m_argument_counter)
     {
         return m_arguments[index];
     }
@@ -226,10 +226,10 @@ void CJsonParser::addSpecialChar(CJsonParser::token_t &token,
 {
     if (token.type != STRING)
     {
-        endToken(token);
+        finishToken(token);
         token.type = operator_type;
         token.text.append(1, character);
-        endToken(token);
+        finishToken(token);
     }
     else
     {
@@ -254,6 +254,7 @@ void CJsonParser::addSpecialChar(CJsonParser::token_t &token,
 
 bool CJsonParser::parseObject()
 {
+    m_token_index = 0;
     bool b_success = false;
     if (m_tokens[m_token_index].type == CURLY_OPEN)
     {
