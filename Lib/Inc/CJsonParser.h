@@ -22,6 +22,12 @@
 class CJsonParser : public ICommand
 {
 public:
+    CJsonParser();
+    bool parse(const etl::string<MAX_STRING_SIZE> &string);
+    const etl::string<MAX_STRING_SIZE> *getName() const;
+    unsigned int getArgumentCount() const;
+    float operator[](unsigned int index);
+
     typedef enum TOKEN_TYPE_T
     {
         WHITESPACE,
@@ -37,18 +43,11 @@ public:
         INVALID
     } token_type_t;
 
-    typedef struct token
+    typedef struct Stoken
     {
         token_type_t type = WHITESPACE;
         etl::string<MAX_STRING_SIZE> text;
-
     } token_t;
-
-    CJsonParser();
-    bool parse(const etl::string<MAX_STRING_SIZE> &string);
-    const etl::string<MAX_STRING_SIZE> *getName() const;
-    unsigned int getArgumentCount() const;
-    float operator[](unsigned int index);
 
 private:
     void getTokens(const etl::string<MAX_STRING_SIZE> &string);
