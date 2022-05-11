@@ -20,19 +20,15 @@ CJsonParser::CJsonParser() {}
  * @param String to be parsed
  * @return Last parsing state
  */
-void CJsonParser::parse(const etl::string<MAX_STRING_SIZE> &string)
+bool CJsonParser::parse(const etl::string<MAX_STRING_SIZE> &string)
 {
     // Reset command variables
     m_argument_counter = 0;
     m_command_name = "";
 
-    // Get tokens from string
     getTokens(string);
-
-    for (uint16_t i = 0; i < m_token_counter; i++)
-    {
-        token_t current_token = m_tokens[i];
-    }
+    m_token_index = 0;
+    return parseObject();
 }
 
 /**
@@ -232,4 +228,94 @@ void CJsonParser::addSpecialChar(CJsonParser::token_t &token,
     {
         token.text.append(1, character);
     }
+}
+
+/**
+ * @brief Parse object
+ * @return True if a JSON object was recognised
+ */
+bool CJsonParser::parseObject()
+{
+    bool b_success = false;
+    if (m_tokens[m_token_index].type == CURLY_OPEN)
+    {
+        m_token_index++;
+        if (m_token_index < m_token_counter)
+        {
+            if (parsePair())
+            {
+                if ((m_tokens[++m_token_index].type == CURLY_CLOSE) &&
+                    (m_token_index == (m_token_counter - 1)))
+                {
+                    b_success = true;
+                }
+            }
+        }
+    }
+    return b_success;
+}
+
+bool CJsonParser::parsePair()
+{
+    bool b_success = false;
+    if (m_tokens[m_token_index].type == STRING)
+    {
+        m_command_name = m_tokens[m_token_index].text;
+        m_token_index++;
+        if (m_tokens[m_token_index].type == COLON)
+        {
+            m_token_index++;
+            b_success = parseValue();
+        }
+    }
+    return b_success;
+}
+
+bool CJsonParser::parseValue()
+{
+    bool b_success = false;
+    if (m_tokens[m_token_index].type == ARRAY_OPEN)
+    {
+        m_token_index++;
+        b_success = parseArray();
+    }
+    else if (m_tokens[m_token_index].type == INTEGER ||
+             m_tokens[m_token_index].type == FLOAT)
+    {
+        float number = std::stof(m_tokens[m_token_index].text.c_str());
+        if (m_argument_counter < MAX_ARGUMENT_COUNT)
+        {
+            m_arguments[m_argument_counter++] = number;
+            b_success = true;
+        }
+    }
+    return b_success;
+}
+bool CJsonParser::parseArray()
+{
+    bool b_success = false;
+
+    if (m_tokens[m_token_index].type == INTEGER ||
+        m_tokens[m_token_index].type == FLOAT)
+    {
+        float number = std::stof(m_tokens[m_token_index].text.c_str());
+        if (m_argument_counter < MAX_ARGUMENT_COUNT)
+        {
+            m_arguments[m_argument_counter++] = number;
+            m_token_index++;
+            if (m_tokens[m_token_index].type == COMMA)
+            {
+                m_token_index++;
+                if (m_token_index < m_token_counter)
+                {
+                    b_success = parseArray();
+                }
+            }
+            else if (m_tokens[m_token_index].type == ARRAY_CLOSE)
+            {
+                b_success = true;
+            }
+        }
+    }
+    return b_success;
 }

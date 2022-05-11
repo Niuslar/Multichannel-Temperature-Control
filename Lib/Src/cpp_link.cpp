@@ -71,15 +71,31 @@ extern "C"
         {
             if (g_debug_uart.isDataAvailable())
             {
-                g_parser.getTokens(g_debug_uart.getData());
-                for (CJsonParser::token_t token : g_parser.m_tokens)
+                if (g_parser.parse(g_debug_uart.getData()))
                 {
-                    g_debug_uart.send("Token: ");
-                    g_debug_uart.send(token.text);
-                    g_debug_uart.send(" | ");
-                    g_debug_uart.send("Type: ");
-                    g_debug_uart.send(token_types[token.type]);
+                    g_debug_uart.send("Command name: ");
+                    g_debug_uart.send(*g_parser.getName());
                     g_debug_uart.send("\n");
+                    unsigned int arg_count = g_parser.getArgumentCount();
+                    for (unsigned int i = 0; i < arg_count; i++)
+                    {
+                        g_debug_uart.send("Argument ");
+                        etl::string<10> index;
+                        etl::to_string((i + 1), index);
+                        g_debug_uart.send(index);
+                        g_debug_uart.send(": ");
+                        etl::string<30> argument;
+                        etl::to_string(g_parser[i],
+                                       argument,
+                                       etl::format_spec().precision(1),
+                                       true);
+                        g_debug_uart.send(argument);
+                        g_debug_uart.send("\n");
+                    }
+                }
+                else
+                {
+                    g_debug_uart.send("Could not process command\n");
                 }
             }
         }
