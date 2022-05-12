@@ -48,7 +48,7 @@ void CJsonParser::stringToTokens(const etl::string<MAX_STRING_SIZE> &string)
     // Reset variables
     m_tokens.clear();
     m_token_counter = 0;
-    token_t current_token;
+    resetCurrentToken();
 
     // Loop through characters in string with a range-base for-loop
     // Note: To learn about range-based loops:
@@ -67,115 +67,186 @@ void CJsonParser::stringToTokens(const etl::string<MAX_STRING_SIZE> &string)
             case '7':
             case '8':
             case '9':
-                if (current_token.type == STRING ||
-                    current_token.type == INTEGER ||
-                    current_token.type == FLOAT)
-                {
-                    current_token.text.append(1, current_char);
-                }
-                else
-                {
-                    finishToken(current_token);
-                    current_token.text.append(1, current_char);
-                    current_token.type = INTEGER;
-                }
+                processDigit(current_char);
                 break;
             case '.':
-                if (current_token.type == INTEGER)
-                {
-                    current_token.text.append(1, current_char);
-                    current_token.type = FLOAT;
-                }
-                else
-                {
-                    finishToken(current_token);
-                    current_token.text.append(1, current_char);
-                    current_token.type = INVALID;
-                }
-                break;
+                processDecimalPoint(current_char);
             case ' ':
             case '\t':
-                if (current_token.type == STRING)
-                {
-                    current_token.text.append(1, current_char);
-                }
-                else
-                {
-                    finishToken(current_token);
-                }
+                processSpacer(current_char);
                 break;
             case '\n':
             case '\0':
             case '\r':
-                finishToken(current_token);
+                finishCurrentToken();
                 break;
             case ':':
-                addSpecialChar(current_token, COLON, current_char);
+                addSpecialChar(COLON, current_char);
                 break;
             case '{':
-                addSpecialChar(current_token, CURLY_OPEN, current_char);
+                addSpecialChar(CURLY_OPEN, current_char);
                 break;
             case '}':
-                addSpecialChar(current_token, CURLY_CLOSE, current_char);
+                addSpecialChar(CURLY_CLOSE, current_char);
                 break;
             case '[':
-                addSpecialChar(current_token, ARRAY_OPEN, current_char);
+                addSpecialChar(ARRAY_OPEN, current_char);
                 break;
             case ']':
-                addSpecialChar(current_token, ARRAY_CLOSE, current_char);
+                addSpecialChar(ARRAY_CLOSE, current_char);
                 break;
             case ',':
-                addSpecialChar(current_token, COMMA, current_char);
+                addSpecialChar(COMMA, current_char);
                 break;
 
             case '"':
-                if (current_token.type != STRING)
-                {
-                    finishToken(current_token);
-                    current_token.type = STRING;
-                }
-                else
-                {
-                    finishToken(current_token);
-                }
+                processDoubleQuote(current_char);
                 break;
 
+            /* The default case takes care of all the letters and special
+             * characters by either adding them to a string when necessary or
+             * creating an INVALID token.
+             */
             default:
-                if (current_token.type == WHITESPACE ||
-                    current_token.type == INTEGER ||
-                    current_token.type == FLOAT)
-                {
-                    finishToken(current_token);
-                    current_token.text.append(1, current_char);
-                    current_token.type = INVALID;
-                }
-                else
-                {
-                    current_token.text.append(1, current_char);
-                }
+                processDefault(current_char);
                 break;
         }
     }
     // Finish any token that might have not been stored
-    finishToken(current_token);
+    finishCurrentToken();
 }
 
 /**
- * @brief Add token to m_tokens vector
- * @param token to be added
+ * @brief process digit character
  */
-void CJsonParser::finishToken(CJsonParser::token_t &token)
+void CJsonParser::processDigit(char current_char)
 {
-    if (token.type != WHITESPACE)
+    if (m_current_token.type == STRING || m_current_token.type == INTEGER ||
+        m_current_token.type == FLOAT)
     {
-        if (token.text.empty() == false)
+        m_current_token.text.append(1, current_char);
+    }
+    else
+    {
+        finishCurrentToken();
+        m_current_token.text.append(1, current_char);
+        m_current_token.type = INTEGER;
+    }
+}
+
+/**
+ * @brief process decimal point character
+ */
+void CJsonParser::processDecimalPoint(char current_char)
+{
+    if (m_current_token.type == INTEGER)
+    {
+        m_current_token.text.append(1, current_char);
+        m_current_token.type = FLOAT;
+    }
+    else
+    {
+        finishCurrentToken();
+        m_current_token.text.append(1, current_char);
+        m_current_token.type = INVALID;
+    }
+}
+
+/**
+ * @brief process space characters (space or tab)
+ */
+void CJsonParser::processSpacer(char current_char)
+{
+    if (m_current_token.type == STRING)
+    {
+        m_current_token.text.append(1, current_char);
+    }
+    else
+    {
+        finishCurrentToken();
+    }
+}
+
+/**
+ * @brief process double quote character
+ */
+void CJsonParser::processDoubleQuote(char current_char)
+{
+    if (m_current_token.type != STRING)
+    {
+        finishCurrentToken();
+        m_current_token.type = STRING;
+    }
+    else
+    {
+        finishCurrentToken();
+    }
+}
+
+/**
+ * @brief Process any character without a switch case
+ */
+void CJsonParser::processDefault(char current_char)
+{
+    if (m_current_token.type == WHITESPACE || m_current_token.type == INTEGER ||
+        m_current_token.type == FLOAT)
+    {
+        finishCurrentToken();
+        m_current_token.text.append(1, current_char);
+        m_current_token.type = INVALID;
+    }
+    else
+    {
+        m_current_token.text.append(1, current_char);
+    }
+}
+
+/**
+ * @brief Check if m_current_token is valid and store in m_tokens[] if it is.
+ *
+ */
+void CJsonParser::finishCurrentToken()
+{
+    if (m_current_token.type != WHITESPACE)
+    {
+        if (m_current_token.text.empty() == false)
         {
-            m_tokens.push_back(token);
+            m_tokens.push_back(m_current_token);
             m_token_counter++;
         }
     }
-    token.type = WHITESPACE;
-    token.text.clear();
+
+    resetCurrentToken();
+}
+
+/**
+ * @bief Reset m_current_token type and text
+ */
+void CJsonParser::resetCurrentToken()
+{
+    m_current_token.type = WHITESPACE;
+    m_current_token.text.clear();
+}
+
+/**
+ * @brief Add special character token
+ * @param token type
+ * @param character to be appended
+ */
+void CJsonParser::addSpecialChar(CJsonParser::token_type_t token_type,
+                                 char character)
+{
+    if (m_current_token.type != STRING)
+    {
+        finishCurrentToken();
+        m_current_token.type = token_type;
+        m_current_token.text.append(1, character);
+        finishCurrentToken();
+    }
+    else
+    {
+        m_current_token.text.append(1, character);
+    }
 }
 
 /**
@@ -215,29 +286,6 @@ float CJsonParser::operator[](unsigned int index)
 }
 
 /**
- * @brief Add special character token
- * @param token
- * @param token type
- * @param character to be appended
- */
-void CJsonParser::addSpecialChar(CJsonParser::token_t &token,
-                                 CJsonParser::token_type_t operator_type,
-                                 char character)
-{
-    if (token.type != STRING)
-    {
-        finishToken(token);
-        token.type = operator_type;
-        token.text.append(1, character);
-        finishToken(token);
-    }
-    else
-    {
-        token.text.append(1, character);
-    }
-}
-
-/**
  * @note The following methods parse non-terminal symbols. To understand better
  * the logic behind these methods please Google Recursive Descent Parser or
  * visit: http://www.cs.binghamton.edu/~zdu/parsdemo/recintro.html
@@ -252,6 +300,12 @@ void CJsonParser::addSpecialChar(CJsonParser::token_t &token,
         |  Elements | Number, Number, .. |
  */
 
+/**
+ * @brief Check if a JSON object is recognised using the tokens stored in
+ * m_tokens after using stringToTokens()
+ *
+ * @return True if successful
+ */
 bool CJsonParser::parseObject()
 {
     m_token_index = 0;
@@ -274,6 +328,12 @@ bool CJsonParser::parseObject()
     return b_success;
 }
 
+/**
+ * @brief Check for a valid key:value pair, if a valid key is found, this will
+ * be stored in m_command_variable and then parseValue() will be called.
+ *
+ * @return True if successful
+ */
 bool CJsonParser::parsePair()
 {
     bool b_success = false;
@@ -290,6 +350,12 @@ bool CJsonParser::parsePair()
     return b_success;
 }
 
+/**
+ * @brief Check for a valid Value. This could be an array of values or a single
+ * value.
+ *
+ * @return True if successful
+ */
 bool CJsonParser::parseValue()
 {
     bool b_success = false;
@@ -310,6 +376,13 @@ bool CJsonParser::parseValue()
     }
     return b_success;
 }
+
+/**
+ * @brief Check if the array follows the right syntax and store values in
+ * m_arguments[].
+ *
+ * @return True if successful
+ */
 bool CJsonParser::parseArray()
 {
     bool b_success = false;
