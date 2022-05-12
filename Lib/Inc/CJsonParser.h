@@ -51,10 +51,15 @@ public:
 
 private:
     void stringToTokens(const etl::string<MAX_STRING_SIZE> &string);
-    void addSpecialChar(CJsonParser::token_t &token,
-                        CJsonParser::token_type_t operator_type,
+    void addSpecialChar(CJsonParser::token_type_t operator_type,
                         char character);
-    void finishToken(CJsonParser::token_t &token);
+    void finishCurrentToken();
+    void resetCurrentToken();
+    void processDigit(char current_char);
+    void processSpacer(char current_char);
+    void processDecimalPoint(char current_char);
+    void processDoubleQuote(char current_char);
+    void processDefault(char current_char);
 
     /* Parser helper functions */
     bool parseObject();
@@ -67,6 +72,8 @@ private:
     uint8_t m_argument_counter = 0;
     etl::string<MAX_STRING_SIZE> m_command_name;
     float m_arguments[MAX_ARGUMENT_COUNT];
+
+    token_t m_current_token;
 
     uint16_t m_token_counter = 0;
 };
