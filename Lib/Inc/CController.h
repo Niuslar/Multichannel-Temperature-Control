@@ -18,8 +18,6 @@
 #include "IComChannel.h"
 #include "ICommand.h"
 
-#define MAX_STRING_SIZE 60
-
 // comment out if you don't want to collect runtime statistics
 #define COLLECT_STATS
 
