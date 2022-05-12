@@ -71,6 +71,7 @@ void CJsonParser::stringToTokens(const etl::string<MAX_STRING_SIZE> &string)
                 break;
             case '.':
                 processDecimalPoint(current_char);
+                break;
             case ' ':
             case '\t':
                 processSpacer(current_char);
@@ -109,7 +110,6 @@ void CJsonParser::stringToTokens(const etl::string<MAX_STRING_SIZE> &string)
              */
             default:
                 processDefault(current_char);
-                break;
         }
     }
     // Finish any token that might have not been stored
