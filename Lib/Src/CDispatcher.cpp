@@ -140,36 +140,20 @@ void CDispatcher::run()
 bool CDispatcher::newCommand(ICommand *p_command, IComChannel *p_comchannel)
 {
     bool b_command_recognised = false;
-    // TODO: when the command API is firmed up
-    // Example. Start/stop controller.
-    // start(Controller name)/stop(Controller name)
     const etl::string<MAX_STRING_SIZE> *command_name = p_command->getName();
-    etl::string<MAX_STRING_SIZE> controller_name = *p_command[0];
-    if (command_name == "stop")
+    const etl::string<MAX_STRING_SIZE> *controller_name =
+        p_command->getStringArgument();
+    if (*command_name == "stop")
     {
-        controller_name =
-            command->substr(open_bracket + 1, close_bracket - open_bracket - 1);
-        uint8_t controller_number = findControllerNumber(controller_name);
+        uint8_t controller_number = findControllerNumber(*controller_name);
         mp_controllers[controller_number]->stop();
     }
-    else if (command->find("start") < command->npos)
+    else if (*command_name == "start")
     {
         b_command_recognised = true;
-        etl::string<MAX_STRING_SIZE>::size_type open_bracket =
-            command->find("(");
-        etl::string<MAX_STRING_SIZE>::size_type close_bracket =
-            command->find(")");
-        if ((open_bracket == command->npos) || (close_bracket == command->npos))
-        {
-            p_comchannel->send("Command is malformatted.\n");
-        }
-        else
-        {
-            controller_name = command.substr(open_bracket + 1,
-                                             close_bracket - open_bracket - 1);
-            uint8_t controller_number = findControllerNumber(controller_name);
-            mp_controllers[controller_number]->start();
-        }
+
+        uint8_t controller_number = findControllerNumber(*controller_name);
+        mp_controllers[controller_number]->start();
     }
 
     return b_command_recognised;
