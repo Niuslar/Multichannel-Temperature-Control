@@ -29,6 +29,7 @@ bool CJsonParser::parse(const etl::string<MAX_STRING_SIZE> &string)
     // Reset command variables
     m_argument_counter = 0;
     m_command_name = "";
+    m_string_argument = "";
 
     stringToTokens(string);
     return parseObject();
@@ -286,6 +287,16 @@ float CJsonParser::operator[](unsigned int index)
 }
 
 /**
+ * @brief Retrieve string stored in m_string_argument
+ * @note If no string was recognised during parsing, this returns an empty
+ * string
+ */
+const etl::string<MAX_STRING_SIZE> *CJsonParser::getStringArgument() const
+{
+    return &m_string_argument;
+}
+
+/**
  * @note The following methods parse non-terminal symbols. To understand better
  * the logic behind these methods please Google Recursive Descent Parser or
  * visit: http://www.cs.binghamton.edu/~zdu/parsdemo/recintro.html
@@ -373,6 +384,11 @@ bool CJsonParser::parseValue()
             m_arguments[m_argument_counter++] = number;
             b_success = true;
         }
+    }
+    else if (m_tokens[m_token_index].type == STRING)
+    {
+        m_string_argument = m_tokens[m_token_index].text;
+        b_success = true;
     }
     return b_success;
 }
