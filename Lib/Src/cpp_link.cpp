@@ -66,12 +66,17 @@ extern "C"
     void cpp_main()
     {
         g_hardware_map.init();
+        g_debug_uart.init(&huart1);
+        // TODO: Maybe startRx() would be better inside of init()
+        g_debug_uart.startRx();
+
         /**
          * @note By this point in the code all hardware has been configured. Run
          * initialisation code here.
          */
         g_dispatcher.registerController(&g_debug_controller);
         g_dispatcher.registerController(&g_temp_controller);
+        g_dispatcher.registerComChannel(&g_debug_uart);
         /**
          * @note Dispatcher run() method will not return. At this point
          * scheduling of controllers will start.
