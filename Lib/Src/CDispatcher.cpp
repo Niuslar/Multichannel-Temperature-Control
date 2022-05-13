@@ -143,12 +143,13 @@ bool CDispatcher::newCommand(ICommand *p_command, IComChannel *p_comchannel)
     const etl::string<MAX_STRING_SIZE> *command_name = p_command->getName();
     const etl::string<MAX_STRING_SIZE> *controller_name =
         p_command->getStringArgument();
-    if (*command_name == "stop")
+    if (command_name->compare("stop") == 0)
     {
+        b_command_recognised = true;
         uint8_t controller_number = findControllerNumber(*controller_name);
         mp_controllers[controller_number]->stop();
     }
-    else if (*command_name == "start")
+    else if (command_name->compare("start") == 0)
     {
         b_command_recognised = true;
 
@@ -204,7 +205,7 @@ void CDispatcher::processComChannels()
             }
             else
             {
-                mp_comchannels[channel]->send("COMMAND_OK");
+                mp_comchannels[channel]->send("COMMAND_OK\n");
             }
         }
     }
