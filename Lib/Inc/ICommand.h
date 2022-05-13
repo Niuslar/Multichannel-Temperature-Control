@@ -50,6 +50,13 @@ public:
     virtual unsigned int getArgumentCount() const = 0;
 
     /**
+     * @brief Get string argument.
+     *
+     * @return String argument if available, empty string if not.
+     */
+    virtual const etl::string<MAX_STRING_SIZE> *getStringArgument() const = 0;
+
+    /**
      * @brief Access parsed arguments by index of their position in the command
      * string.
      *
