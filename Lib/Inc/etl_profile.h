@@ -10,6 +10,6 @@
 
 #define ETL_COMPILER_ARM
 
-#define MAX_STRING_SIZE 60
+#define MAX_STRING_SIZE 150
 
 #endif /* ETL_PROFILE_H_ */
