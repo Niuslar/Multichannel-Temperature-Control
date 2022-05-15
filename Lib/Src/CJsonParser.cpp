@@ -25,10 +25,7 @@ CJsonParser::CJsonParser() {}
 bool CJsonParser::parse(const etl::string<MAX_STRING_SIZE> &string)
 {
     // Reset command variables
-    m_argument_counter = 0;
-    m_command_name = "";
-    m_string_argument = "";
-
+    reset();
     stringToTokens(string);
     return parseObject();
 }
@@ -246,52 +243,6 @@ void CJsonParser::addSpecialChar(CJsonParser::token_type_t token_type,
     {
         m_current_token.text.append(1, character);
     }
-}
-
-/**
- * @brief Get name of the last parsed command.
- *
- * @return Name of the last parsed command.
- */
-const etl::string<MAX_STRING_SIZE> *CJsonParser::getName() const
-{
-    return &m_command_name;
-}
-
-/**
- * @brief Get number of arguments.
- *
- * @return Number of parsed arguments.
- */
-unsigned int CJsonParser::getArgumentCount() const
-{
-    return m_argument_counter;
-}
-
-/**
- * @brief Access parsed arguments by index of their position in the command
- * string.
- *
- * @param index Position of the argument to be accessed. Zero-based index.
- * @return Value of the argument at the requested index.
- */
-float CJsonParser::operator[](unsigned int index)
-{
-    if (index < m_argument_counter)
-    {
-        return m_arguments[index];
-    }
-    return DEFAULT_ARGUMENT;
-}
-
-/**
- * @brief Retrieve string stored in m_string_argument
- * @note If no string was recognised during parsing, this returns an empty
- * string
- */
-const etl::string<MAX_STRING_SIZE> *CJsonParser::getStringArgument() const
-{
-    return &m_string_argument;
 }
 
 /**
