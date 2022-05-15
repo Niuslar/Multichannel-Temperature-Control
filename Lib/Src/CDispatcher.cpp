@@ -133,7 +133,7 @@ void CDispatcher::run()
 /**
  * @brief Method to process incoming commands.
  *
- * @param command ICommand pointer
+ * @param Pointer to a command object via an interface class
  * @param p_comchannel Coms channel which delivered command.
  * @return True if command has been recognised.
  */
@@ -232,6 +232,7 @@ int8_t CDispatcher::findControllerNumber(etl::string<MAX_STRING_SIZE> name)
         if (m_controller_names[i].compare(name) == 0)
         {
             controller = i;
+            break;
         }
     }
     return controller;
