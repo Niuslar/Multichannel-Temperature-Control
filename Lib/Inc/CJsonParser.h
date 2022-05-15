@@ -13,21 +13,17 @@
 #include "../etl/string.h"
 #include "../etl/vector.h"
 #include "CFIFOBuffer.h"
+#include "CStringParser.h"
 #include "IComChannel.h"
-#include "ICommand.h"
 #include "main.h"
 
 #define MAX_TOKENS 60
 
-class CJsonParser : public ICommand
+class CJsonParser : public CStringParser
 {
 public:
     CJsonParser();
-    bool parse(const etl::string<MAX_STRING_SIZE> &string);
-    const etl::string<MAX_STRING_SIZE> *getName() const;
-    unsigned int getArgumentCount() const;
-    const etl::string<MAX_STRING_SIZE> *getStringArgument() const;
-    float operator[](unsigned int index);
+    virtual bool parse(const etl::string<MAX_STRING_SIZE> &string);
 
     typedef enum TOKEN_TYPE_T
     {
@@ -70,10 +66,6 @@ private:
 
     uint8_t m_token_index = 0;
     etl::vector<token_t, MAX_TOKENS> m_tokens;
-    uint8_t m_argument_counter = 0;
-    etl::string<MAX_STRING_SIZE> m_command_name;
-    float m_arguments[MAX_ARGUMENT_COUNT];
-    etl::string<MAX_STRING_SIZE> m_string_argument;
 
     token_t m_current_token;
 
