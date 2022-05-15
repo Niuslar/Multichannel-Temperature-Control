@@ -17,6 +17,7 @@
 
 #define MAX_COMMAND_SIZE   100
 #define MAX_ARGUMENT_COUNT 10
+#define DEFAULT_ARGUMENT   0
 
 class ICommand
 {
