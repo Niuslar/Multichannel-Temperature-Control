@@ -12,8 +12,6 @@
 
 #include "CJsonParser.h"
 
-#define DEFAULT_VALUE 0
-
 /**
  * @brief Constructor
  */
@@ -283,7 +281,7 @@ float CJsonParser::operator[](unsigned int index)
     {
         return m_arguments[index];
     }
-    return DEFAULT_VALUE;
+    return DEFAULT_ARGUMENT;
 }
 
 /**
