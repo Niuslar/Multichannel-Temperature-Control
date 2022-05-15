@@ -145,16 +145,23 @@ bool CDispatcher::newCommand(ICommand *p_command, IComChannel *p_comchannel)
         p_command->getStringArgument();
     if (command_name->compare("stop") == 0)
     {
-        b_command_recognised = true;
-        uint8_t controller_number = findControllerNumber(*controller_name);
-        mp_controllers[controller_number]->stop();
+        int8_t controller_number = findControllerNumber(*controller_name);
+        if (controller_number >= 0)
+        {
+            mp_controllers[controller_number]->stop();
+            b_command_recognised = true;
+        }
     }
     else if (command_name->compare("start") == 0)
     {
         b_command_recognised = true;
 
-        uint8_t controller_number = findControllerNumber(*controller_name);
-        mp_controllers[controller_number]->start();
+        int8_t controller_number = findControllerNumber(*controller_name);
+        if (controller_number >= 0)
+        {
+            mp_controllers[controller_number]->start();
+            b_command_recognised = true;
+        }
     }
 
     return b_command_recognised;
@@ -200,7 +207,7 @@ void CDispatcher::processComChannels()
             if (!b_command_recognised)
             {
                 etl::string<MAX_STRING_SIZE> message;
-                message = "Command has not been recognised.\n";
+                message = "COMMAND_NOT_RECOGNISED\n";
                 mp_comchannels[channel]->send(message);
             }
             else
@@ -215,15 +222,17 @@ void CDispatcher::processComChannels()
  * @brief Method to find number of the controller based on the name.
  *
  * @param name Name of the controller.
- * @return
+ * @return Index of the controller if the name was recognised. -1 if not.
  */
-uint8_t CDispatcher::findControllerNumber(etl::string<MAX_STRING_SIZE> name)
+int8_t CDispatcher::findControllerNumber(etl::string<MAX_STRING_SIZE> name)
 {
-    uint8_t controller = 0;
-    while ((m_controller_names[controller].compare(name) != 0) &&
-           (controller < m_controller_count))
+    int8_t controller = -1;
+    for (uint8_t i = 0; i < m_controller_count; i++)
     {
-        controller++;
+        if (m_controller_names[i].compare(name) == 0)
+        {
+            controller = i;
+        }
     }
     return controller;
 }

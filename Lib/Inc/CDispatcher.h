@@ -36,7 +36,7 @@ public:
 
 private:
     void processComChannels();
-    uint8_t findControllerNumber(etl::string<MAX_STRING_SIZE> name);
+    int8_t findControllerNumber(etl::string<MAX_STRING_SIZE> name);
 
     CJsonParser m_json_parser;
     CUartCom *mp_uart_com;
