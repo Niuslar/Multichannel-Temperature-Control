@@ -20,6 +20,7 @@
 #define MAX_COMCHANNELS 5
 
 #include "CController.h"
+#include "CJsonParser.h"
 #include "CUartCom.h"
 #include "IComChannel.h"
 
@@ -31,13 +32,13 @@ public:
     bool registerController(CController *p_controller);
     bool registerComChannel(IComChannel *p_comchannel);
     void run();  // TODO: figure out a reliable way to declare this as noreturn.
-    bool newCommand(etl::string<MAX_STRING_SIZE> command,
-                    IComChannel *p_comchannel);
+    bool newCommand(ICommand *p_command, IComChannel *p_comchannel);
 
 private:
     void processComChannels();
-    uint8_t findControllerNumber(etl::string<MAX_STRING_SIZE> name);
+    int8_t findControllerNumber(etl::string<MAX_STRING_SIZE> name);
 
+    CJsonParser m_json_parser;
     CUartCom *mp_uart_com;
     CController *mp_controllers[MAX_CONTROLLERS];
     etl::string<MAX_STRING_SIZE> m_controller_names[MAX_CONTROLLERS];
