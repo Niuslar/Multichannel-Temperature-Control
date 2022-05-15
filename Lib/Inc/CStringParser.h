@@ -45,11 +45,27 @@ public:
     const etl::string<MAX_STRING_SIZE> *getStringArgument() const;
     float operator[](unsigned int index);
 
+    typedef enum PARSE_STATE_T
+    {
+        IDLE = 0,
+        NAME,
+        ARGUMENTS,
+        FINISH
+    } parse_state_t;
+
 protected:
     uint8_t m_argument_counter;
     etl::string<MAX_STRING_SIZE> m_command_name;
     float m_arguments[MAX_ARGUMENT_COUNT];
     etl::string<MAX_STRING_SIZE> m_string_argument;
+
+private:
+    bool processIdle(const char *p_character);
+    bool processName(const char *p_character);
+    bool processArguments(const char *p_character);
+
+    bool isValid(const char *character) const;
+    parse_state_t m_parse_state;
 };
 
 #endif /* CSTRINGPARSER_H_ */
