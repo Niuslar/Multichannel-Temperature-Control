@@ -140,15 +140,15 @@ void CJsonParser::processDigit(char current_char)
  */
 void CJsonParser::processDecimalPoint(char current_char)
 {
+    m_current_token.text.append(1, current_char);
+
     if (m_current_token.type == INTEGER)
     {
-        m_current_token.text.append(1, current_char);
         m_current_token.type = FLOAT;
     }
     else
     {
         finishCurrentToken();
-        m_current_token.text.append(1, current_char);
         m_current_token.type = INVALID;
     }
 }
@@ -173,14 +173,10 @@ void CJsonParser::processSpacer(char current_char)
  */
 void CJsonParser::processDoubleQuote(char current_char)
 {
+    finishCurrentToken();
     if (m_current_token.type != STRING)
     {
-        finishCurrentToken();
         m_current_token.type = STRING;
-    }
-    else
-    {
-        finishCurrentToken();
     }
 }
 
