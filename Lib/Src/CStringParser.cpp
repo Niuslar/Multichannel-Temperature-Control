@@ -40,52 +40,12 @@ bool CStringParser::parse(const etl::string<MAX_STRING_SIZE> &string)
     {
         return false;
     }
-    // extract command name
-    uint32_t cmd_start = string.find(CMD_START) + 1;
-    uint32_t arg_start = string.find(ARG_START) + 1;
-    m_command_name.assign(string.substr(cmd_start, arg_start - cmd_start));
-    if (m_command_name.empty())
+    if (parseName(string) == false)
     {
         return false;
     }
     // now that command has been extracted, need to extract the arguments.
-    uint32_t arg_stop = string.find(ARG_STOP);
-    uint32_t arg_delimiter = string.find(ARG_DELIMIT, arg_start);
-    etl::string<MAX_COMMAND_SIZE> argument_string;
-    while (arg_delimiter < arg_stop)
-    {
-        argument_string = string.substr(arg_start, arg_delimiter - arg_start);
-        if (sscanf(argument_string.c_str(),
-                   "%f",
-                   &(m_arguments[m_argument_counter])) == 1)
-        {
-            m_argument_counter++;
-        }
-        else if (m_string_argument.empty())
-        {
-            m_string_argument =
-                string.substr(arg_start, arg_delimiter - arg_start);
-        }
-        else
-        {
-            return false;
-        }
-        // find next delimiter
-        arg_start = arg_delimiter;
-        arg_delimiter = string.find(ARG_DELIMIT, arg_start) + 1;
-    }
-    argument_string = string.substr(arg_start, arg_stop - arg_start);
-    if (sscanf(argument_string.c_str(),
-               "%f",
-               m_arguments + m_argument_counter) == 1)
-    {
-        m_argument_counter++;
-    }
-    else if (m_string_argument.empty())
-    {
-        m_string_argument = string.substr(arg_start, arg_delimiter - arg_start);
-    }
-    else
+    if (parseArguments(string) == false)
     {
         return false;
     }
@@ -185,6 +145,70 @@ bool CStringParser::isValidFormat(
     }
     // no matching closing bracket for opening bracket
     if ((arg_start != string.npos) && (arg_stop == string.npos))
+    {
+        return false;
+    }
+    return true;
+}
+
+bool CStringParser::parseName(const etl::string<MAX_COMMAND_SIZE> &string)
+{
+    uint32_t cmd_start = string.find(CMD_START) + 1;
+    uint32_t arg_start = string.find(ARG_START);
+    m_command_name.assign(string.substr(cmd_start, arg_start - cmd_start));
+    if (m_command_name.empty())
+    {
+        return false;
+    }
+    return true;
+}
+
+bool CStringParser::parseArguments(const etl::string<MAX_COMMAND_SIZE> &string)
+{
+    uint32_t arg_start = string.find(ARG_START) + 1;
+    uint32_t arg_stop = string.find(ARG_STOP, arg_start);
+    uint32_t arg_delimiter = string.find(ARG_DELIMIT, arg_start);
+    etl::string<MAX_COMMAND_SIZE> argument_string;
+    /* Empty brackets. */
+    if ((arg_stop - arg_start) == 0)
+    {
+        return true;
+    }
+    while (arg_delimiter < arg_stop)
+    {
+        argument_string = string.substr(arg_start, arg_delimiter - arg_start);
+        if (sscanf(argument_string.c_str(),
+                   "%f",
+                   &(m_arguments[m_argument_counter])) == 1)
+        {
+            m_argument_counter++;
+        }
+        else if (m_string_argument.empty())
+        {
+            m_string_argument =
+                string.substr(arg_start, arg_delimiter - arg_start);
+        }
+        else
+        {
+            return false;
+        }
+        // find next delimiter
+        arg_start = arg_delimiter + 1;
+        arg_delimiter = string.find(ARG_DELIMIT, arg_start);
+    }
+    argument_string = string.substr(arg_start, arg_stop - arg_start);
+    if (sscanf(argument_string.c_str(),
+               "%f",
+               &(m_arguments[m_argument_counter])) == 1)
+    {
+        m_argument_counter++;
+    }
+    else if (m_string_argument.empty())
+    {
+        m_string_argument =
+            string.substr(arg_start, arg_delimiter - arg_start - 1);
+    }
+    else
     {
         return false;
     }

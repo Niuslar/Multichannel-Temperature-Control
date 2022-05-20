@@ -61,6 +61,8 @@ protected:
 
 private:
     bool isValidFormat(const etl::string<MAX_STRING_SIZE> &string) const;
+    bool parseName(const etl::string<MAX_COMMAND_SIZE> &string);
+    bool parseArguments(const etl::string<MAX_COMMAND_SIZE> &string);
 
     parse_state_t m_parse_state;
 };
