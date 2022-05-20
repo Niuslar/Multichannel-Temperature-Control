@@ -112,7 +112,7 @@ bool CTemperatureController::newCommand(ICommand *p_command,
         switch (result)
         {
             case ICommand::COMMAND_OK:
-                p_comchannel->send("OK.\n");
+                //                p_comchannel->send("OK.\n");
                 break;
             case ICommand::ERROR_ARG_COUNT:
                 p_comchannel->send("Wrong number of arguments.\n");
@@ -146,7 +146,7 @@ void CTemperatureController::sendStatus(IComChannel *p_comchannel)
     etl::string<MAX_STRING_SIZE> message;
     char value[10];
     // Send target temperature
-    message.assign("Target:     ");
+    message.assign("Target:      ");
     for (int i = 0; i < CHANNEL_NUMBER - 1; i++)
     {
         sprintf(value, "%4.1f, ", m_target_temperature[i]);
@@ -166,7 +166,7 @@ void CTemperatureController::sendStatus(IComChannel *p_comchannel)
     message.append(value);
     p_comchannel->send(message);
     // Send heater power
-    message.assign("Power:      ");
+    message.assign("Power:       ");
     float power;
     for (int i = 0; i < CHANNEL_NUMBER - 1; i++)
     {
@@ -189,7 +189,7 @@ void CTemperatureController::sendStatus(IComChannel *p_comchannel)
     {
         power = m_power_override[CHANNEL_NUMBER - 1];
     }
-    sprintf(value, "%4.1f, ", power);
+    sprintf(value, "%4.1f\n", power);
     message.append(value);
     p_comchannel->send(message);
 }
