@@ -85,6 +85,7 @@ extern "C"
          * @note Dispatcher run() method will not return. At this point
          * scheduling of controllers will start.
          */
+        g_debug_uart.send("Ready!\n");
         g_dispatcher.run();
     }
 
