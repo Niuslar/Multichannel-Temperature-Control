@@ -21,6 +21,7 @@
 
 #include "CController.h"
 #include "CJsonParser.h"
+#include "CStringParser.h"
 #include "CUartCom.h"
 #include "IComChannel.h"
 
@@ -39,6 +40,7 @@ private:
     int8_t findControllerNumber(etl::string<MAX_STRING_SIZE> name);
 
     CJsonParser m_json_parser;
+    CStringParser m_string_parser;
     CUartCom *mp_uart_com;
     CController *mp_controllers[MAX_CONTROLLERS];
     etl::string<MAX_STRING_SIZE> m_controller_names[MAX_CONTROLLERS];
@@ -47,6 +49,8 @@ private:
 
     IComChannel *mp_comchannels[MAX_COMCHANNELS];
     uint8_t m_comchannel_count;
+
+    etl::string<MAX_COMMAND_SIZE> m_command_string;
 };
 
 #endif /* CDISPATCHER_H_ */
