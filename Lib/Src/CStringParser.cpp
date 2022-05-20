@@ -44,6 +44,10 @@ bool CStringParser::parse(const etl::string<MAX_STRING_SIZE> &string)
     uint32_t cmd_start = string.find(CMD_START) + 1;
     uint32_t arg_start = string.find(ARG_START) + 1;
     m_command_name.assign(string.substr(cmd_start, arg_start - cmd_start));
+    if (m_command_name.empty())
+    {
+        return false;
+    }
     // now that command has been extracted, need to extract the arguments.
     uint32_t arg_stop = string.find(ARG_STOP);
     uint32_t arg_delimiter = string.find(ARG_DELIMIT, arg_start);
