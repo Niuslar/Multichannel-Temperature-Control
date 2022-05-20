@@ -60,11 +60,8 @@ protected:
     etl::string<MAX_STRING_SIZE> m_string_argument;
 
 private:
-    bool processIdle(const char *p_character);
-    bool processName(const char *p_character);
-    bool processArguments(const char *p_character);
+    bool isValidFormat(const etl::string<MAX_STRING_SIZE> &string) const;
 
-    bool isValid(const char *character) const;
     parse_state_t m_parse_state;
 };
 

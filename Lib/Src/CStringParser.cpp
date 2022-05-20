@@ -13,6 +13,11 @@
 #include "CStringParser.h"
 #include <ctype.h>
 
+#define CMD_START   '>'
+#define ARG_START   '('
+#define ARG_STOP    ')'
+#define ARG_DELIMIT ','
+
 CStringParser::CStringParser()
 {
     reset();
@@ -30,31 +35,57 @@ CStringParser::~CStringParser()
  */
 bool CStringParser::parse(const etl::string<MAX_STRING_SIZE> &string)
 {
-    bool b_command_valid = false;
     reset();
-    for (const char *p_character = string.begin();
-         p_character < string.end() && m_parse_state != FINISH;
-         ++p_character)
+    if (isValidFormat(string) == false)
     {
-        switch (m_parse_state)
-        {
-            case IDLE:
-                b_command_valid = processIdle(p_character);
-                break;
-            case NAME:
-                b_command_valid = processName(p_character);
-                break;
-            case ARGUMENTS:
-                b_command_valid = processArguments(p_character);
-                break;
-            case FINISH:
-                break;
-            default:
-                // TODO: call error handler
-                break;
-        }
+        return false;
     }
-    return b_command_valid;
+    // extract command name
+    uint32_t cmd_start = string.find(CMD_START) + 1;
+    uint32_t arg_start = string.find(ARG_START) + 1;
+    m_command_name.assign(string.substr(cmd_start, arg_start - cmd_start));
+    // now that command has been extracted, need to extract the arguments.
+    uint32_t arg_stop = string.find(ARG_STOP);
+    uint32_t arg_delimiter = string.find(ARG_DELIMIT, arg_start);
+    etl::string<MAX_COMMAND_SIZE> argument_string;
+    while (arg_delimiter < arg_stop)
+    {
+        argument_string = string.substr(arg_start, arg_delimiter - arg_start);
+        if (sscanf(argument_string.c_str(),
+                   "%f",
+                   &(m_arguments[m_argument_counter])) == 1)
+        {
+            m_argument_counter++;
+        }
+        else if (m_string_argument.empty())
+        {
+            m_string_argument =
+                string.substr(arg_start, arg_delimiter - arg_start);
+        }
+        else
+        {
+            return false;
+        }
+        // find next delimiter
+        arg_start = arg_delimiter;
+        arg_delimiter = string.find(ARG_DELIMIT, arg_start) + 1;
+    }
+    argument_string = string.substr(arg_start, arg_stop - arg_start);
+    if (sscanf(argument_string.c_str(),
+               "%f",
+               m_arguments + m_argument_counter) == 1)
+    {
+        m_argument_counter++;
+    }
+    else if (m_string_argument.empty())
+    {
+        m_string_argument = string.substr(arg_start, arg_delimiter - arg_start);
+    }
+    else
+    {
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -120,72 +151,38 @@ const etl::string<MAX_STRING_SIZE> *CStringParser::getStringArgument() const
     return &m_string_argument;
 }
 
-bool CStringParser::processIdle(const char *p_character)
+/**
+ * @brief Check if command conforms to the format requirements
+ *
+ * @param string containing the command to be checked.
+ * @return True if command is valid, false otherwise.
+ */
+bool CStringParser::isValidFormat(
+    const etl::string<MAX_STRING_SIZE> &string) const
 {
-    if (*p_character == '{')
+    /* check command conforms to the format:
+     * >command(arg1,arg2,arg3,...)
+     * Arguments and brackets are optional. "command" can contain any valid
+     * ascii characters.
+     */
+    uint32_t cmd_start = string.find(CMD_START);
+    uint32_t arg_start = string.find(ARG_START);
+    uint32_t arg_stop = string.find(ARG_STOP);
+
+    // missing command start symbol.
+    if (cmd_start == string.npos)
     {
-        m_parse_state = FINISH;
         return false;
     }
-    if (isalnum(*p_character) || (*p_character == '?'))
+    // closing bracket comes before opening bracket
+    if (arg_stop < arg_start)
     {
-        m_command_name.append(p_character);
-        m_parse_state = NAME;
-        return true;
-    }
-}
-
-bool CStringParser::processName(const char *p_character)
-{
-    // another character for the name. Command complete.
-    if (isalnum(*p_character))
-    {
-        m_command_name.append(p_character);
-        return true;
-    }
-    // EOL, LF, CR. Command complete.
-    if ((*p_character == 0) || (*p_character == 10) || (*p_character == 13))
-    {
-        m_parse_state = FINISH;
-        return true;
-    }
-    // start of arguments. Command not complete.
-    if (*p_character == '(')
-    {
-        m_parse_state = ARGUMENTS;
         return false;
     }
-}
-
-bool CStringParser::processArguments(const char *p_character)
-{
-    if (*p_character == ')')
+    // no matching closing bracket for opening bracket
+    if ((arg_start != string.npos) && (arg_stop == string.npos))
     {
-        m_parse_state = FINISH;
-        return true;
-    }
-    float argument;
-    if (sscanf(p_character, "%f", &argument) == 1)
-    {
-        m_arguments[m_argument_counter] = argument;
-        m_argument_counter++;
         return false;
     }
-    else if (sscanf(p_character, "%s", m_string_argument.c_str()))
-    {
-    }
-}
-
-bool CStringParser::isValid(const char character) const
-{
-    bool b_valid = false;
-    if (isalnum(character))
-    {
-        b_valid = true;
-    }
-    if ((character == '?') || (character == '_'))
-    {
-        b_valid = true;
-    }
-    return b_valid;
+    return true;
 }
