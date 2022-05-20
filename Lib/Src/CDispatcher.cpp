@@ -185,12 +185,21 @@ void CDispatcher::processComChannels()
         while (mp_comchannels[channel]->isDataAvailable())
         {
             bool b_command_recognised = false;
-            etl::string<MAX_STRING_SIZE> command_string =
-                mp_comchannels[channel]->getData();
-            ICommand *p_command = &m_json_parser;
-            if (m_json_parser.parse(command_string))
+            m_command_string = mp_comchannels[channel]->getData();
+            ICommand *p_command = nullptr;
+            /* check if any parser manage to decode the command. */
+            if (m_json_parser.parse(m_command_string))
             {
-                /* first check if this command is for CDispatcher. */
+                p_command = &m_json_parser;
+            }
+            else if (m_string_parser.parse(m_command_string))
+            {
+                p_command = &m_string_parser;
+            }
+            /* if command is decoded, feed it to the dispatcher and all
+             * controllers in turn until one of them responds.*/
+            if (p_command != nullptr)
+            {
                 b_command_recognised =
                     newCommand(p_command, mp_comchannels[channel]);
                 uint8_t controller = 0;
@@ -209,10 +218,6 @@ void CDispatcher::processComChannels()
                 etl::string<MAX_STRING_SIZE> message;
                 message = "COMMAND_NOT_RECOGNISED\n";
                 mp_comchannels[channel]->send(message);
-            }
-            else
-            {
-                mp_comchannels[channel]->send("COMMAND_OK\n");
             }
         }
     }
