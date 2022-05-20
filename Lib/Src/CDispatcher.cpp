@@ -13,6 +13,9 @@
 #include "CDispatcher.h"
 #include "main.h" /* makes HAL function calls available. */
 
+#define COMMAND_NOT_RECOGNISED "Command not recognised.\n"
+#define COMMAND_MALFORMAT      "Command does not match format.\n"
+
 // TODO: make logger optional to allow memory saving if logger is not required.
 /**
  * @brief Create instance of the dispatcher class.
@@ -212,12 +215,14 @@ void CDispatcher::processComChannels()
                             mp_comchannels[channel]);
                     controller++;
                 }
+                if (!b_command_recognised)
+                {
+                    mp_comchannels[channel]->send(COMMAND_NOT_RECOGNISED);
+                }
             }
-            if (!b_command_recognised)
+            else
             {
-                etl::string<MAX_STRING_SIZE> message;
-                message = "COMMAND_NOT_RECOGNISED\n";
-                mp_comchannels[channel]->send(message);
+                mp_comchannels[channel]->send(COMMAND_MALFORMAT);
             }
         }
     }
