@@ -13,6 +13,7 @@
 #include "CDispatcher.h"
 #include "main.h" /* makes HAL function calls available. */
 
+#define COMMAND_OK             "OK.\n"
 #define COMMAND_NOT_RECOGNISED "Command not recognised.\n"
 #define COMMAND_MALFORMAT      "Command does not match format.\n"
 
@@ -218,6 +219,10 @@ void CDispatcher::processComChannels()
                 if (!b_command_recognised)
                 {
                     mp_comchannels[channel]->send(COMMAND_NOT_RECOGNISED);
+                }
+                else
+                {
+                    mp_comchannels[channel]->send(COMMAND_OK);
                 }
             }
             else
