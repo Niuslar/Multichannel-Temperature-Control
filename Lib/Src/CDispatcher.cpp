@@ -13,6 +13,10 @@
 #include "CDispatcher.h"
 #include "main.h" /* makes HAL function calls available. */
 
+#define COMMAND_OK             "OK.\n"
+#define COMMAND_NOT_RECOGNISED "Command not recognised.\n"
+#define COMMAND_MALFORMAT      "Command does not match format.\n"
+
 // TODO: make logger optional to allow memory saving if logger is not required.
 /**
  * @brief Create instance of the dispatcher class.
@@ -185,12 +189,21 @@ void CDispatcher::processComChannels()
         while (mp_comchannels[channel]->isDataAvailable())
         {
             bool b_command_recognised = false;
-            etl::string<MAX_STRING_SIZE> command_string =
-                mp_comchannels[channel]->getData();
-            ICommand *p_command = &m_json_parser;
-            if (m_json_parser.parse(command_string))
+            m_command_string = mp_comchannels[channel]->getData();
+            ICommand *p_command = nullptr;
+            /* check if any parser manage to decode the command. */
+            if (m_json_parser.parse(m_command_string))
             {
-                /* first check if this command is for CDispatcher. */
+                p_command = &m_json_parser;
+            }
+            else if (m_string_parser.parse(m_command_string))
+            {
+                p_command = &m_string_parser;
+            }
+            /* if command is decoded, feed it to the dispatcher and all
+             * controllers in turn until one of them responds.*/
+            if (p_command != nullptr)
+            {
                 b_command_recognised =
                     newCommand(p_command, mp_comchannels[channel]);
                 uint8_t controller = 0;
@@ -203,16 +216,18 @@ void CDispatcher::processComChannels()
                             mp_comchannels[channel]);
                     controller++;
                 }
-            }
-            if (!b_command_recognised)
-            {
-                etl::string<MAX_STRING_SIZE> message;
-                message = "COMMAND_NOT_RECOGNISED\n";
-                mp_comchannels[channel]->send(message);
+                if (!b_command_recognised)
+                {
+                    mp_comchannels[channel]->send(COMMAND_NOT_RECOGNISED);
+                }
+                else
+                {
+                    mp_comchannels[channel]->send(COMMAND_OK);
+                }
             }
             else
             {
-                mp_comchannels[channel]->send("COMMAND_OK\n");
+                mp_comchannels[channel]->send(COMMAND_MALFORMAT);
             }
         }
     }

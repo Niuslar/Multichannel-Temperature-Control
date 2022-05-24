@@ -27,8 +27,9 @@
  * executing relevant classes can call initialisation methods that will
  * configure the hardware.
  */
-CUartCom g_debug_uart("Main");
-CDispatcher g_dispatcher(&g_debug_uart);
+CUartCom g_main_uart("Main");
+CUartCom g_debug_uart("Debug");
+CDispatcher g_dispatcher(&g_main_uart);
 
 /* hardware map */
 /**
@@ -66,8 +67,10 @@ extern "C"
     void cpp_main()
     {
         g_hardware_map.init();
-        g_debug_uart.init(&huart1);
+        g_main_uart.init(&huart1);
+        g_debug_uart.init(&huart2);
         // TODO: Maybe startRx() would be better inside of init()
+        g_main_uart.startRx();
         g_debug_uart.startRx();
 
         /**
@@ -76,11 +79,13 @@ extern "C"
          */
         g_dispatcher.registerController(&g_debug_controller);
         g_dispatcher.registerController(&g_temp_controller);
+        g_dispatcher.registerComChannel(&g_main_uart);
         g_dispatcher.registerComChannel(&g_debug_uart);
         /**
          * @note Dispatcher run() method will not return. At this point
          * scheduling of controllers will start.
          */
+        g_debug_uart.send("Ready!\n");
         g_dispatcher.run();
     }
 

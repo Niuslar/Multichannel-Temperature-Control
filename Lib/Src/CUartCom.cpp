@@ -297,6 +297,7 @@ int8_t CUartCom::getIndex(UART_HandleTypeDef *p_huart)
         if (p_huart->Instance == CUartCom::sp_UART[i]->mp_huart->Instance)
         {
             index = i;
+            break;
         }
     }
     return index;
