@@ -177,13 +177,14 @@ bool CStringParser::parseArguments(const etl::string<MAX_COMMAND_SIZE> &string)
     while (arg_delimiter < arg_stop)
     {
         argument_string = string.substr(arg_start, arg_delimiter - arg_start);
-        if (sscanf(argument_string.c_str(),
-                   "%f",
-                   &(m_arguments[m_argument_counter])) == 1)
+        if ((m_argument_counter < MAX_ARGUMENT_COUNT) &&
+            (sscanf(argument_string.c_str(),
+                    "%f",
+                    &(m_arguments[m_argument_counter])) == 1))
         {
             m_argument_counter++;
         }
-        else if (m_string_argument.empty())
+        else if (!argument_string.empty())
         {
             m_string_argument =
                 string.substr(arg_start, arg_delimiter - arg_start);
@@ -197,9 +198,10 @@ bool CStringParser::parseArguments(const etl::string<MAX_COMMAND_SIZE> &string)
         arg_delimiter = string.find(ARG_DELIMIT, arg_start);
     }
     argument_string = string.substr(arg_start, arg_stop - arg_start);
-    if (sscanf(argument_string.c_str(),
-               "%f",
-               &(m_arguments[m_argument_counter])) == 1)
+    if ((m_argument_counter < MAX_ARGUMENT_COUNT) &&
+        (sscanf(argument_string.c_str(),
+                "%f",
+                &(m_arguments[m_argument_counter])) == 1))
     {
         m_argument_counter++;
     }
