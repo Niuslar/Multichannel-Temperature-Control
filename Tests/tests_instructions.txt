@@ -1,0 +1,19 @@
+Running tests for the Temperature Controller
+The stm32_test.py file will contain all the tests we want to run.
+This tests assume the Pi is running and the Nucleo-64 is connected correctly. 
+I put a copy of the file in ~/Documents/actions-runner/
+ 
+Each test is a function definition with the word 'test' in the name. 
+
+In the .py file there are two lists  of commands to test with their respective expected answer. 
+One for the JSON parser and another for the string parser. 
+Example: >temperature(25) : COMMAND_OK
+You can add/remove commands to test there. 
+
+The test checks the last line received from the MCU via UART. If this matches 
+the expected answer, the check passes. 
+
+To run the tests, simply go to where the stm32_test.py file is located and run pytest.
+Example:
+pi@raspberry: ~/Documents/actions-runner$ pytest
+
