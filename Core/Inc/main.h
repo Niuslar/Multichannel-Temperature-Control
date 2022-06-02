@@ -109,10 +109,6 @@ void Error_Handler(void);
 #define CONTROL_8_GPIO_Port GPIOC
 #define CONTROL_1_Pin GPIO_PIN_8
 #define CONTROL_1_GPIO_Port GPIOA
-#define CONTROL_2_Pin GPIO_PIN_9
-#define CONTROL_2_GPIO_Port GPIOA
-#define CONTROL_3_Pin GPIO_PIN_10
-#define CONTROL_3_GPIO_Port GPIOA
 #define CONTROL_4_Pin GPIO_PIN_11
 #define CONTROL_4_GPIO_Port GPIOA
 #define HEAT_COOL_1_Pin GPIO_PIN_12
@@ -133,6 +129,10 @@ void Error_Handler(void);
 #define PWR_EN_GPIO_Port GPIOB
 #define USART1_DE_Pin GPIO_PIN_5
 #define USART1_DE_GPIO_Port GPIOB
+#define CONTROL_2_Pin GPIO_PIN_6
+#define CONTROL_2_GPIO_Port GPIOB
+#define CONTROL_3_Pin GPIO_PIN_7
+#define CONTROL_3_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

@@ -104,10 +104,6 @@ int main(void)
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
-    /**
-     * @note: DMA must be initialised before USART, otherwise DMA transmission
-     * does not work.
-     * */
     MX_DMA_Init();
     MX_GPIO_Init();
     MX_ADC1_Init();
@@ -119,6 +115,7 @@ int main(void)
     MX_TIM2_Init();
     MX_TIM10_Init();
     MX_TIM11_Init();
+    MX_TIM4_Init();
     /* USER CODE BEGIN 2 */
 
     /* From here the application moves to the code found in cpp_link.cpp */
