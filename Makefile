@@ -14,4 +14,4 @@ pull: ## Pull image
 	DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml pull
 
 doxy-doc: ## Generate Doxygen documentation
-	docker run --rm -it -v $(PWD):/stm32-app $(shell docker build -q -f Doxygen/Dockerfile .) /bin/sh -c "doxygen Doxygen/config/Doxyfile"
+	docker run --rm -it -v "$(PWD):/stm32-app" $(shell docker build -q -f Doxygen/Dockerfile .) /bin/sh -c "doxygen Doxygen/config/Doxyfile"
