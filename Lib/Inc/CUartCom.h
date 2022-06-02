@@ -47,8 +47,6 @@ public:
     static CUartCom *sp_UART[MAX_UART_ENGINES];
     static uint8_t s_uart_instances;
     UART_HandleTypeDef *mp_huart;
-    GPIO_TypeDef *m_uart_de_port = nullptr;
-    uint16_t m_uart_de_pin;
 
 private:
     void updateTxBuffer();
