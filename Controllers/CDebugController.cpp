@@ -11,7 +11,8 @@
 
 #include "CDebugController.h"
 
-CDebugController::CDebugController(std::string name, uint32_t run_period_ms)
+CDebugController::CDebugController(etl::string<MAX_STRING_SIZE> name,
+                                   uint32_t run_period_ms)
     : CController(name, run_period_ms),
       m_breather_light(BREATHING_GPIO_Port, BREATHING_Pin)
 {
@@ -28,7 +29,7 @@ void CDebugController::run()
     m_breather_light.toggle();
 }
 
-bool CDebugController::newCommand(std::string command,
+bool CDebugController::newCommand(etl::string<MAX_STRING_SIZE> command,
                                   IComChannel *p_comchannel)
 {
     return CController::newCommand(command,
