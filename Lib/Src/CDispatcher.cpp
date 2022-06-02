@@ -133,45 +133,33 @@ void CDispatcher::run()
 /**
  * @brief Method to process incoming commands.
  *
- * @param command Command that arrived via coms channel
+ * @param command ICommand pointer
  * @param p_comchannel Coms channel which delivered command.
  * @return True if command has been recognised.
  */
-bool CDispatcher::newCommand(etl::string<MAX_STRING_SIZE> command,
-                             IComChannel *p_comchannel)
+bool CDispatcher::newCommand(ICommand *p_command, IComChannel *p_comchannel)
 {
     bool b_command_recognised = false;
     // TODO: when the command API is firmed up
     // Example. Start/stop controller.
     // start(Controller name)/stop(Controller name)
-    etl::string<MAX_STRING_SIZE> controller_name;
-    if (command.find("stop") < command.npos)
+    const etl::string<MAX_STRING_SIZE> *command_name = p_command->getName();
+    etl::string<MAX_STRING_SIZE> controller_name = *p_command[0];
+    if (command_name == "stop")
     {
-        b_command_recognised = true;
-        etl::string<MAX_STRING_SIZE>::size_type open_bracket =
-            command.find("(");
-        etl::string<MAX_STRING_SIZE>::size_type close_bracket =
-            command.find(")");
-        if ((open_bracket == command.npos) || (close_bracket == command.npos))
-        {
-            p_comchannel->send("Command: is malformatted.\n");
-        }
-        else
-        {
-            controller_name = command.substr(open_bracket + 1,
-                                             close_bracket - open_bracket - 1);
-            uint8_t controller_number = findControllerNumber(controller_name);
-            mp_controllers[controller_number]->stop();
-        }
+        controller_name =
+            command->substr(open_bracket + 1, close_bracket - open_bracket - 1);
+        uint8_t controller_number = findControllerNumber(controller_name);
+        mp_controllers[controller_number]->stop();
     }
-    else if (command.find("start") < command.npos)
+    else if (command->find("start") < command->npos)
     {
         b_command_recognised = true;
         etl::string<MAX_STRING_SIZE>::size_type open_bracket =
-            command.find("(");
+            command->find("(");
         etl::string<MAX_STRING_SIZE>::size_type close_bracket =
-            command.find(")");
-        if ((open_bracket == command.npos) || (close_bracket == command.npos))
+            command->find(")");
+        if ((open_bracket == command->npos) || (close_bracket == command->npos))
         {
             p_comchannel->send("Command is malformatted.\n");
         }
@@ -204,26 +192,35 @@ void CDispatcher::processComChannels()
     {
         while (mp_comchannels[channel]->isDataAvailable())
         {
-            bool b_command_recognised;
-            etl::string<MAX_STRING_SIZE> command =
+            bool b_command_recognised = false;
+            etl::string<MAX_STRING_SIZE> command_string =
                 mp_comchannels[channel]->getData();
-            /* first check if this command is for CDispatcher. */
-            b_command_recognised = newCommand(command, mp_comchannels[channel]);
-            uint8_t controller = 0;
-            while (!b_command_recognised && (controller < m_controller_count))
+            ICommand *p_command = &m_json_parser;
+            if (m_json_parser.parse(command_string))
             {
-                // TODO: this needs to be refactored once command parser is
-                // implemented.
-                /*b_command_recognised = mp_controllers[controller]->newCommand(
-                    command,
-                    mp_comchannels[channel]);*/
-                controller++;
+                /* first check if this command is for CDispatcher. */
+                b_command_recognised =
+                    newCommand(p_command, mp_comchannels[channel]);
+                uint8_t controller = 0;
+                while (!b_command_recognised &&
+                       (controller < m_controller_count))
+                {
+                    b_command_recognised =
+                        mp_controllers[controller]->newCommand(
+                            p_command,
+                            mp_comchannels[channel]);
+                    controller++;
+                }
             }
             if (!b_command_recognised)
             {
                 etl::string<MAX_STRING_SIZE> message;
                 message = "Command has not been recognised.\n";
                 mp_comchannels[channel]->send(message);
+            }
+            else
+            {
+                mp_comchannels[channel]->send("COMMAND_OK");
             }
         }
     }
