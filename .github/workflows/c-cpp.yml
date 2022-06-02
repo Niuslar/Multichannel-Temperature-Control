@@ -1,65 +1,23 @@
-name: STM32 C/C++ CI
+name: C/C++ CI
 
-on:
-  push:
-    branches: [develop, master]
-  pull_request:
-    branches: [develop, master]
+on: push
+ #   branches: [ develop ]
+ # pull_request:
+ #   branches: [ develop ]
 
 jobs:
-  doxygen:
-    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Generate Doxygen Doc
-        run: docker run --rm -v $PWD:/stm32-app $(docker build -q -f Doxygen/Dockerfile .) /bin/sh -c "doxygen Doxygen/config/Doxyfile"
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Doxygen Doc
-          path: Doxygen/html
-
   build:
     runs-on: ubuntu-latest
     container: niuslar/stm32-cubeide-headless:latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Build App
-        run: |
-          chmod +x /opt/st/stm32cubeide_1.9.0/headless-build.sh
-          cd /opt/st/stm32cubeide_1.9.0
-          ./headless-build.sh -data /workspace -import /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control -cleanBuild 'Multichannel temperature sensor' -markerType cdt || { echo "Build Failed"; exit 1; }
-      - uses: actions/upload-artifact@v3
-        with:
-          name: debug_build
-          path: /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Debug/Multichannel\ temperature\ sensor.bin
-      - uses: actions/upload-artifact@v3
-        with:
-          name: release_build
-          path: /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Release/Multichannel\ temperature\ sensor.bin
-  
-  flash_debug:
-    runs-on: self-hosted
-    needs: build
-    steps:
-      - name: Download debug artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: debug_build
-      - shell: bash
-        run: |
-          python3 ../../../stm32_flash_loader.py "Multichannel temperature sensor.bin"
-          rm "Multichannel temperature sensor.bin"
-  flash_release:
-    runs-on: self-hosted
-    needs: build
-    steps:
-      - name: Download release artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: release_build
-      - shell: bash
-        run: |
-          python3 ../../../stm32_flash_loader.py "Multichannel temperature sensor.bin"
-          rm "Multichannel temperature sensor.bin"
-      
+    - uses: actions/checkout@v3
+    - name: build
+    - run: chmod +x /workspace/Multichannel-Temperature-Control/builder.sh
+    - run: ./workspace/Multichannel-Temperature-Control/builder.sh
+    - name: Upload a Build Artifact
+    - uses: actions/upload-artifact@v3
+      with:
+        name: build-artifact
+        path: |
+          /workspace/Multichannel-Temperature-Control/Debug
+          /workspace/Multichannel-Temperature-Control/Release
