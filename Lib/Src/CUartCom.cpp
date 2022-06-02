@@ -16,8 +16,7 @@ uint8_t CUartCom::s_uart_instances = 0;
 /**
  * @brief Construct UART communication instance
  * @param name Name of the instance
- * @note An instance needs to be initialised using the init() method to
- * send and receive data
+ * @note An instance needs to be initialised using the init() method
  */
 CUartCom::CUartCom(const etl::string<MAX_STRING_SIZE> name)
     : IComChannel(name),
@@ -78,13 +77,9 @@ bool CUartCom::init(UART_HandleTypeDef *p_huart,
 }
 
 /**
- * @brief Enables UART reception with interrupts
- * @note UART Interrupts must be enabled in the hardware configuration in order
+ * @brief Enable UART reception with interrupts
+ * @note UART Interrupts must be enabled in the device configuration in order
  * to use this method
- *
- * @param p_huart Pointer to UART hardware control register structure.
- * @param uart_de_port Pointer to GPIO port.
- * @param uart_de_pin GPIO pin.
  */
 void CUartCom::startRx()
 {
@@ -92,9 +87,10 @@ void CUartCom::startRx()
 }
 
 /**
- * @brief Add data to the TX Queue and start transmission
+ * @brief Add data to the TX Queue and start transmission if possible
  * @param msg Message to send.
- * @return True if message was added to the queue.
+ * @return True if message was added to the queue and transmission started
+ * successfully.
  */
 bool CUartCom::send(etl::string<MAX_STRING_SIZE> msg)
 {
@@ -126,8 +122,8 @@ void CUartCom::updateTxBuffer()
 }
 
 /**
- * @brief Starts UART transmission with interrupt
- * @return True if starts transmission successfuly
+ * @brief Start UART transmission with interrupt
+ * @return True if starts transmission successfully
  */
 bool CUartCom::transmit()
 {
@@ -160,7 +156,8 @@ bool CUartCom::transmit()
 }
 
 /**
- * @brief Ends UART TX and disables UART DE Pin
+ * @brief Disable UART TX Interrupt, Enable RX Interrupts and and disable
+ * UART_DE Pin
  */
 void CUartCom::endTx()
 {
@@ -186,7 +183,7 @@ void CUartCom::endTx()
 
 /**
  * @brief UART Reception Complete Interrupt Handler
- * @arg p_huart Pointer to UART Handler
+ * @param p_huart Pointer to UART Handler
  */
 void CUartCom::uartRxHandler(UART_HandleTypeDef *p_huart)
 {
@@ -254,7 +251,7 @@ void CUartCom::uartTxHandler(UART_HandleTypeDef *p_huart)
 }
 
 /**
- * @brief gets string stored in FIFO Buffer
+ * @brief Get next string stored in FIFO Buffer
  * @return string
  */
 etl::string<MAX_STRING_SIZE> CUartCom::getString()
@@ -305,7 +302,7 @@ etl::string<MAX_STRING_SIZE> CUartCom::getCommand()
 }
 
 /**
- * @brief get index for the active UART handler
+ * @brief Get index for the active UART handler
  * @return index from 0 to MAX_UART_ENGINES
  */
 int8_t CUartCom::getIndex(UART_HandleTypeDef *p_huart)
