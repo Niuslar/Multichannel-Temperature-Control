@@ -2,6 +2,7 @@
 /Release/
 /.metadata/
 /.settings/
+.vscode/
 .mxproject
 Multichannel temperature sensor CPP Debug.launch
 Multichannel temperature sensor CPP.launch
