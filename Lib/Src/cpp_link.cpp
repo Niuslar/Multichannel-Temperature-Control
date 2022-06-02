@@ -10,7 +10,6 @@
 #include "CAdcData.h"
 #include "CDebugController.h"
 #include "CDispatcher.h"
-#include "CLog.h"
 #include "CUartCom.h"
 #include "adc.h"
 
@@ -25,9 +24,8 @@
  * executing relevant classes can call initialisation methods that will
  * configure the hardware.
  */
-CUartCom g_debug_uart("Main");
-CLog g_logger(&g_debug_uart, "Debug");
-CDispatcher g_dispatcher(&g_logger);
+CUartCom g_debug_uart(&huart2);
+CDispatcher g_dispatcher(&g_debug_uart);
 
 /* controllers */
 CDebugController g_debug_controller("debug", 100);
@@ -51,10 +49,6 @@ extern "C"
 
         //        CAdcData adc_1(&hadc);
         //        adc_1.init();
-
-#ifdef DEBUG
-        g_logger.log(CLog::LOG_INFO, "Entered cpp_main function");
-#endif
 
         // Infinite Loop
 
@@ -86,8 +80,6 @@ extern "C"
         //            adc_1.trigger();
         //#endif
         //        }
-
-        g_logger.log(CLog::LOG_ERROR, "Reached end of cpp_main()");
     }
 
 #ifdef __cplusplus

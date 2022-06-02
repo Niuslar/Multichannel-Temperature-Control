@@ -14,11 +14,6 @@
 #define ADC_START_BIT        2
 #define ADC_CONVERSION_COEFF ((float)ADC_VDDA / ADC_RES)
 
-// TODO: Delete this instance
-CUartCom uart_adc("ADC Data");
-
-CLog log_adc(&uart_adc, "ADC_data");
-
 /**
  * @brief Constructor
  * @param p_hadc Pointer to ADC handler
@@ -28,8 +23,7 @@ CAdcData::CAdcData(ADC_HandleTypeDef *p_hadc) : mp_hadc(p_hadc)
     // Check mp_hadc is not null
     if (!mp_hadc)
     {
-        // Send error message
-        log_adc.log(CLog::LOG_ERROR, "Invalid pointer to ADC Handler");
+        Error_Handler();
     }
 }
 
@@ -45,7 +39,7 @@ void CAdcData::init()
                           (uint32_t *)m_adc_data_buf,
                           m_adc_channels) != HAL_OK)
     {
-        log_adc.log(CLog::LOG_ERROR, "ADC Start DMA failed");
+        Error_Handler();
     }
 }
 
@@ -59,10 +53,6 @@ float CAdcData::operator[](uint8_t adc_channel)
     // Check channel is within defined range
     if (adc_channel >= m_adc_channels)
     {
-        std::string warning =
-            std::to_string(adc_channel) + " is not a valid ADC Channel";
-        log_adc.log(CLog::LOG_WARNING, warning);
-
         // Return 0 if it's an invalid channel
         return 0;
     }
@@ -83,6 +73,6 @@ void CAdcData::trigger()
                           (uint32_t *)m_adc_data_buf,
                           m_adc_channels) != HAL_OK)
     {
-        log_adc.log(CLog::LOG_ERROR, "ADC Start DMA failed");
+        Error_Handler();
     }
 }
