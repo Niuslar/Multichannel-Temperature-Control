@@ -2,13 +2,13 @@ name: STM32 C/C++ CI
 
 on:
   push:
-    branches: [develop]
+    branches: [develop, master]
   pull_request:
-    branches: [develop]
+    branches: [develop, master]
 
 jobs:
   doxygen:
-    if: github.head_ref == develop
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
