@@ -20,10 +20,11 @@ jobs:
 =======
 name: STM32 C/C++ CI
 
-on: push
- #   branches: [ develop ]
- # pull_request:
- #   branches: [ develop ]
+on: 
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
 
 jobs:
   build:
