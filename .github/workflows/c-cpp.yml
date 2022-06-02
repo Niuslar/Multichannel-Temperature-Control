@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Generate Doxygen Doc
-        run: make doxy-doc
+        run: docker run --rm -v $(PWD):/stm32-app $(shell docker build -q -f Doxygen/Dockerfile .) /bin/sh -c "doxygen doxygen/config/Doxyfile"
       - uses: actions/upload-artifact@v3
         with:
           name: Build Artifact
