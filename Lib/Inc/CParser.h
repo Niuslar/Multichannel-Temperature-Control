@@ -17,7 +17,8 @@
 #include "ICommand.h"
 #include "main.h"
 
-#define MAX_TOKENS 60
+#define MAX_TOKENS    60
+#define SPECIAL_CHARS 6
 
 #ifndef MAX_STRING_SIZE
 #    define MAX_STRING_SIZE 100
@@ -26,21 +27,23 @@
 class CParser : public ICommand
 {
 public:
-    typedef enum TOKEN_TYPES
+    typedef enum TOKEN_TYPES_T
     {
         WHITESPACE,
         INTEGER,
         FLOAT,
-        STRING_LITERAL,
-        BEGIN_OPERATOR,
-        END_OPERATOR,
-        START_ARRAY_OP,
-        END_ARRAY_OP,
-        ARGUMENT_DELIMITER,
-        KEY_VALUE_DIV
+        CURLY_OPEN,
+        CURLY_CLOSE,
+        COLON,
+        STRING,
+        NUMBER,
+        ARRAY_OPEN,
+        ARRAY_CLOSE,
+        COMMA,
+        INVALID
     } token_type_t;
 
-    typedef enum PARSING_STATE
+    typedef enum PARSING_STATE_T
     {
         IDLE,
         BEGIN_KEY,
@@ -71,14 +74,16 @@ public:
     float operator[](unsigned int index);
 
 private:
-    // Private methods
     void addOperator(CParser::token_t &token,
                      CParser::token_type_t operator_type,
                      char character);
     void getTokens(const etl::string<MAX_STRING_SIZE> &string);
     void endToken(CParser::token_t &token);
+    bool isSpecialChar(char character);
 
-    // Private member variables
+    // These characters are used to format JSON
+    char m_special_characters[SPECIAL_CHARS] = {'{', '}', ',', '[', ']', ':'};
+
     uint8_t m_argument_counter = 0;
     etl::string<MAX_STRING_SIZE> m_command_name;
     float m_arguments[MAX_ARGUMENT_COUNT];
