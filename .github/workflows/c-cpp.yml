@@ -8,7 +8,7 @@ on:
 
 jobs:
   doxygen:
-    if: github.head_ref == "develop"
+    if: github.head_ref == develop
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
