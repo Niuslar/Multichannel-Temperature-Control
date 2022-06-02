@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: STM32 C/C++ CI
 
 on: push
  #   branches: [ develop ]
@@ -11,13 +11,8 @@ jobs:
     container: niuslar/stm32-cubeide-headless:latest
     steps:
     - uses: actions/checkout@v3
-    - name: build
-    - run: chmod +x /workspace/Multichannel-Temperature-Control/builder.sh
-    - run: ./workspace/Multichannel-Temperature-Control/builder.sh
-    - name: Upload a Build Artifact
-    - uses: actions/upload-artifact@v3
-      with:
-        name: build-artifact
-        path: |
-          /workspace/Multichannel-Temperature-Control/Debug
-          /workspace/Multichannel-Temperature-Control/Release
+    - name: build App
+      run: |
+        chmod +x /opt/st/stm32cubeide_1.9.0/headless-build.sh
+        cd /opt/st/stm32cubeide_1.9.0
+        ./headless-build.sh -data /workspace -import /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control -cleanBuild 'Multichannel temperature sensor' -markerType cdt || { echo "Build Failed"; exit 1; }
