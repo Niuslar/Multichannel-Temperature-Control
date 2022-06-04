@@ -38,18 +38,6 @@ jobs:
           name: release_build
           path: /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Release/Multichannel\ temperature\ sensor.bin
   
-  flash_debug:
-    runs-on: self-hosted
-    needs: build
-    steps:
-      - name: Download debug artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: debug_build
-      - shell: bash
-        run: |
-          python3 ../../../stm32_flash_loader.py "Multichannel temperature sensor.bin"
-          rm "Multichannel temperature sensor.bin"
   flash_release:
     runs-on: self-hosted
     needs: build
@@ -62,4 +50,16 @@ jobs:
         run: |
           python3 ../../../stm32_flash_loader.py "Multichannel temperature sensor.bin"
           rm "Multichannel temperature sensor.bin"
+    
+  stm32_tests:
+    runs-on: self-hosted
+    needs: flash_release
+    steps:
+      - name: Check out repo code
+        uses: actions/checkout@v3
       
+      - shell: bash 
+        run: python3 -m pytest -v --import-mode=append Tests/
+      
+
+
