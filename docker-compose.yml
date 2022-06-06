@@ -3,7 +3,7 @@ version: '3'
 services:
 
   build:
-    image: mahmedtech/stm32-cubeide-headless:latest
+    image: niuslarstm32-cubeide-headless:latest
     build: ./CI
     volumes:
       - ".:/workspace/Multichannel-Temperature-Control"
