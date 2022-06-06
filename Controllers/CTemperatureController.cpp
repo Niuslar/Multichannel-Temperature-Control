@@ -62,6 +62,7 @@ void CTemperatureController::run()
         }
         mp_hw->setHardPwmOutput(power, i);
     }
+    mp_hw->triggerADC();
 }
 
 bool CTemperatureController::newCommand(ICommand *p_command,

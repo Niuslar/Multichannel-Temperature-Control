@@ -117,6 +117,11 @@ public:
      * @param b_enable Set to true to enable, false to disable.
      */
     virtual void enableControlPower(bool b_enable) = 0;
+
+    /**
+     * @brief Trigger ADC readings to fill DMA buffer
+     */
+    virtual void triggerADC() = 0;
 };
 
 #endif /* IHARDWAREMAP_H_ */

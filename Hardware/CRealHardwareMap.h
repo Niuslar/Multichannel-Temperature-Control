@@ -40,6 +40,7 @@ public:
 #endif
     virtual void setBreathingLight(float duty_cycle);
     virtual void enableControlPower(bool b_enable);
+    virtual void triggerADC();
 
 private:
     typedef struct TIMER_INIT_MAP_T

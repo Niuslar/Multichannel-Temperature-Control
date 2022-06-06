@@ -40,6 +40,7 @@ public:
     virtual void run();
     virtual bool newCommand(ICommand *p_command, IComChannel *p_comchannel);
     virtual void reset();
+    virtual void triggerADC(){};
     //    virtual void stop();
     //    virtual void start();
 

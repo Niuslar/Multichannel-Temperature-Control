@@ -170,3 +170,8 @@ void CRealHardwareMap::enableControlPower(bool b_enable)
 {
     m_power_enable.set(b_enable);
 }
+
+void CRealHardwareMap::triggerADC()
+{
+    m_adc.trigger();
+}
