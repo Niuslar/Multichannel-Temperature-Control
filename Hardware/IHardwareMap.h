@@ -15,7 +15,7 @@
 
 #include "stdint.h"
 
-#define HARD_PWM_OUTPUTS 10
+#define HARD_PWM_OUTPUTS 8
 /**
  * @note Declare this value to the number of soft PWM outputs that are needed.
  */

@@ -34,27 +34,23 @@
 
 const CRealHardwareMap::timer_init_map_t CRealHardwareMap::s_timer_init_map[] =
     {{&htim1, TIM_CHANNEL_1},
-     {&htim1, TIM_CHANNEL_2},
-     {&htim1, TIM_CHANNEL_3},
+     {&htim4, TIM_CHANNEL_1},
+     {&htim2, TIM_CHANNEL_2},
      {&htim1, TIM_CHANNEL_4},
      {&htim3, TIM_CHANNEL_1},
      {&htim3, TIM_CHANNEL_2},
      {&htim3, TIM_CHANNEL_3},
-     {&htim3, TIM_CHANNEL_4},
-     {&htim2, TIM_CHANNEL_3},
-     {&htim2, TIM_CHANNEL_2}};
+     {&htim3, TIM_CHANNEL_4}};
 
 const CRealHardwareMap::gpio_init_map_t CRealHardwareMap::s_gpio_init_map[] = {
-    {HEAT_COOL_1_GPIO_Port, HEAT_COOL_1_Pin},
-    {HEAT_COOL_2_GPIO_Port, HEAT_COOL_2_Pin},
-    {HEAT_COOL_3_GPIO_Port, HEAT_COOL_3_Pin},
-    {HEAT_COOL_4_GPIO_Port, HEAT_COOL_4_Pin},
-    {HEAT_COOL_5_GPIO_Port, HEAT_COOL_5_Pin},
-    {HEAT_COOL_6_GPIO_Port, HEAT_COOL_6_Pin},
-    {HEAT_COOL_7_GPIO_Port, HEAT_COOL_7_Pin},
-    {HEAT_COOL_8_GPIO_Port, HEAT_COOL_8_Pin},
-    {HEAT_COOL_9_GPIO_Port, HEAT_COOL_9_Pin},
-    {HEAT_COOL_10_GPIO_Port, HEAT_COOL_10_Pin}};
+    {PWM_1_GPIO_Port, PWM_1_Pin},
+    {PWM_2_GPIO_Port, PWM_2_Pin},
+    {PWM_3_GPIO_Port, PWM_3_Pin},
+    {PWM_4_GPIO_Port, PWM_4_Pin},
+    {PWM_5_GPIO_Port, PWM_5_Pin},
+    {PWM_6_GPIO_Port, PWM_6_Pin},
+    {PWM_7_GPIO_Port, PWM_7_Pin},
+    {PWM_8_GPIO_Port, PWM_8_Pin}};
 
 CRealHardwareMap::CRealHardwareMap() : m_adc(&hadc1)
 {
