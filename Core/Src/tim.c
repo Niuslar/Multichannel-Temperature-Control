@@ -133,14 +133,6 @@ void MX_TIM2_Init(void)
   {
     Error_Handler();
   }
-  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
-  {
-    Error_Handler();
-  }
   /* USER CODE BEGIN TIM2_Init 2 */
 
   /* USER CODE END TIM2_Init 2 */
@@ -259,6 +251,8 @@ void MX_TIM10_Init(void)
 
   /* USER CODE END TIM10_Init 0 */
 
+  TIM_OC_InitTypeDef sConfigOC = {0};
+
   /* USER CODE BEGIN TIM10_Init 1 */
 
   /* USER CODE END TIM10_Init 1 */
@@ -272,9 +266,22 @@ void MX_TIM10_Init(void)
   {
     Error_Handler();
   }
+  if (HAL_TIM_PWM_Init(&htim10) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim10, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
   /* USER CODE BEGIN TIM10_Init 2 */
 
   /* USER CODE END TIM10_Init 2 */
+  HAL_TIM_MspPostInit(&htim10);
 
 }
 /* TIM11 init function */
@@ -284,6 +291,8 @@ void MX_TIM11_Init(void)
   /* USER CODE BEGIN TIM11_Init 0 */
 
   /* USER CODE END TIM11_Init 0 */
+
+  TIM_OC_InitTypeDef sConfigOC = {0};
 
   /* USER CODE BEGIN TIM11_Init 1 */
 
@@ -298,9 +307,22 @@ void MX_TIM11_Init(void)
   {
     Error_Handler();
   }
+  if (HAL_TIM_PWM_Init(&htim11) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim11, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
   /* USER CODE BEGIN TIM11_Init 2 */
 
   /* USER CODE END TIM11_Init 2 */
+  HAL_TIM_MspPostInit(&htim11);
 
 }
 
@@ -393,7 +415,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
     PA8     ------> TIM1_CH1
     PA11     ------> TIM1_CH4
     */
-    GPIO_InitStruct.Pin = CONTROL_1_Pin|CONTROL_4_Pin;
+    GPIO_InitStruct.Pin = PWM_1_Pin|PWM_4_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -410,20 +432,10 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
 
   /* USER CODE END TIM2_MspPostInit 0 */
 
-    __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     /**TIM2 GPIO Configuration
-    PB10     ------> TIM2_CH3
-    PA15     ------> TIM2_CH1
-    PB3     ------> TIM2_CH2
+    PA5     ------> TIM2_CH1
     */
-    GPIO_InitStruct.Pin = CONTROL_9_Pin|CONTROL_10_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
     GPIO_InitStruct.Pin = BREATHING_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -448,7 +460,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
     PC8     ------> TIM3_CH3
     PC9     ------> TIM3_CH4
     */
-    GPIO_InitStruct.Pin = CONTROL_5_Pin|CONTROL_6_Pin|CONTROL_7_Pin|CONTROL_8_Pin;
+    GPIO_InitStruct.Pin = PWM_5_Pin|PWM_6_Pin|PWM_7_Pin|PWM_8_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -470,7 +482,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
     PB6     ------> TIM4_CH1
     PB7     ------> TIM4_CH2
     */
-    GPIO_InitStruct.Pin = CONTROL_2_Pin|CONTROL_3_Pin;
+    GPIO_InitStruct.Pin = PWM_2_Pin|PWM_3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -480,6 +492,48 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
   /* USER CODE BEGIN TIM4_MspPostInit 1 */
 
   /* USER CODE END TIM4_MspPostInit 1 */
+  }
+  else if(timHandle->Instance==TIM10)
+  {
+  /* USER CODE BEGIN TIM10_MspPostInit 0 */
+
+  /* USER CODE END TIM10_MspPostInit 0 */
+
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    /**TIM10 GPIO Configuration
+    PB8     ------> TIM10_CH1
+    */
+    GPIO_InitStruct.Pin = AUX_PWM_1_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF3_TIM10;
+    HAL_GPIO_Init(AUX_PWM_1_GPIO_Port, &GPIO_InitStruct);
+
+  /* USER CODE BEGIN TIM10_MspPostInit 1 */
+
+  /* USER CODE END TIM10_MspPostInit 1 */
+  }
+  else if(timHandle->Instance==TIM11)
+  {
+  /* USER CODE BEGIN TIM11_MspPostInit 0 */
+
+  /* USER CODE END TIM11_MspPostInit 0 */
+
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    /**TIM11 GPIO Configuration
+    PB9     ------> TIM11_CH1
+    */
+    GPIO_InitStruct.Pin = AUX_PWM_2_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF3_TIM11;
+    HAL_GPIO_Init(AUX_PWM_2_GPIO_Port, &GPIO_InitStruct);
+
+  /* USER CODE BEGIN TIM11_MspPostInit 1 */
+
+  /* USER CODE END TIM11_MspPostInit 1 */
   }
 
 }
