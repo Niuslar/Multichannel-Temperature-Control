@@ -17,7 +17,7 @@
 #include "CPIDLoop.h"
 #include "IHardwareMap.h"
 
-#define CHANNEL_NUMBER 10
+#define CHANNEL_NUMBER 8
 
 class CTemperatureController : public CController
 {
