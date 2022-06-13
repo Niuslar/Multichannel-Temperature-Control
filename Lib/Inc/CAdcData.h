@@ -19,7 +19,7 @@
  *  	   and it should match the number set in
  *  	   hadc.Init.NbrOfConversions
  */
-#define ADC_CHANNELS 14
+#define ADC_CHANNELS 13
 
 /** ADC_RES should change depending on the resolution selected (4096 for
  * 12-bits) */
