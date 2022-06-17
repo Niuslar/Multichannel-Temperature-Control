@@ -1,0 +1,27 @@
+name: Manually Build Push Image to Github Registry
+
+on: workflow_dispatch
+
+jobs:
+  manually-triggered-build-push-to-ghcr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to GitHub Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Image to GitHub Registry
+        uses: docker/build-push-action@v2
+        with:
+          context: ./CI 
+          file: ./CI/Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          push: true
+          tags: ghcr.io/${{ github.actor }}/stm32-cubeide-headless:latest
+          cache-from: type=registry,ref=ghcr.io/${{ github.actor }}/stm32-cubeide-headless:buildcache
+          cache-to: type=registry,ref=ghcr.io/${{ github.actor }}/stm32-cubeide-headless:buildcache,mode=max
