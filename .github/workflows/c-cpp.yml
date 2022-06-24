@@ -32,15 +32,15 @@ jobs:
         run: |
           chmod +x /opt/st/stm32cubeide_1.9.0/headless-build.sh
           cd /opt/st/stm32cubeide_1.9.0
-          ./headless-build.sh -data /workspace -import /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control -cleanBuild 'Multichannel temperature sensor' -markerType cdt || { echo "Build Failed"; exit 1; }
+          ./headless-build.sh -data /workspace -import /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }} -cleanBuild 'Multichannel temperature sensor' -markerType cdt || { echo "Build Failed"; exit 1; }
       - uses: actions/upload-artifact@v3
         with:
           name: debug_build
-          path: /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Debug/Multichannel\ temperature\ sensor.bin
+          path: /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}/Debug/Multichannel\ temperature\ sensor.bin
       - uses: actions/upload-artifact@v3
         with:
           name: release_build
-          path: /__w/Multichannel-Temperature-Control/Multichannel-Temperature-Control/Release/Multichannel\ temperature\ sensor.bin
+          path: /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}/Release/Multichannel\ temperature\ sensor.bin
   
   flash_debug:
     runs-on: self-hosted
