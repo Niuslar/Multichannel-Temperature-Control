@@ -21,7 +21,11 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    container: niuslar/stm32-cubeide-headless:latest
+    container: 
+      image: ghcr.io/niuslar/stm32-cubeide-headless:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.github_token }}
     steps:
       - uses: actions/checkout@v3
       - name: Build App
