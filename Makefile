@@ -8,6 +8,10 @@ build-app: ## Builds STM32 App from local image
 	DOCKER_BUILDKIT=1 docker-compose -f docker-compose-local.yml up
 
 push: ## Push image 
+pull-from-ghcr: ## Pull latest image from ghcr
+	DOCKER_BUILDKIT=1 docker-compose -f docker-compose-ghcr.yml pull
+
+
 	DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml push
 
 pull: ## Pull image 
