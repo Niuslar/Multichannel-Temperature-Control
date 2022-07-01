@@ -11,6 +11,8 @@ push: ## Push image
 pull-from-ghcr: ## Pull latest image from ghcr
 	DOCKER_BUILDKIT=1 docker-compose -f docker-compose-ghcr.yml pull
 
+build-app-from-latest: ## Builds STM32 App from latest image
+	DOCKER_BUILDKIT=1 docker-compose -f docker-compose-ghcr.yml up
 
 	DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml push
 
