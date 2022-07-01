@@ -13,6 +13,5 @@ services:
     command:
       [
         "/bin/bash",
-        "-c",
         "/workspace/Multichannel-Temperature-Control/builder.sh"
       ]
