@@ -7,16 +7,16 @@ build-image: ## Build docker CI image locally
 build-app: ## Builds STM32 App from local image
 	DOCKER_BUILDKIT=1 docker-compose -f docker-compose-local.yml up
 
-push: ## Push image 
 pull-from-ghcr: ## Pull latest image from ghcr
 	DOCKER_BUILDKIT=1 docker-compose -f docker-compose-ghcr.yml pull
 
 build-app-from-latest: ## Builds STM32 App from latest image
 	DOCKER_BUILDKIT=1 docker-compose -f docker-compose-ghcr.yml up
 
+push: ## Push image to DockerHub (old)
 	DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml push
 
-pull: ## Pull image 
+pull-from-dh: ## Pull image from DockerHub (old)
 	DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml pull
 
 doxy-doc: ## Generate Doxygen documentation
