@@ -13,11 +13,5 @@ pull-from-ghcr: ## Pull latest image from ghcr
 build-app-from-latest: ## Builds STM32 App from latest image
 	DOCKER_BUILDKIT=1 docker-compose -f docker-compose-ghcr.yml up
 
-push: ## Push image to DockerHub (old)
-	DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml push
-
-pull-from-dh: ## Pull image from DockerHub (old)
-	DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml pull
-
 doxy-doc: ## Generate Doxygen documentation
 	docker run --rm -it -v "$(PWD):/stm32-app" $(shell docker build -q -f Doxygen/Dockerfile .) /bin/sh -c "doxygen Doxygen/config/Doxyfile"
