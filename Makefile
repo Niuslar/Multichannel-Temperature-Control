@@ -1,6 +1,8 @@
 help: ## make [option] 
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
+all: build-image build-app doxy-doc ## Build local docker image, build app from it, doxy-doc
+
 build-image: ## Build docker CI image locally 
 	DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml -f docker-compose.local.yml build 
 
