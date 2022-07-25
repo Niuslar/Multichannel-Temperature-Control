@@ -165,3 +165,28 @@ void CBME280::calibrateSensor(uint8_t const *const p_calibration_data)
         (p_calibration_data[31] << 4) + (p_calibration_data[30] >> 4);
     m_humidity_calibration[5] = p_calibration_data[32];
 }
+
+/**
+ * @brief Convert raw data from sensor registers into corresponding unprocessed
+ * sensor values.
+ *
+ * @param p_raw_adc_data Pointer to raw data stream of 8 8-bit values.
+ */
+void CBME280::convertRawData(uint8_t const *const p_raw_adc_data)
+{
+    m_raw_pressure_data = p_raw_adc_data[0];
+    m_raw_pressure_data = m_raw_pressure_data << 8;
+    m_raw_pressure_data += p_raw_adc_data[1];
+    m_raw_pressure_data = m_raw_pressure_data << 4;
+    m_raw_pressure_data += p_raw_adc_data[2] >> 4;
+
+    m_raw_temperature_data = p_raw_adc_data[0];
+    m_raw_temperature_data = m_raw_temperature_data << 8;
+    m_raw_temperature_data += p_raw_adc_data[1];
+    m_raw_temperature_data = m_raw_temperature_data << 4;
+    m_raw_temperature_data += p_raw_adc_data[2] >> 4;
+
+    m_raw_humidity_data = p_raw_adc_data[6];
+    m_raw_humidity_data = m_raw_humidity_data << 8;
+    m_raw_humidity_data += p_raw_adc_data[7];
+}
