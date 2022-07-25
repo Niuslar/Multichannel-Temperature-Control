@@ -40,7 +40,7 @@ CBME280::CBME280(SPI_HandleTypeDef *p_spi,
                  uint16_t slave_select_pin)
     : mp_spi(p_spi),
       m_slave_select(p_slave_select_port, slave_select_pin),
-      mb_initialised(false)
+      m_state(INIT_PENDING)
 {
     if (mp_spi == nullptr)
     {
@@ -63,7 +63,7 @@ CBME280::~CBME280()
 bool CBME280::init()
 {
     /* TODO:
-     * 1. Check SPI works.
+     * 1. Check SPI available.
      * 2. Read chip ID to verify comms to sensor works.
      * 3. Read calibration values and store in appropriate places.
      */
@@ -72,7 +72,7 @@ bool CBME280::init()
     // SPI with a mutex.
     if (HAL_SPI_GetState(mp_spi) != HAL_SPI_STATE_READY)
     {
-        Error_Handler();
+        return false;
     }
     uint8_t register_address;
     /* Soft reset. */
@@ -123,8 +123,41 @@ bool CBME280::init()
                             SPI_TIMEOUT_MS);
     m_slave_select.set(HIGH);
     calibrateSensor(calibration_register);
-    mb_initialised = true;
     return true;
+}
+
+bool CBME280::run()
+{
+    bool b_new_data = false;
+    switch (m_state)
+    {
+        case INIT_PENDING:
+            if (init())
+            {
+                m_state = READY;
+            }
+            break;
+        case READY:
+            // TODO: perhaps need to have some sort of timeout here to only run
+            // this at regular intervals.
+            if (startMeasument())
+            {
+                m_state = MEASURING;
+            }
+            break;
+        case MEASURING:
+            // N.B. This state is a wait-state to allow class to know when it is
+            // busy waiting for SPI interrupt to fire.
+            break;
+        case NEW_DATA:
+            convertRawData();
+            applyCalibration();
+            b_new_data = true;
+            break;
+        default:
+            Error_Handler();
+    }
+    return b_new_data;
 }
 
 /**
@@ -172,21 +205,42 @@ void CBME280::calibrateSensor(uint8_t const *const p_calibration_data)
  *
  * @param p_raw_adc_data Pointer to raw data stream of 8 8-bit values.
  */
-void CBME280::convertRawData(uint8_t const *const p_raw_adc_data)
+void CBME280::convertRawData()
 {
-    m_raw_pressure_data = p_raw_adc_data[0];
+    m_raw_pressure_data = m_raw_adc_data[0];
     m_raw_pressure_data = m_raw_pressure_data << 8;
-    m_raw_pressure_data += p_raw_adc_data[1];
+    m_raw_pressure_data += m_raw_adc_data[1];
     m_raw_pressure_data = m_raw_pressure_data << 4;
-    m_raw_pressure_data += p_raw_adc_data[2] >> 4;
+    m_raw_pressure_data += m_raw_adc_data[2] >> 4;
 
-    m_raw_temperature_data = p_raw_adc_data[0];
+    m_raw_temperature_data = m_raw_adc_data[0];
     m_raw_temperature_data = m_raw_temperature_data << 8;
-    m_raw_temperature_data += p_raw_adc_data[1];
+    m_raw_temperature_data += m_raw_adc_data[1];
     m_raw_temperature_data = m_raw_temperature_data << 4;
-    m_raw_temperature_data += p_raw_adc_data[2] >> 4;
+    m_raw_temperature_data += m_raw_adc_data[2] >> 4;
 
-    m_raw_humidity_data = p_raw_adc_data[6];
+    m_raw_humidity_data = m_raw_adc_data[6];
     m_raw_humidity_data = m_raw_humidity_data << 8;
-    m_raw_humidity_data += p_raw_adc_data[7];
+    m_raw_humidity_data += m_raw_adc_data[7];
 }
+
+/**
+ * @brief Initiate measurement process.
+ *
+ * @return True if measurement started successfully.
+ */
+bool CBME280::startMeasument()
+{
+    if (HAL_SPI_GetState(mp_spi) != HAL_SPI_STATE_READY)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Apply calibration to raw data.
+ *
+ */
+void CBME280::applyCalibration() {}

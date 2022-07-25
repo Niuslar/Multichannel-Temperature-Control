@@ -20,6 +20,7 @@
 #define T_CALIBRATION_SIZE 3
 #define P_CALIBRATION_SIZE 9
 #define H_CALIBRATION_SIZE 6
+#define RAW_ADC_DATA_SIZE  8
 
 class CBME280
 {
@@ -67,6 +68,7 @@ public:
     virtual ~CBME280();
 
     bool init();
+    bool run();
 
     /**
      * @brief Access processed temperature data.
@@ -100,17 +102,26 @@ public:
 
 private:
     void calibrateSensor(uint8_t const *const p_calibration_data);
-    void convertRawData(uint8_t const *const p_raw_adc_data);
+    void convertRawData();
+    bool startMeasument();
+    void applyCalibration();
 
     SPI_HandleTypeDef *mp_spi;
     CGpioWrapper m_slave_select;
 
-    bool mb_initialised;
+    enum STATES
+    {
+        INIT_PENDING = 0,
+        READY,
+        MEASURING,
+        NEW_DATA
+    } m_state;
 
     uint16_t m_temperature_calibration[T_CALIBRATION_SIZE];
     uint16_t m_pressure_calibration[P_CALIBRATION_SIZE];
     uint16_t m_humidity_calibration[H_CALIBRATION_SIZE];
 
+    uint8_t m_raw_adc_data[RAW_ADC_DATA_SIZE];
     uint32_t m_raw_temperature_data;
     uint32_t m_raw_pressure_data;
     uint32_t m_raw_humidity_data;
