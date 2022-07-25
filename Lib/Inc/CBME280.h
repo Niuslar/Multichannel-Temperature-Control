@@ -68,8 +68,39 @@ public:
 
     bool init();
 
+    /**
+     * @brief Access processed temperature data.
+     *
+     * @return Temperature in degrees Celsius.
+     */
+    float getTemperature() const
+    {
+        return m_temperature;
+    };
+
+    /**
+     * @brief Access processed pressure data.
+     *
+     * @return Pressure in Pascals.
+     */
+    float getPressure() const
+    {
+        return m_pressure;
+    };
+
+    /**
+     * @brief Access processed humidity data.
+     *
+     * @return Humidity in %RH.
+     */
+    float getHumidity() const
+    {
+        return m_humidity;
+    };
+
 private:
     void calibrateSensor(uint8_t const *const p_calibration_data);
+    void convertRawData(uint8_t const *const p_raw_adc_data);
 
     SPI_HandleTypeDef *mp_spi;
     CGpioWrapper m_slave_select;
@@ -79,6 +110,14 @@ private:
     uint16_t m_temperature_calibration[T_CALIBRATION_SIZE];
     uint16_t m_pressure_calibration[P_CALIBRATION_SIZE];
     uint16_t m_humidity_calibration[H_CALIBRATION_SIZE];
+
+    uint32_t m_raw_temperature_data;
+    uint32_t m_raw_pressure_data;
+    uint32_t m_raw_humidity_data;
+
+    float m_temperature;
+    float m_pressure;
+    float m_humidity;
 };
 
 #endif /* CBME280_H_ */

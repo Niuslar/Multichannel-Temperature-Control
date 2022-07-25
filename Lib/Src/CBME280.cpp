@@ -28,6 +28,13 @@
 #define HIGH true
 #define LOW  false
 
+/**
+ * @brief Construct a sensor driver class instance.
+ *
+ * @param p_spi Pointer to HAL handler for SPI channel.
+ * @param p_slave_select_port Pointer to GPIO port for SS pin.
+ * @param slave_select_pin Mask of the SS pin.
+ */
 CBME280::CBME280(SPI_HandleTypeDef *p_spi,
                  GPIO_TypeDef *p_slave_select_port,
                  uint16_t slave_select_pin)
@@ -47,6 +54,12 @@ CBME280::~CBME280()
     // TODO Auto-generated destructor stub
 }
 
+/**
+ * @brief Initialise the sensor. This must be successfully completed before
+ * sensor can be accessed for data.
+ *
+ * @return True if initialisation is successful, false otherwise.
+ */
 bool CBME280::init()
 {
     /* TODO:
@@ -114,6 +127,12 @@ bool CBME280::init()
     return true;
 }
 
+/**
+ * @brief Convert raw data from the sensor registers into usable calibration
+ * values.
+ *
+ * @param p_calibration_data Pointer to raw data stream of 33 8-bit values.
+ */
 void CBME280::calibrateSensor(uint8_t const *const p_calibration_data)
 {
     uint8_t const *p_runner = p_calibration_data;
