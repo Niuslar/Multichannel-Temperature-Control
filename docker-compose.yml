@@ -1,7 +1,3 @@
-# declarations used to pull from ghcr the official latest image used in production
-# this image is used in the automated workflow to build stm32 app and deploy it to Nucleo
-# except for the image name, everything should be the same as in docker-compose-local.yml (so that the image is built in the same way both in production and locally, to ease testing)
-
 version: '3'
 
 services:
