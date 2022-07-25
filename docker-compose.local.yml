@@ -4,4 +4,4 @@
 services:
 
   build:
-    image: niuslar/stm32-cubeide-headless:local
+    image: ghcr.io/niuslar/stm32-cubeide-headless:local
