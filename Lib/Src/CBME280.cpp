@@ -140,7 +140,7 @@ bool CBME280::run()
         case READY:
             // TODO: perhaps need to have some sort of timeout here to only run
             // this at regular intervals.
-            if (startMeasument())
+            if (startMeasurement())
             {
                 m_state = MEASURING;
             }
@@ -229,9 +229,21 @@ void CBME280::convertRawData()
  *
  * @return True if measurement started successfully.
  */
-bool CBME280::startMeasument()
+bool CBME280::startMeasurement()
 {
     if (HAL_SPI_GetState(mp_spi) != HAL_SPI_STATE_READY)
+    {
+        return false;
+    }
+    /* Configure SPI comms as required by the sensor. */
+    // TODO: this type of channel sharing with different configurations should
+    // be handled by a wrapper class. It can also queue up traffic and call
+    // callback functions.
+    mp_spi->Init.CLKPolarity = SPI_POLARITY_HIGH;
+    mp_spi->Init.CLKPhase = SPI_PHASE_2EDGE;
+    mp_spi->Init.NSS = SPI_NSS_SOFT;
+    mp_spi->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
+    if (HAL_SPI_Init(&hspi2) != HAL_OK)
     {
         return false;
     }
@@ -244,3 +256,9 @@ bool CBME280::startMeasument()
  *
  */
 void CBME280::applyCalibration() {}
+
+#ifdef __cplusplus
+extern "C"
+{
+    void HAL_SPI_RxCpltCallback(hspi) {}
+}

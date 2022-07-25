@@ -21,6 +21,7 @@
 #define P_CALIBRATION_SIZE 9
 #define H_CALIBRATION_SIZE 6
 #define RAW_ADC_DATA_SIZE  8
+#define MAX_SENSORS 2
 
 class CBME280
 {
@@ -100,10 +101,15 @@ public:
         return m_humidity;
     };
 
+    bool isMeasuring() const
+    {
+        return m_state == MEASURING;
+    }
+
 private:
     void calibrateSensor(uint8_t const *const p_calibration_data);
     void convertRawData();
-    bool startMeasument();
+    bool startMeasurement();
     void applyCalibration();
 
     SPI_HandleTypeDef *mp_spi;
@@ -116,6 +122,8 @@ private:
         MEASURING,
         NEW_DATA
     } m_state;
+
+    static CBME280* sp_sensors[]
 
     uint16_t m_temperature_calibration[T_CALIBRATION_SIZE];
     uint16_t m_pressure_calibration[P_CALIBRATION_SIZE];
