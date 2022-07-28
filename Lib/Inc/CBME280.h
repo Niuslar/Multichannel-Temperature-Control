@@ -21,7 +21,7 @@
 #define P_CALIBRATION_SIZE 9
 #define H_CALIBRATION_SIZE 6
 #define RAW_ADC_DATA_SIZE  8
-#define MAX_SENSORS 2
+#define MAX_SENSORS        2
 
 class CBME280
 {
@@ -111,6 +111,7 @@ private:
     void convertRawData();
     bool startMeasurement();
     void applyCalibration();
+    void receiveNewData();
 
     SPI_HandleTypeDef *mp_spi;
     CGpioWrapper m_slave_select;
@@ -123,7 +124,8 @@ private:
         NEW_DATA
     } m_state;
 
-    static CBME280* sp_sensors[]
+    static CBME280 *sp_sensors[MAX_SENSORS];
+    static uint8_t s_sensor_count;
 
     uint16_t m_temperature_calibration[T_CALIBRATION_SIZE];
     uint16_t m_pressure_calibration[P_CALIBRATION_SIZE];

@@ -28,6 +28,10 @@
 #define HIGH true
 #define LOW  false
 
+/* Static instance control variables. */
+CBME280 *CBME280::sp_sensors[] = {nullptr};
+uint8_t CBME280::s_sensor_count = 0;
+
 /**
  * @brief Construct a sensor driver class instance.
  *
@@ -47,6 +51,15 @@ CBME280::CBME280(SPI_HandleTypeDef *p_spi,
         Error_Handler();
     }
     m_slave_select.set(true);
+    if (s_sensor_count < MAX_SENSORS)
+    {
+        sp_sensors[s_sensor_count] = this;
+        s_sensor_count++;
+    }
+    else
+    {
+        Error_handler();
+    }
 }
 
 CBME280::~CBME280()
@@ -260,5 +273,7 @@ void CBME280::applyCalibration() {}
 #ifdef __cplusplus
 extern "C"
 {
-    void HAL_SPI_RxCpltCallback(hspi) {}
+    void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {}
 }
+
+#endif
