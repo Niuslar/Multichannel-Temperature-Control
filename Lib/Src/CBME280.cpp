@@ -136,6 +136,9 @@ bool CBME280::init()
                             SPI_TIMEOUT_MS);
     m_slave_select.set(HIGH);
     calibrateSensor(calibration_register);
+    // TODO: sensor requires setting up.
+    //  set operational mode.
+    //  set oversampling modes for all three measurements.
     return true;
 }
 
