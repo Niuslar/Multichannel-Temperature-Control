@@ -106,12 +106,13 @@ public:
         return m_state == MEASURING;
     }
 
+    static void processIrq();
+
 private:
     void calibrateSensor(uint8_t const *const p_calibration_data);
     void convertRawData();
     bool startMeasurement();
     void applyCalibration();
-    void receiveNewData();
 
     SPI_HandleTypeDef *mp_spi;
     CGpioWrapper m_slave_select;

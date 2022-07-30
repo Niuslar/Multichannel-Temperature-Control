@@ -58,7 +58,7 @@ CBME280::CBME280(SPI_HandleTypeDef *p_spi,
     }
     else
     {
-        Error_handler();
+        Error_Handler();
     }
 }
 
@@ -260,7 +260,15 @@ bool CBME280::startMeasurement()
     {
         return false;
     }
-
+    m_raw_adc_data[0] = PRESS_MSB;
+    for (int i = 1; i < RAW_ADC_DATA_SIZE; i++)
+    {
+        m_raw_adc_data[i] = 0;
+    }
+    HAL_SPI_TransmitReceive_IT(mp_spi,
+                               m_raw_adc_data,
+                               m_raw_adc_data,
+                               RAW_ADC_DATA_SIZE);
     return true;
 }
 
@@ -270,10 +278,33 @@ bool CBME280::startMeasurement()
  */
 void CBME280::applyCalibration() {}
 
+/**
+ * @brief Process IRQ call for all registered and active sensors
+ *
+ */
+void CBME280::processIrq()
+{
+    uint8_t sensor = 0;
+    while ((sp_sensors[sensor] != nullptr) && sensor < s_sensor_count)
+    {
+        if (sp_sensors[sensor]->isMeasuring())
+        {
+            sp_sensors[sensor]->m_state = NEW_DATA;
+            break;
+        }
+        sensor++;
+    }
+}
+
+CBME280::processIrq();
+
 #ifdef __cplusplus
 extern "C"
 {
-    void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {}
+    void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
+    {
+        CBME280::processIRQ();
+    }
 }
 
 #endif
