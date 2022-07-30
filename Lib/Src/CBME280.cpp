@@ -279,7 +279,7 @@ bool CBME280::startMeasurement()
 void CBME280::applyCalibration() {}
 
 /**
- * @brief Process IRQ call for all registered and active sensors
+ * @brief Process IRQ call for all registered and active sensors.
  *
  */
 void CBME280::processIrq()
@@ -296,15 +296,7 @@ void CBME280::processIrq()
     }
 }
 
-CBME280::processIrq();
-
-#ifdef __cplusplus
-extern "C"
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
-    void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
-    {
-        CBME280::processIRQ();
-    }
+    CBME280::processIrq();
 }
-
-#endif
