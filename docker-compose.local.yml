@@ -1,7 +1,0 @@
-# override declarations to build/run local image used for local development and testing
-
-
-services:
-
-  build:
-    image: ghcr.io/niuslar/stm32-cubeide-headless:local

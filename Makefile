@@ -4,16 +4,13 @@ help: ## make [option]
 all: build-image build-app doxy-doc ## Build local docker image, build app from it, doxy-doc
 
 build-image: ## Build docker CI image locally 
-	DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml -f docker-compose.local.yml build 
+	DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml build 
 
-build-app: ## Builds STM32 App from local image
-	DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml -f docker-compose.local.yml up
-
-pull-from-ghcr: ## Pull latest image from ghcr
-	DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml pull
-
-build-app-from-latest: ## Builds STM32 App from latest image
+build-app: ## Builds STM32 App 
 	DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml up
+
+pull: ## Pull latest image from ghcr
+	DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml pull
 
 doxy-doc: ## Generate Doxygen documentation
 	docker run --rm -it -v "$(PWD):/stm32-app" $(shell docker build -q -f Doxygen/Dockerfile .) /bin/sh -c "doxygen Doxygen/config/Doxyfile"
