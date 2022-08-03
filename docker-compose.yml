@@ -3,13 +3,12 @@ version: '3'
 services:
 
   build:
-    image: niuslar/stm32-cubeide-headless:latest
+    image: ghcr.io/niuslar/stm32-cubeide-headless:latest
     build: ./CI
     volumes:
       - ".:/workspace/Multichannel-Temperature-Control"
     command:
       [
         "/bin/bash",
-        "-c",
         "/workspace/Multichannel-Temperature-Control/builder.sh"
       ]
