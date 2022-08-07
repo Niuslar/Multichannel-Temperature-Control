@@ -128,9 +128,9 @@ private:
     static CBME280 *sp_sensors[MAX_SENSORS];
     static uint8_t s_sensor_count;
 
-    uint16_t m_temperature_calibration[T_CALIBRATION_SIZE];
-    uint16_t m_pressure_calibration[P_CALIBRATION_SIZE];
-    uint16_t m_humidity_calibration[H_CALIBRATION_SIZE];
+    float m_temperature_calibration[T_CALIBRATION_SIZE];
+    float m_pressure_calibration[P_CALIBRATION_SIZE];
+    float m_humidity_calibration[H_CALIBRATION_SIZE];
 
     uint8_t m_raw_adc_data[RAW_ADC_DATA_SIZE];
     uint32_t m_raw_temperature_data;

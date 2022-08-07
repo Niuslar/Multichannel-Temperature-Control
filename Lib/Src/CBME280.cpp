@@ -11,6 +11,7 @@
  */
 
 #include <CBME280.h>
+#include <math.h>
 
 #define BME280_ID             0x60
 #define BMP280_ID             0x58
@@ -27,6 +28,25 @@
 
 #define HIGH true
 #define LOW  false
+
+/* These values were extracted from BME280 calibration source code. The original
+ * calibration source code was intended for use with integers to allow its use
+ * on resource constrained MCUs. This code will run on MCU with floating point
+ * unit, so converting into float calibration increases dynamic range and make
+ * code much more readable and maintainable.
+ */
+constexpr float T_CALIB_CORRECTION[] = {1, 1 / 1024, 1 / sqrt(8092)};
+constexpr float P_CALIB_CORRECTION[] = {1 / 6250,
+                                        1 / 524288 / 32768,
+                                        1 / 524288 / 524288 / 32768,
+                                        65536 / 4096,
+                                        1 / 2 / 4096,
+                                        1 / 32768 / 4 / 4096,
+                                        1 / 16,
+                                        1 / 32768 / 16,
+                                        1 / 2147483648 / 16};
+constexpr float H_CALIB_CORRECTION[] =
+    {-1 / 524288, 1 / 65536, 1 / 67108864, -1 / 64, 1 / 16384, 1 / 67108864};
 
 /* Static instance control variables. */
 CBME280 *CBME280::sp_sensors[] = {nullptr};
@@ -185,16 +205,19 @@ bool CBME280::run()
 void CBME280::calibrateSensor(uint8_t const *const p_calibration_data)
 {
     uint8_t const *p_runner = p_calibration_data;
+    uint32_t raw_calibration;
     for (int i = 0; i < T_CALIBRATION_SIZE; i++)
     {
-        m_temperature_calibration[i] = *p_runner;
-        m_temperature_calibration[i] |= *(++p_runner) << 8;
+        raw_calibration = m_temperature_calibration[i] = *p_runner;
+        raw_calibration |= *(++p_runner) << 8;
+        m_temperature_calibration[i] = raw_calibration * T_CALIB_CORRECTION[i];
         ++p_runner;
     }
     for (int i = 0; i < P_CALIBRATION_SIZE; i++)
     {
-        m_pressure_calibration[i] = *p_runner;
-        m_pressure_calibration[i] |= *(++p_runner) << 8;
+        raw_calibration = *p_runner;
+        raw_calibration |= *(++p_runner) << 8;
+        m_pressure_calibration[i] = raw_calibration * P_CALIB_CORRECTION[i];
         ++p_runner;
     }
     /* Humidity calibration data is spread around and is stored in a weird
@@ -204,15 +227,20 @@ void CBME280::calibrateSensor(uint8_t const *const p_calibration_data)
     /* I am certain the engineer at Bosch who came up with this had management
      * breathing down their neck. One day they stopped caring and made this
      * monstrocity.*/
-    m_humidity_calibration[0] = p_calibration_data[25];
-    m_humidity_calibration[1] =
-        (p_calibration_data[27] << 8) + p_calibration_data[26];
-    m_humidity_calibration[2] = p_calibration_data[28];
-    m_humidity_calibration[3] =
+    raw_calibration = p_calibration_data[25];
+    m_humidity_calibration[0] = raw_calibration * H_CALIB_CORRECTION[0];
+    raw_calibration = (p_calibration_data[27] << 8) + p_calibration_data[26];
+    m_humidity_calibration[1] = raw_calibration * H_CALIB_CORRECTION[1];
+    raw_calibration = p_calibration_data[28];
+    m_humidity_calibration[2] = raw_calibration * H_CALIB_CORRECTION[2];
+    raw_calibration =
         (p_calibration_data[29] << 4) + (p_calibration_data[30] & 0x0F);
-    m_humidity_calibration[4] =
+    m_humidity_calibration[3] = raw_calibration * H_CALIB_CORRECTION[3];
+    raw_calibration =
         (p_calibration_data[31] << 4) + (p_calibration_data[30] >> 4);
-    m_humidity_calibration[5] = p_calibration_data[32];
+    m_humidity_calibration[4] = raw_calibration * H_CALIB_CORRECTION[4];
+    raw_calibration = p_calibration_data[32];
+    m_humidity_calibration[5] = raw_calibration * H_CALIB_CORRECTION[5];
 }
 
 /**
