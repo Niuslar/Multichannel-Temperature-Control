@@ -48,6 +48,11 @@ constexpr float P_CALIB_CORRECTION[] = {1 / 6250,
 constexpr float H_CALIB_CORRECTION[] =
     {-1 / 524288, 1 / 65536, 1 / 67108864, -1 / 64, 1 / 16384, 1 / 67108864};
 
+constexpr float T_SCALE_FACTOR = 1 / 5120;
+constexpr float P_OFFSET_1 = 64000;
+constexpr float P_OFFSET_2 = 1048576;
+constexpr float H_OFFSET = 76800;
+
 /* Static instance control variables. */
 CBME280 *CBME280::sp_sensors[] = {nullptr};
 uint8_t CBME280::s_sensor_count = 0;
@@ -186,8 +191,12 @@ bool CBME280::run()
             // busy waiting for SPI interrupt to fire.
             break;
         case NEW_DATA:
-            convertRawData();
-            applyCalibration();
+            /* The sequence of these method calls must be preserved since
+             * temperature is used in pressure and humidity calculations.
+             * convertRawData();*/
+            calculateT();
+            calculateP();
+            calculateH();
             b_new_data = true;
             break;
         default:
@@ -220,13 +229,13 @@ void CBME280::calibrateSensor(uint8_t const *const p_calibration_data)
         m_pressure_calibration[i] = raw_calibration * P_CALIB_CORRECTION[i];
         ++p_runner;
     }
-    /* Humidity calibration data is spread around and is stored in a weird
-     * convoluted way. See the manual. This recovery was copied with
-     * modifications from the Bosch github repository.
+    /* Humidity calibration data is spread around and is stored in a
+     * weird convoluted way. See the manual. This recovery was
+     * copied with modifications from the Bosch github repository.
      * https://github.com/BoschSensortec/BME280_driver */
-    /* I am certain the engineer at Bosch who came up with this had management
-     * breathing down their neck. One day they stopped caring and made this
-     * monstrocity.*/
+    /* I am certain the engineer at Bosch who came up with this had
+     * management breathing down their neck. One day they stopped
+     * caring and made this monstrocity.*/
     raw_calibration = p_calibration_data[25];
     m_humidity_calibration[0] = raw_calibration * H_CALIB_CORRECTION[0];
     raw_calibration = (p_calibration_data[27] << 8) + p_calibration_data[26];
@@ -244,10 +253,11 @@ void CBME280::calibrateSensor(uint8_t const *const p_calibration_data)
 }
 
 /**
- * @brief Convert raw data from sensor registers into corresponding unprocessed
- * sensor values.
+ * @brief Convert raw data from sensor registers into corresponding
+ * unprocessed sensor values.
  *
- * @param p_raw_adc_data Pointer to raw data stream of 8 8-bit values.
+ * @param p_raw_adc_data Pointer to raw data stream of 8 8-bit
+ * values.
  */
 void CBME280::convertRawData()
 {
@@ -280,9 +290,9 @@ bool CBME280::startMeasurement()
         return false;
     }
     /* Configure SPI comms as required by the sensor. */
-    // TODO: this type of channel sharing with different configurations should
-    // be handled by a wrapper class. It can also queue up traffic and call
-    // callback functions.
+    // TODO: this type of channel sharing with different
+    // configurations should be handled by a wrapper class. It can
+    // also queue up traffic and call callback functions.
     mp_spi->Init.CLKPolarity = SPI_POLARITY_HIGH;
     mp_spi->Init.CLKPhase = SPI_PHASE_2EDGE;
     mp_spi->Init.NSS = SPI_NSS_SOFT;
@@ -304,10 +314,55 @@ bool CBME280::startMeasurement()
 }
 
 /**
- * @brief Apply calibration to raw data.
+ * @brief Apply temperature calibration to raw data.
  *
  */
-void CBME280::applyCalibration() {}
+void CBME280::calculateT()
+{
+    float t;
+    t = (m_raw_temperature_data / 16 - m_temperature_calibration[0]);
+    m_t_fine =
+        t * m_temperature_calibration[1] + t * t * m_temperature_calibration[2];
+    m_temperature = m_t_fine / T_SCALE_FACTOR;
+}
+
+/**
+ * @brief Apply pressure calibration to raw data.
+ *
+ */
+void CBME280::calculateP()
+{
+    float t_p = m_t_fine / 2 - P_OFFSET_1;
+    float var_1 = m_pressure_calibration[3];
+    var_1 += t_p * m_pressure_calibration[4];
+    var_1 += t_p * t_p * m_pressure_calibration[5];
+    float var_2 = 1;
+    var_2 += t_p * m_pressure_calibration[1];
+    var_2 += t_p * t_p * m_pressure_calibration[2];
+    var_2 *= m_pressure_calibration[0];
+    float var_3 = P_OFFSET_2 - m_raw_pressure_data - var_1;
+    var_3 /= var_2;
+    m_pressure = m_pressure_calibration[6];
+    m_pressure += var_3 * m_pressure_calibration[7];
+    m_pressure += var_3 * var_3 * m_pressure_calibration[8];
+}
+
+/**
+ * @brief Apply humidity calibration to raw data.
+ *
+ */
+void CBME280::calculateH()
+{
+    float t_h = m_t_fine - H_OFFSET;
+    float var_1 = 1 + t_h * m_humidity_calibration[2];
+    var_1 *= t_h * m_humidity_calibration[5];
+    var_1 += 1;
+    var_1 *= m_humidity_calibration[1];
+    var_1 *= m_raw_humidity_data + m_humidity_calibration[3] +
+             t_h * m_humidity_calibration[4];
+    m_humidity = var_1;
+    m_humidity += var_1 * var_1 * m_humidity_calibration[0];
+}
 
 /**
  * @brief Process IRQ call for all registered and active sensors.

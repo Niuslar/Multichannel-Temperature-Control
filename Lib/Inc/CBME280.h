@@ -112,7 +112,9 @@ private:
     void calibrateSensor(uint8_t const *const p_calibration_data);
     void convertRawData();
     bool startMeasurement();
-    void applyCalibration();
+    void calculateT();
+    void calculateP();
+    void calculateH();
 
     SPI_HandleTypeDef *mp_spi;
     CGpioWrapper m_slave_select;
@@ -137,6 +139,7 @@ private:
     uint32_t m_raw_pressure_data;
     uint32_t m_raw_humidity_data;
 
+    float m_t_fine;
     float m_temperature;
     float m_pressure;
     float m_humidity;
