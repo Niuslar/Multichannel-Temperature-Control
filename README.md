@@ -5,6 +5,9 @@ The goal of this project is to develop a temperature control system for an incub
 This particular module is responsible for accurate temperature control in a very large container. The container houses reaction vessels as well as robotic actuators for manipulating the vessels.
 To achieve this, the temperature control system will include the following features.
 
+## Architecture
+![Architecture](//www.plantuml.com/plantuml/png/hPJTRXCn48Nl_HI-J8lo0b5LDKeH18aAaI8X48ectc5ZuP_Lp9Y2GjwTJTEjbzZj3StLxlYRatF6exrY0PBadJ8EcFNYsd87OhP8EwNxtokzyoZRsEmrOMjPa1On24Nda2QB_ApFkxLvV3jxkjaljX02kiaoFn-RlJc-bSqfJCxKNYdOi10OqVcFIvzYpOz9JQCi1hphJNW8JQK16QKiiyIkLWKwm6h_E4ZSfBRkifIlEyfYj-Wx9914-5AIRvEtZPNV_wqtte6BFzFf4sxrJEClmT1mqL6OUHxFiorPPOCWVGU3UhHUHJBBro0m_mdMmSPXcR55EH3b0MCV6yNDPYnaGtlnVlvvlRhzkBnvirujlxo-r1wPeSNHg3y1IMz6ZHmTWmmdVG3hEuSUWnGP3eFULVpTWAyRdrERF8PUE0Mf4gjxwmDN8l7--Y9z_PP377i-037IK7l7CJnK1gSFmSRqF-dqAParJgOm-XJfQPfUrgxTW7DSakK6Fi_NzwyEZowjJfoVP8fteSRa2MNg2aEJlFiB)
+
 ## Features
 
 - Comms channels (UART and I2C) for logging data and sending commands
