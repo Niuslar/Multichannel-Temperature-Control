@@ -1,0 +1,58 @@
+@startuml Architecture
+class CDispatcher{
+    + {method} registerController(CController *p_controller)
+    + {method} registerComChannel(IComChannel *p_comchannel)
+    + {method} run()
+}
+
+abstract CController{
+    + {method} tick()
+    + {method} run()
+    + {method} newCommand()
+    + {method} reset()
+    + {method} stop()
+    + {method} start()
+
+}
+class CDebugController{
+    + {method} reset()
+    + {method} newCommand()
+}
+class CTemperatureController{
+    + {method} reset()
+    + {method} newCommand()
+}
+class CHumidityController{
+    + {method} reset()
+    + {method} newCommand()
+}
+CController <|-- CTemperatureController : extends
+CController <|-- CHumidityController : extends
+CController <|-- CDebugController : extends
+
+interface IComChannel{
+    + {method} isDataAvailable()
+    + {method} getData()
+    + {method} send(etl::string<MAX_STRING_SIZE> message)
+}
+class CUartCom
+IComChannel <|-- CUartCom : implements
+
+interface ICommand{
+    + {method} getName()
+    + {method} getArgumentCount()
+    + {method} getStringArgument()
+    + {method} operator[]
+}
+class CStringParser
+class CJsonParser
+ICommand <|-- CStringParser : implements 
+ICommand <|-- CJsonParser : implements
+
+CDispatcher -u-> CDebugController : calls
+CDispatcher -u-> CTemperatureController : calls
+CDispatcher -u-> CHumidityController : calls
+CDispatcher -u-> CUartCom : calls
+CDispatcher -u-* CJsonParser : owns
+CDispatcher -u-* CStringParser : owns
+@enduml
