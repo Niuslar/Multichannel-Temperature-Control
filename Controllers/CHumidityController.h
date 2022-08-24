@@ -32,6 +32,8 @@ private:
 	ICommand::command_error_code_t overrideHeater(ICommand *p_command);
 
 	IHardwareMap *mp_hw;
+
+	// TODO Instantiate BME280 class?
 	CBME280 *hum_sensor;
 
     float target_humidity;

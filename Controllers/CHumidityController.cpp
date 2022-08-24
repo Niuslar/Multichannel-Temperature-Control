@@ -19,15 +19,6 @@
 #define DISABLE_TARGET   0
 #define MIN_HUMIDITY 85
 #define MAX_HUMIDITY 95
-//#define X_HEATERS_ON 4
-//#define X_HEATERS_OFF 4
-
-/*
- * Read relative humidity value
- * If ideal, do nothing
- * If below ideal, turn on heater
- * If above ideal, turn off heater
- */
 
 CHumidityController::CHumidityController(
 		IHardwareMap *p_hardware,
