@@ -7,9 +7,9 @@
 
 #include "CHumidityController.h"
 #include <stdio.h>
+#include "CBME280.h"
 #include "ICommand.h"
 #include "IHardwareMap.h"
-#include "CBME280.h"
 
 #define MIN_TEMPERATURE  10
 #define MAX_TEMPERATURE  50
@@ -17,18 +17,23 @@
 #define MAX_POWER        100
 #define DISABLE_OVERRIDE -1
 #define DISABLE_TARGET   0
-#define MIN_HUMIDITY 85
-#define MAX_HUMIDITY 95
+#define MIN_HUMIDITY     85
+#define MAX_HUMIDITY     95
 
-CHumidityController::CHumidityController(
-		IHardwareMap *p_hardware,
-	    etl::string<MAX_STRING_SIZE> name,
-	    uint32_t run_period_ms)
-	    : CController(name, run_period_ms),
-	      mp_hw(p_hardware)
+CHumidityController::CHumidityController(IHardwareMap *p_hardware,
+                                         etl::string<MAX_STRING_SIZE> name,
+                                         uint32_t run_period_ms,
+                                         SPI_HandleTypeDef *p_spi,
+                                         GPIO_TypeDef *p_slave_select_port,
+                                         uint16_t slave_select_pin)
+    : CController(name, run_period_ms),
+      mp_hw(p_hardware)
 {
-	// TODO Auto-generated constructor stub
-	reset();
+    // TODO Auto-generated constructor stub
+    reset();
+
+    CBME280 hum_temp_reader(p_spi, p_slave_select_port, slave_select_pin);
+    hum_sensor = &hum_temp_reader;
 }
 
 /**
@@ -37,53 +42,54 @@ CHumidityController::CHumidityController(
  */
 void CHumidityController::run()
 {
-	float actual_humidity;
-	for (int i = 0; i < CHANNEL_NUMBER; i++)
-	{
-		float power = 0;
-		actual_humidity = hum_sensor->getHumidity();
-		float actual_temperature = hum_sensor->getTemperature();
-		if (m_power_override[i] == DISABLE_OVERRIDE &&
-				target_humidity != DISABLE_TARGET)
-		{
-			if (actual_humidity != target_humidity)
-			{
-				if(actual_humidity < target_humidity)
-				{
-					power = m_control_loop[i].run(actual_temperature,
-														MIN_TEMPERATURE);
-				}
-				else
-				{
-					power = m_control_loop[i].run(actual_temperature,
-														MAX_TEMPERATURE);
-				}
-			}
-			else
-			{
-				break;
-			}
-		}
-		else
-		{
-			power = m_power_override[i];
-		}
-		mp_hw->setHardPwmOutput(power, i);
-	}
-	while(actual_humidity != target_humidity){
-		run();
-	}
+    float actual_humidity;
+    for (int i = 0; i < CHANNEL_NUMBER; i++)
+    {
+        float power = 0;
+        actual_humidity = hum_sensor->getHumidity();
+        float actual_temperature = hum_sensor->getTemperature();
+        if (m_power_override[i] == DISABLE_OVERRIDE &&
+            target_humidity != DISABLE_TARGET)
+        {
+            if (actual_humidity != target_humidity)
+            {
+                if (actual_humidity < target_humidity)
+                {
+                    power = m_control_loop[i].run(actual_temperature,
+                                                  MIN_TEMPERATURE);
+                }
+                else
+                {
+                    power = m_control_loop[i].run(actual_temperature,
+                                                  MAX_TEMPERATURE);
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+        else
+        {
+            power = m_power_override[i];
+        }
+        mp_hw->setHardPwmOutput(power, i);
+    }
+    while (actual_humidity != target_humidity)
+    {
+        run();
+    }
 }
 
 bool CHumidityController::newCommand(ICommand *p_command,
-                                        IComChannel *p_comchannel)
+                                     IComChannel *p_comchannel)
 {
-	bool b_command_recognised = false;
-	ICommand::command_error_code_t result = ICommand::COMMAND_OK;
-	/**
-	 * Query about current state of all active channels.
-	 *
-	 */
+    bool b_command_recognised = false;
+    ICommand::command_error_code_t result = ICommand::COMMAND_OK;
+    /**
+     * Query about current state of all active channels.
+     *
+     */
     if (p_command->getName()->compare("?humidity") == 0)
     {
         sendStatus(p_comchannel);
@@ -91,10 +97,10 @@ bool CHumidityController::newCommand(ICommand *p_command,
     }
 
     if (p_command->getName()->compare("humidity") == 0)
-	{
-		result = setHumidity(p_command);
-		b_command_recognised = true;
-	}
+    {
+        result = setHumidity(p_command);
+        b_command_recognised = true;
+    }
 
     if (p_command->getName()->compare("heater") == 0)
     {
@@ -126,18 +132,19 @@ bool CHumidityController::newCommand(ICommand *p_command,
 
 void CHumidityController::reset()
 {
-	for (int i = 0; i < CHANNEL_NUMBER; i++)
-	{
-		target_humidity = DISABLE_TARGET;
-		m_power_override[i] = DISABLE_OVERRIDE;
-		m_control_loop[i].reset();
-	}
+    for (int i = 0; i < CHANNEL_NUMBER; i++)
+    {
+        target_humidity = DISABLE_TARGET;
+        m_power_override[i] = DISABLE_OVERRIDE;
+        m_control_loop[i].reset();
+    }
 }
 
-void CHumidityController::sendStatus(IComChannel *p_comchannel){
+void CHumidityController::sendStatus(IComChannel *p_comchannel)
+{
     etl::string<MAX_STRING_SIZE> message;
     char value[10];
-    //send target humidity
+    // send target humidity
     message.assign("Target:      ");
     sprintf(value, "%2.1f", target_humidity);
     message.append(value);
@@ -182,13 +189,13 @@ void CHumidityController::sendStatus(IComChannel *p_comchannel){
 ICommand::command_error_code_t CHumidityController::setHumidity(
     ICommand *p_command)
 {
-	// Sanitise command arguments
-	if ((p_command->getArgumentCount() < 1) ||
-		(p_command->getArgumentCount() > 2))
-	{
-		return ICommand::ERROR_ARG_COUNT;
-	}
-	target_humidity = (*p_command)[0];
+    // Sanitise command arguments
+    if ((p_command->getArgumentCount() < 1) ||
+        (p_command->getArgumentCount() > 2))
+    {
+        return ICommand::ERROR_ARG_COUNT;
+    }
+    target_humidity = (*p_command)[0];
 
     if (target_humidity > MAX_HUMIDITY)
     {
@@ -252,4 +259,3 @@ ICommand::command_error_code_t CHumidityController::overrideHeater(
     }
     return ICommand::COMMAND_OK;
 }
-
