@@ -23,6 +23,13 @@ CHumidifier::~CHumidifier()
 }
 
 /**
+ * @brief Maintenance routine that monitors the humidifier operation and adjusts
+ * behaviour as necessary.
+ *
+ */
+void CHumidifier::run() {}
+
+/**
  * @brief Add some quantity of vapour to the system.
  *
  * @param quantity Amount of vapour that is required.
