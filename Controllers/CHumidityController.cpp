@@ -27,7 +27,8 @@ CHumidityController::CHumidityController(IHardwareMap *p_hardware,
                                          GPIO_TypeDef *p_slave_select_port,
                                          uint16_t slave_select_pin)
     : CController(name, run_period_ms),
-      mp_hw(p_hardware)
+      mp_hw(p_hardware),
+      m_humidifier()
 {
     // TODO Auto-generated constructor stub
     reset();
@@ -42,6 +43,8 @@ CHumidityController::CHumidityController(IHardwareMap *p_hardware,
  */
 void CHumidityController::run()
 {
+    // TODO: somewhere here the m_humidifier.addVapour(...) is used. The
+    // argument comes from the PID control loop.
     float actual_humidity;
     for (int i = 0; i < CHANNEL_NUMBER; i++)
     {

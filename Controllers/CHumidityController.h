@@ -10,6 +10,7 @@
 
 #include "CBME280.h"
 #include "CController.h"
+#include "CHumidifier.h"
 #include "CPIDLoop.h"
 #include "IHardwareMap.h"
 
@@ -37,6 +38,7 @@ private:
 
     CBME280 *hum_sensor;
 
+    CHumidifier m_humidifier;
     float target_humidity;
     float m_power_override[CHANNEL_NUMBER];
     CPIDLoop m_control_loop[CHANNEL_NUMBER];
