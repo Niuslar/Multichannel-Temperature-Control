@@ -13,7 +13,7 @@
 #include "CPIDLoop.h"
 #include "IHardwareMap.h"
 
-#define CHANNEL_NUMBER 8
+#define CHANNEL_NUMBER 1
 
 class CHumidityController : public CController
 {
@@ -35,11 +35,11 @@ private:
 
     IHardwareMap *mp_hw;
 
-    CBME280 *hum_sensor;
+    CBME280 *m_humidity_sensor;
 
-    float target_humidity;
-    float m_power_override[CHANNEL_NUMBER];
-    CPIDLoop m_control_loop[CHANNEL_NUMBER];
+    float m_target_humidity;
+    float m_power_override;
+    CPIDLoop m_control_loop;
 };
 
 #endif /* CHUMIDITYCONTROLLER_H_ */
