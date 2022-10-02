@@ -33,6 +33,12 @@
 #define AD22100_SCALE         ((V_REF / 5.0) * (1 / 22.5E-3))
 #define AD22100_OFFSET        ((V_REF / 5.0) * (-1.375 / 22.5E-3))
 
+/* This section maps generic names of the pins to something that makes sense.
+ * We'll do it this way for now until hardware configuration settles down at
+ * which point the pin names will be renamed. */
+#define EVAPORATOR_GPIO_Port ENABLE_8_GPIO_Port
+#define EVAPORATOR_Pin       ENABLE_8_Pin
+
 const CRealHardwareMap::timer_init_map_t CRealHardwareMap::s_timer_init_map[] =
     {{&htim1, TIM_CHANNEL_1},
      {&htim4, TIM_CHANNEL_1},
@@ -76,7 +82,8 @@ void CRealHardwareMap::init()
                                   s_gpio_init_map[i].pin);
     }
     m_breathing_light.init(&htim2, TIM_CHANNEL_1);
-    m_power_enable.init(BREATHING_GPIO_Port, BREATHING_Pin);
+    m_power_enable.init(PWR_EN_GPIO_Port, PWR_EN_Pin);
+    m_humidifier_enable.init(EVAPORATOR_GPIO_Port, EVAPORATOR_Pin);
 }
 
 /**
@@ -168,7 +175,23 @@ void CRealHardwareMap::enableControlPower(bool b_enable)
     m_power_enable.set(b_enable);
 }
 
+/**
+ * @brief This assumes that the humidifier is implemented as an atomiser.
+ * @note The longer the atomiser is enabled the more vapour it'll generate. This
+ * way PID control is still possible, but care should be taken to not set
+ * integral component too high since atomiser itself will work as an integrator.
+ *
+ * @param power Is essentially a boolean value. Anything above zero enables
+ * atomiser.
+ */
 void CRealHardwareMap::setHumidifierPower(float power)
 {
-    // TODO: here be implementation of the power interface.
+    if (power > 0)
+    {
+        m_humidifier_enable.set(true);
+    }
+    else
+    {
+        m_humidifier_enable.set(false);
+    }
 }

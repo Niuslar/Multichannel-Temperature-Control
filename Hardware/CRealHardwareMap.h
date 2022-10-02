@@ -61,6 +61,7 @@ private:
     CGpioWrapper m_polarity_switch[HARD_PWM_OUTPUTS];
     CHardPwmOutput m_breathing_light;
     CGpioWrapper m_power_enable;
+    CGpioWrapper m_humidifier_enable;
 #ifdef SOFT_PWM_OUTPUTS
     CSoftPwmOutput m_soft_pwm_output[SOFT_PWM_OUTPUTS];
 #endif
