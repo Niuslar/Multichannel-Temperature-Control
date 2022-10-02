@@ -59,10 +59,12 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define BUTTON_Pin GPIO_PIN_13
 #define BUTTON_GPIO_Port GPIOC
+#define BUTTON_EXTI_IRQn EXTI15_10_IRQn
 #define PWR_EN_Pin GPIO_PIN_14
 #define PWR_EN_GPIO_Port GPIOC
 #define MAINS_ZERO_Pin GPIO_PIN_15
 #define MAINS_ZERO_GPIO_Port GPIOC
+#define MAINS_ZERO_EXTI_IRQn EXTI15_10_IRQn
 #define TEMPERATURE_8_Pin GPIO_PIN_0
 #define TEMPERATURE_8_GPIO_Port GPIOC
 #define EVAPORATOR_T_Pin GPIO_PIN_1
