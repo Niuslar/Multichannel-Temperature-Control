@@ -115,6 +115,11 @@ void CMockHardwareMap::enableControlPower(bool b_enable)
     mb_power_enable = b_enable;
 }
 
+void CMockHardwareMap::setHumidifierPower(float power)
+{
+    // TODO: This should modify internal model variables for humidity.
+}
+
 void CMockHardwareMap::run()
 {
     float total_radiator_flow = 0;
