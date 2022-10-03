@@ -34,6 +34,8 @@ public:
 #endif
     virtual void setBreathingLight(float duty_cycle);
     virtual void enableControlPower(bool b_enable);
+    virtual void setMainsPower(uint8_t channel, float power);
+
     /* CController methods. */
     //    etl::string<MAX_STRING_SIZE> getName() const;
     //    virtual bool tick(uint32_t current_time);

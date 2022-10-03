@@ -117,6 +117,13 @@ public:
      * @param b_enable Set to true to enable, false to disable.
      */
     virtual void enableControlPower(bool b_enable) = 0;
+    /**
+     * @brief Set power of the mains PWM controlled output.
+     *
+     * @param channel Number of the channel.
+     * @param power Value between 0% and 100%.
+     */
+    virtual void setMainsPower(uint8_t channel, float power) = 0;
 };
 
 #endif /* IHARDWAREMAP_H_ */

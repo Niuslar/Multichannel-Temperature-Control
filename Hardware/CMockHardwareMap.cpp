@@ -115,6 +115,12 @@ void CMockHardwareMap::enableControlPower(bool b_enable)
     mb_power_enable = b_enable;
 }
 
+void CMockHardwareMap::setMainsPower(uint8_t channel, float power)
+{
+    // TODO: create appropriate model for mains consumption depending on what
+    // this controls.
+}
+
 void CMockHardwareMap::run()
 {
     float total_radiator_flow = 0;

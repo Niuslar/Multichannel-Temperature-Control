@@ -168,6 +168,9 @@ void CRealHardwareMap::enableControlPower(bool b_enable)
     m_power_enable.set(b_enable);
 }
 
+void CRealHardwareMap::setMainsPower(uint8_t channel, float power)
+{
+}
 extern "C"
 {
     /* GPIO EXTI Callback is called whenever an interrupt event occurs on EXTI
