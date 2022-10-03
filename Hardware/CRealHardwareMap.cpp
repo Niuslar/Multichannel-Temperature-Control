@@ -167,3 +167,24 @@ void CRealHardwareMap::enableControlPower(bool b_enable)
 {
     m_power_enable.set(b_enable);
 }
+
+extern "C"
+{
+    /* GPIO EXTI Callback is called whenever an interrupt event occurs on EXTI
+     * pins.
+     * To speed up execution the processing of this interrupt is done directly
+     * in the callback instead of calling hardware map methods.
+     */
+    void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+    {
+        if (GPIO_Pin == BUTTON_Pin)
+        {
+            // TODO: whatever needs to be called to handle the button press.
+        }
+        else if (GPIO_Pin == MAINS_ZERO_Pin)
+        {
+            HAL_TIM_OnePulse_Start(&htim10, TIM_CHANNEL_1);
+            HAL_TIM_OnePulse_Start(&htim11, TIM_CHANNEL_1);
+        }
+    }
+}
