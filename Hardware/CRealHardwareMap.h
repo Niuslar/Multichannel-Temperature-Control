@@ -22,6 +22,8 @@
 #    include "CSoftPwmOutput.h"
 #endif
 
+#define MAINS_CORRECTION_POINTS 10
+
 class CRealHardwareMap : public IHardwareMap
 {
 public:
@@ -43,6 +45,8 @@ public:
     virtual void setMainsPower(uint8_t channel, float power);
 
 private:
+    float mainsPowerCorrection(float power) const;
+
     typedef struct TIMER_INIT_MAP_T
     {
         TIM_HandleTypeDef *p_timer;
@@ -56,6 +60,7 @@ private:
 
     static const timer_init_map_t s_timer_init_map[HARD_PWM_OUTPUTS];
     static const gpio_init_map_t s_gpio_init_map[HARD_PWM_OUTPUTS];
+    static const float s_mains_correction_table[MAINS_CORRECTION_POINTS];
     CAdcData m_adc;
     CHardPwmOutput m_hard_pwm_output[HARD_PWM_OUTPUTS];
     CGpioWrapper m_polarity_switch[HARD_PWM_OUTPUTS];
