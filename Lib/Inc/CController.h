@@ -37,7 +37,8 @@ public:
     virtual uint32_t getRunCalls() const;
     virtual void resetRunCalls();
 #endif
-    virtual void sendResultMessage(ICommand::command_error_code_t error_code);
+    virtual void sendResultMessage(ICommand::command_error_code_t error_code,
+                                   IComChannel *p_comchannel);
 
 protected:
     // This variable is for generation and storage of temporary messages, e.g.

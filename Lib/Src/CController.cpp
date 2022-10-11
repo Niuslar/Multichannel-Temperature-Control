@@ -114,8 +114,8 @@ void CController::start()
  *
  * @param error_code Error code for which the message needs to be generated.
  */
-virtual void CController::sendResultMessage(
-    ICommand::command_error_code_t error_code)
+void CController::sendResultMessage(ICommand::command_error_code_t error_code,
+                                    IComChannel *p_comchannel)
 {
     switch (error_code)
     {

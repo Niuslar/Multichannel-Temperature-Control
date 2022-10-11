@@ -109,7 +109,7 @@ bool CTemperatureController::newCommand(ICommand *p_command,
     }
     if (b_command_recognised)
     {
-        sendResultMessage(result);
+        sendResultMessage(result, p_comchannel);
     }
     return b_command_recognised;
 }
