@@ -177,7 +177,7 @@ void CRealHardwareMap::enableControlPower(bool b_enable)
     m_power_enable.set(b_enable);
 }
 
-void CRealHardwareMap::setMainsPower(uint8_t channel, float power)
+void CRealHardwareMap::setMainsPwm(uint8_t channel, float power)
 {
     // TODO:
     //  1. Sanitise inputs.

@@ -19,7 +19,7 @@
 /**
  * @note Declare this value to the number of soft PWM outputs that are needed.
  */
-//#define SOFT_PWM_OUTPUTS 0
+// #define SOFT_PWM_OUTPUTS 0
 
 class IHardwareMap
 {
@@ -123,7 +123,7 @@ public:
      * @param channel Number of the channel.
      * @param power Value between 0% and 100%.
      */
-    virtual void setMainsPower(uint8_t channel, float power) = 0;
+    virtual void setMainsPwm(uint8_t channel, float power) = 0;
 };
 
 #endif /* IHARDWAREMAP_H_ */
