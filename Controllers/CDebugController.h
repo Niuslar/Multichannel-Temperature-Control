@@ -31,8 +31,10 @@ public:
     virtual void reset();
 
 private:
-    CGpioWrapper m_breather_light;
+    ICommand::command_error_code_t setMainsPower(ICommand *p_command);
+
     IHardwareMap *mp_hw;
+    CGpioWrapper m_breather_light;
 };
 
 #endif /* CDEBUGCONTROLLER_H_ */
