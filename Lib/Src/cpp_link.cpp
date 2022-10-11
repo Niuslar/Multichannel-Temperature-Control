@@ -56,7 +56,7 @@ CRealHardwareMap g_hardware_map;
  * unlikely to cause any issues with clock starvation. For choices of prime
  * numbers to use see prime_numbers.txt file.
  */
-CDebugController g_debug_controller("debug", 97);
+CDebugController g_debug_controller(&g_hardware_map, "debug", 97);
 CTemperatureController g_temp_controller(&g_hardware_map, "temperature", 89);
 
 #ifdef __cplusplus

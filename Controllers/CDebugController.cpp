@@ -11,10 +11,13 @@
 
 #include "CDebugController.h"
 
-CDebugController::CDebugController(etl::string<MAX_STRING_SIZE> name,
+CDebugController::CDebugController(IHardwareMap *p_hardware_map,
+                                   etl::string<MAX_STRING_SIZE> name,
                                    uint32_t run_period_ms)
     : CController(name, run_period_ms),
-      m_breather_light(BREATHING_GPIO_Port, BREATHING_Pin)
+      mp_hw(p_hardware_map),
+      m_breather_light(BREATHING_GPIO_Port,
+                       BREATHING_Pin)  // TODO: convert this to HW map call
 {
     // TODO Auto-generated constructor stub
 }

@@ -15,12 +15,15 @@
 #include "../etl/string.h"
 #include "CController.h"
 #include "CGpioWrapper.h"
+#include "IHardwareMap.h"
 #include "main.h"
 
 class CDebugController : public CController
 {
 public:
-    CDebugController(etl::string<MAX_STRING_SIZE> name, uint32_t run_period_ms);
+    CDebugController(IHardwareMap *p_hardware_map,
+                     etl::string<MAX_STRING_SIZE> name,
+                     uint32_t run_period_ms);
     virtual ~CDebugController();
 
     virtual void run();
@@ -29,6 +32,7 @@ public:
 
 private:
     CGpioWrapper m_breather_light;
+    IHardwareMap *mp_hw;
 };
 
 #endif /* CDEBUGCONTROLLER_H_ */
