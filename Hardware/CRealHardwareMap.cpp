@@ -214,7 +214,7 @@ void CRealHardwareMap::setMainsPower(uint8_t channel, float power)
  * @param power Required power output. Value must be between 0 and 100;
  * @return Fraction of half-period that TRIAC should be on.
  */
-float CRealHardwareMap::mainsPowerCorrection(float power)
+float CRealHardwareMap::mainsPowerCorrection(float power) const
 {
     // Sanitise and handle special cases.
     if (power <= 0) return 0;
