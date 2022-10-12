@@ -10,6 +10,7 @@
  */
 
 #include "CDebugController.h"
+#include "../etl/to_string.h"
 
 CDebugController::CDebugController(IHardwareMap *p_hardware_map,
                                    etl::string<MAX_STRING_SIZE> name,
@@ -49,6 +50,23 @@ bool CDebugController::newCommand(ICommand *p_command,
     }
     else if (p_command->getName()->compare("?mains") == 0)
     {
+        float mains_power;
+        error_code = getMainsPower(p_command, &mains_power);
+        if (error_code == ICommand::COMMAND_OK)
+        {
+                    	CController::s_scratch_pad = "Mains channel ";
+                        etl::to_string((*p_command)[0],
+                                       CController::s_scratch_pad,
+                                       etl::format_spec(),
+                                       true);
+                        CController::s_scratch_pad += ": ";
+                        etl::to_string(mains_power,
+                                       CController::s_scratch_pad,
+                                       etl::format_spec().precision(2),
+                                       true);
+                        p_comchannel->send(CController::s_scratch_pad);
+        }
+        b_command_recognised = true;
     }
     if (b_command_recognised)
     {
@@ -93,6 +111,27 @@ ICommand::command_error_code_t CDebugController::setMainsPower(
     {
         mp_hw->setMainsPwm(1, mains_power);
         mp_hw->setMainsPwm(2, mains_power);
+    }
+    return (ICommand::COMMAND_OK);
+}
+
+ICommand::command_error_code_t CDebugController::getMainsPower(
+    ICommand *p_command,
+    float *power)
+{
+    *power = 0;
+    if (p_command->getArgumentCount() != 1)
+    {
+        return (ICommand::ERROR_ARG_COUNT);
+    }
+    else if (((*p_command)[0] != 1) && ((*p_command)[0] != 2))
+    {
+        return (ICommand::ERROR_OUT_OF_BOUNDS);
+    }
+    else
+    {
+        uint8_t channel = (*p_command)[0];
+        *power = m_mains_power[channel];
     }
     return (ICommand::COMMAND_OK);
 }

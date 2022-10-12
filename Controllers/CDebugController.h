@@ -33,8 +33,12 @@ public:
 private:
     ICommand::command_error_code_t setMainsPower(ICommand *p_command);
 
+    ICommand::command_error_code_t getMainsPower(ICommand *p_command,
+                                                 float *power);
+
     IHardwareMap *mp_hw;
     CGpioWrapper m_breather_light;
+    float m_mains_power[2];
 };
 
 #endif /* CDEBUGCONTROLLER_H_ */

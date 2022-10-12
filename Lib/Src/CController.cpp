@@ -12,6 +12,8 @@
 
 #include "CController.h"
 
+etl::string<MAX_STRING_SIZE> CController::s_scratch_pad = "";
+
 /**
  * @brief Create controller base class.
  *
