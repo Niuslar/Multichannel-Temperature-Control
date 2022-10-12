@@ -43,6 +43,7 @@ public:
     virtual void setBreathingLight(float duty_cycle);
     virtual void enableControlPower(bool b_enable);
     virtual void setMainsPwm(uint8_t channel, float power);
+    virtual float getMainsPwm(uint8_t channel);
 
 private:
     float mainsPowerCorrection(float power) const;

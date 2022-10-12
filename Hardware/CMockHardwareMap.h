@@ -34,7 +34,8 @@ public:
 #endif
     virtual void setBreathingLight(float duty_cycle);
     virtual void enableControlPower(bool b_enable);
-    virtual void setMainsPower(uint8_t channel, float power);
+    virtual void setMainsPwm(uint8_t channel, float power);
+    virtual float getMainsPwm(uint8_t channel);
 
     /* CController methods. */
     //    etl::string<MAX_STRING_SIZE> getName() const;
@@ -67,6 +68,7 @@ private:
     float m_incubator_capacity;  // heat capacity of incubator
     float m_incubator_loss;      // rate of heat loss to ambient air.
     float m_control_current;     // total current flowing through the heaters.
+    float m_mains_pwm[2];
 };
 
 #endif /* CMOCKHARDWAREMAP_H_ */

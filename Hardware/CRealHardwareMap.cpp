@@ -204,8 +204,28 @@ void CRealHardwareMap::setMainsPwm(uint8_t channel, float power)
     {
         power = 100;
     }
-    uint32_t timer_ccr = mainsPowerCorrection(power);
-    p_timer->Instance->CCR1 = timer_ccr;
+    uint16_t ccr = p_timer->Instance->ARR * mainsPowerCorrection(power) / 100;
+    p_timer->Instance->CCR1 = ccr;
+}
+
+float CRealHardwareMap::getMainsPwm(uint8_t channel)
+{
+    TIM_HandleTypeDef *p_timer;
+    switch (channel)
+    {
+        case 1:
+            p_timer = &htim10;
+            break;
+        case 2:
+            p_timer = &htim11;
+            break;
+        default:
+            // Channel is wrong, so bounce out without changing anything.
+            return 0;
+    }
+    float power;
+    power = p_timer->Instance->CCR1 * 100 / p_timer->Instance->ARR;
+    return power;
 }
 
 /**
@@ -237,10 +257,10 @@ float CRealHardwareMap::mainsPowerCorrection(float power) const
 
 extern "C"
 {
-    /* GPIO EXTI Callback is called whenever an interrupt event occurs on EXTI
-     * pins.
-     * To speed up execution the processing of this interrupt is done directly
-     * in the callback instead of calling hardware map methods.
+    /* GPIO EXTI Callback is called whenever an interrupt event occurs on
+     * EXTI pins. To speed up execution the processing of this interrupt is
+     * done directly in the callback instead of calling hardware map
+     * methods.
      */
     void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     {
