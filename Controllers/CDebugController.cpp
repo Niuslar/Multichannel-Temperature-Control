@@ -16,9 +16,7 @@ CDebugController::CDebugController(IHardwareMap *p_hardware_map,
                                    etl::string<MAX_STRING_SIZE> name,
                                    uint32_t run_period_ms)
     : CController(name, run_period_ms),
-      mp_hw(p_hardware_map),
-      m_breather_light(BREATHING_GPIO_Port,
-                       BREATHING_Pin)  // TODO: convert this to HW map call
+      mp_hw(p_hardware_map)
 {
     // TODO Auto-generated constructor stub
 }
@@ -30,7 +28,9 @@ CDebugController::~CDebugController()
 
 void CDebugController::run()
 {
-    m_breather_light.toggle();
+    static float breathing_light_intensity = 0;
+    mp_hw->setBreathingLight(breathing_light_intensity);
+    breathing_light_intensity = breathing_light_intensity ? 0 : 100;
 }
 
 bool CDebugController::newCommand(ICommand *p_command,
@@ -54,17 +54,17 @@ bool CDebugController::newCommand(ICommand *p_command,
         error_code = getMainsPower(p_command, &mains_power);
         if (error_code == ICommand::COMMAND_OK)
         {
-                    	CController::s_scratch_pad = "Mains channel ";
-                        etl::to_string((*p_command)[0],
-                                       CController::s_scratch_pad,
-                                       etl::format_spec(),
-                                       true);
-                        CController::s_scratch_pad += ": ";
-                        etl::to_string(mains_power,
-                                       CController::s_scratch_pad,
-                                       etl::format_spec().precision(2),
-                                       true);
-                        p_comchannel->send(CController::s_scratch_pad);
+            CController::s_scratch_pad = "Mains channel ";
+            etl::to_string((*p_command)[0],
+                           CController::s_scratch_pad,
+                           etl::format_spec(),
+                           true);
+            CController::s_scratch_pad += ": ";
+            etl::to_string(mains_power,
+                           CController::s_scratch_pad,
+                           etl::format_spec().precision(2),
+                           true);
+            p_comchannel->send(CController::s_scratch_pad);
         }
         b_command_recognised = true;
     }

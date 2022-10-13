@@ -37,7 +37,6 @@ private:
                                                  float *power);
 
     IHardwareMap *mp_hw;
-    CGpioWrapper m_breather_light;
     float m_mains_power[2];
 };
 
