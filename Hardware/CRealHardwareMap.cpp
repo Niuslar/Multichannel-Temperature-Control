@@ -33,6 +33,10 @@
 #define AD22100_SCALE         ((V_REF / 5.0) * (1 / 22.5E-3))
 #define AD22100_OFFSET        ((V_REF / 5.0) * (-1.375 / 22.5E-3))
 
+#define MAINS_FREQUENCY 50  // frequency of the mains power supply in [Hz]
+#define MAINS_HALF_PERIOD_MS \
+    (1000 / MAINS_FREQUENCY)  // duration of mains half period in [ms]
+
 const CRealHardwareMap::timer_init_map_t CRealHardwareMap::s_timer_init_map[] =
     {{&htim1, TIM_CHANNEL_1},
      {&htim4, TIM_CHANNEL_1},
@@ -52,6 +56,11 @@ const CRealHardwareMap::gpio_init_map_t CRealHardwareMap::s_gpio_init_map[] = {
     {PWM_6_GPIO_Port, PWM_6_Pin},
     {PWM_7_GPIO_Port, PWM_7_Pin},
     {PWM_8_GPIO_Port, PWM_8_Pin}};
+
+// correction factors table. Index corresponds to a fraction of half period when
+// TRIAC is on. Full half period is 10.
+const float CRealHardwareMap::s_mains_correction_table[] =
+    {0, 2, 9, 22, 40, 60, 78, 91, 98, 100};
 
 CRealHardwareMap::CRealHardwareMap() : m_adc(&hadc1)
 {
@@ -166,4 +175,103 @@ void CRealHardwareMap::setBreathingLight(float duty_cycle)
 void CRealHardwareMap::enableControlPower(bool b_enable)
 {
     m_power_enable.set(b_enable);
+}
+
+void CRealHardwareMap::setMainsPwm(uint8_t channel, float power)
+{
+    // TODO:
+    //  1. Sanitise inputs.
+    //  2. Convert power from percentage to PWM duty cycle.
+    //  3. Set appropriate Timer CCR.
+    TIM_HandleTypeDef *p_timer;
+    switch (channel)
+    {
+        case 1:
+            p_timer = &htim10;
+            break;
+        case 2:
+            p_timer = &htim11;
+            break;
+        default:
+            // Channel is wrong, so bounce out without changing anything.
+            return;
+    }
+    if (power < 0)
+    {
+        power = 0;
+    }
+    if (power > 100)
+    {
+        power = 100;
+    }
+    uint16_t ccr = p_timer->Instance->ARR * mainsPowerCorrection(power) / 100;
+    p_timer->Instance->CCR1 = ccr;
+}
+
+float CRealHardwareMap::getMainsPwm(uint8_t channel)
+{
+    TIM_HandleTypeDef *p_timer;
+    switch (channel)
+    {
+        case 1:
+            p_timer = &htim10;
+            break;
+        case 2:
+            p_timer = &htim11;
+            break;
+        default:
+            // Channel is wrong, so bounce out without changing anything.
+            return 0;
+    }
+    float power;
+    power = p_timer->Instance->CCR1 * 100 / p_timer->Instance->ARR;
+    return power;
+}
+
+/**
+ * @brief Correct inherent non-linearity of the mains PWM.
+ *
+ * @param power Required power output. Value must be between 0 and 100;
+ * @return Fraction of half-period that TRIAC should be on.
+ */
+float CRealHardwareMap::mainsPowerCorrection(float power) const
+{
+    // Sanitise and handle special cases.
+    if (power <= 0) return 0;
+    if (power >= 100) return 1;
+    uint32_t index = 0;
+    float mains_factor;  // fraction of half-period to switch on
+    // Find highest power point in the table that's below target power.
+    while (power > s_mains_correction_table[index])
+    {
+        index++;
+    }
+    // Perform linear approximation between this and next power point.
+    power -= s_mains_correction_table[index];
+    mains_factor = power / (s_mains_correction_table[index + 1] -
+                            s_mains_correction_table[index]);
+    mains_factor += index;
+    mains_factor /= MAINS_CORRECTION_POINTS;
+    return mains_factor;
+}
+
+extern "C"
+{
+    /* GPIO EXTI Callback is called whenever an interrupt event occurs on
+     * EXTI pins. To speed up execution the processing of this interrupt is
+     * done directly in the callback instead of calling hardware map
+     * methods.
+     */
+    void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+    {
+        if (GPIO_Pin == BUTTON_Pin)
+        {
+            // TODO: whatever needs to be called to handle the button press.
+        }
+        else if (GPIO_Pin == MAINS_ZERO_Pin)
+        {
+            HAL_TIM_OnePulse_Start(&htim10, TIM_CHANNEL_1);
+            HAL_TIM_OnePulse_Start(&htim11, TIM_CHANNEL_1);
+        }
+    }
 }

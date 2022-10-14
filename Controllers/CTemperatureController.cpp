@@ -109,23 +109,7 @@ bool CTemperatureController::newCommand(ICommand *p_command,
     }
     if (b_command_recognised)
     {
-        switch (result)
-        {
-            case ICommand::COMMAND_OK:
-                //                p_comchannel->send("OK.\n");
-                break;
-            case ICommand::ERROR_ARG_COUNT:
-                p_comchannel->send("Wrong number of arguments.\n");
-                break;
-            case ICommand::ERROR_OUT_OF_BOUNDS:
-                p_comchannel->send("Argument out of bounds.\n");
-                break;
-            case ICommand::ERROR_TYPE_MISMATCH:
-                p_comchannel->send("Argument type mismatch.\n");
-                break;
-            default:
-                p_comchannel->send("Non-specific error with the command.");
-        }
+        sendResultMessage(result, p_comchannel);
     }
     return b_command_recognised;
 }

@@ -115,6 +115,43 @@ void CMockHardwareMap::enableControlPower(bool b_enable)
     mb_power_enable = b_enable;
 }
 
+void CMockHardwareMap::setMainsPwm(uint8_t channel, float power)
+{
+    if (power < 0)
+    {
+        power = 0;
+    }
+    if (power > 100)
+    {
+        power = 100;
+    }
+    if (channel > 2)
+    {
+        return;
+    }
+    else if (channel == 0)
+    {
+        m_mains_pwm[0] = power;
+        m_mains_pwm[1] = power;
+    }
+    else
+    {
+        m_mains_pwm[channel - 1] = power;
+    }
+}
+
+float CMockHardwareMap::getMainsPwm(uint8_t channel)
+{
+    if (channel > 2)
+    {
+        return 0;
+    }
+    else
+    {
+        return (m_mains_pwm[channel - 1]);
+    }
+}
+
 void CMockHardwareMap::run()
 {
     float total_radiator_flow = 0;

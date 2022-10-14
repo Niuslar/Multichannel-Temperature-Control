@@ -12,6 +12,8 @@
 
 #include "CController.h"
 
+etl::string<MAX_STRING_SIZE> CController::s_scratch_pad = "";
+
 /**
  * @brief Create controller base class.
  *
@@ -107,6 +109,33 @@ void CController::stop()
 void CController::start()
 {
     mb_stopped = false;
+}
+
+/**
+ * @brief Send message according to the generated error code.
+ *
+ * @param error_code Error code for which the message needs to be generated.
+ */
+void CController::sendResultMessage(ICommand::command_error_code_t error_code,
+                                    IComChannel *p_comchannel)
+{
+    switch (error_code)
+    {
+        case ICommand::COMMAND_OK:
+            //                p_comchannel->send("OK.\n");
+            break;
+        case ICommand::ERROR_ARG_COUNT:
+            p_comchannel->send("Wrong number of arguments.\n");
+            break;
+        case ICommand::ERROR_OUT_OF_BOUNDS:
+            p_comchannel->send("Argument out of bounds.\n");
+            break;
+        case ICommand::ERROR_TYPE_MISMATCH:
+            p_comchannel->send("Argument type mismatch.\n");
+            break;
+        default:
+            p_comchannel->send("Non-specific error with the command.");
+    }
 }
 
 #ifdef COLLECT_STATS

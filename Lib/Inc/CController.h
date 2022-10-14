@@ -37,8 +37,14 @@ public:
     virtual uint32_t getRunCalls() const;
     virtual void resetRunCalls();
 #endif
+    virtual void sendResultMessage(ICommand::command_error_code_t error_code,
+                                   IComChannel *p_comchannel);
 
 protected:
+    // This variable is for generation and storage of temporary messages, e.g.
+    // command replies.
+    static etl::string<MAX_STRING_SIZE> s_scratch_pad;
+
     etl::string<MAX_STRING_SIZE> const m_name;
     uint32_t m_run_period_ms;
     bool mb_stopped;

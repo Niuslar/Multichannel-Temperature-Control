@@ -19,7 +19,7 @@
 /**
  * @note Declare this value to the number of soft PWM outputs that are needed.
  */
-//#define SOFT_PWM_OUTPUTS 0
+// #define SOFT_PWM_OUTPUTS 0
 
 class IHardwareMap
 {
@@ -117,6 +117,20 @@ public:
      * @param b_enable Set to true to enable, false to disable.
      */
     virtual void enableControlPower(bool b_enable) = 0;
+    /**
+     * @brief Set power of the mains PWM controlled output.
+     *
+     * @param channel Number of the channel.
+     * @param power Value between 0% and 100%.
+     */
+    virtual void setMainsPwm(uint8_t channel, float power) = 0;
+    /**
+     * @brief Get power of the mains PWM controlled output.
+     *
+     * @param channel Number of the channel.
+     * @return PWM power in percentage of duty cycle.
+     */
+    virtual float getMainsPwm(uint8_t channel) = 0;
 };
 
 #endif /* IHARDWAREMAP_H_ */
