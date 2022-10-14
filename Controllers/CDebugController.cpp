@@ -18,7 +18,10 @@ CDebugController::CDebugController(IHardwareMap *p_hardware_map,
     : CController(name, run_period_ms),
       mp_hw(p_hardware_map)
 {
-    // TODO Auto-generated constructor stub
+    if (mp_hw == nullprt)
+    {
+        Error_Handler();
+    }
 }
 
 CDebugController::~CDebugController()
@@ -96,6 +99,10 @@ ICommand::command_error_code_t CDebugController::setMainsPower(
             return (ICommand::ERROR_TYPE_MISMATCH);
         }
         mains_power = (*p_command)[1];
+    }
+    else
+    {
+        return (ICommand::ERROR_ARG_COUNT);
     }
     // range check arguments.
     if ((mains_channel > 2) || (mains_power < 0) || (mains_power > 100))
