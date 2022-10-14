@@ -18,7 +18,7 @@ CDebugController::CDebugController(IHardwareMap *p_hardware_map,
     : CController(name, run_period_ms),
       mp_hw(p_hardware_map)
 {
-    if (mp_hw == nullprt)
+    if (mp_hw == nullptr)
     {
         Error_Handler();
     }
