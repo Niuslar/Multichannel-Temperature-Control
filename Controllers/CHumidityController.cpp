@@ -68,10 +68,6 @@ bool CHumidityController::newCommand(ICommand *p_command,
 {
     bool b_command_recognised = false;
     ICommand::command_error_code_t result = ICommand::COMMAND_OK;
-    /**
-     * Query about current state of all active channels.
-     *
-     */
     if (p_command->getName()->compare("?humidity") == 0)
     {
         sendStatus(p_comchannel);
