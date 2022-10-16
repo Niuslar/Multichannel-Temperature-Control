@@ -8,6 +8,7 @@
 #include "CHumidityController.h"
 #include <stdio.h>
 #include "CBME280.h"
+#include "CHumidifier.h"
 #include "ICommand.h"
 #include "IHardwareMap.h"
 
@@ -33,7 +34,7 @@ CHumidityController::CHumidityController(IHardwareMap *p_hardware,
     reset();
 
     CBME280 humidity_sensor(p_spi, p_slave_select_port, slave_select_pin);
-    mp_humidity_sensor = &humidity_sensor;
+    m_humidity_sensor = &humidity_sensor;
 }
 
 /**
@@ -59,7 +60,7 @@ void CHumidityController::run()
     {
         power = m_power_override;
     }
-    mp_hw->setHardPwmOutput(power, CHANNEL_NUMBER - 1);
+    mp_hw->setHumidifierPower(power);
 }
 
 bool CHumidityController::newCommand(ICommand *p_command,
@@ -174,7 +175,7 @@ ICommand::command_error_code_t CHumidityController::setHumidity(
     return ICommand::COMMAND_OK;
 }
 
-ICommand::command_error_code_t CHumidityController::overrideHeater(
+ICommand::command_error_code_t CHumidityController::overrideHumidifier(
     ICommand *p_command)
 {
     // Sanitise command arguments

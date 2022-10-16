@@ -10,6 +10,7 @@
 
 #include "CBME280.h"
 #include "CController.h"
+#include "CHumidifier.h"
 #include "CPIDLoop.h"
 #include "IHardwareMap.h"
 
