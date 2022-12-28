@@ -63,12 +63,12 @@ class CBME280
     };
 
 public:
-    CBME280(SPI_HandleTypeDef *p_spi,
-            GPIO_TypeDef *p_slave_select_port,
-            uint16_t slave_select_pin);
+    CBME280();
     virtual ~CBME280();
 
-    bool init();
+    bool init(SPI_HandleTypeDef *p_spi,
+              GPIO_TypeDef *p_slave_select_port,
+              uint16_t slave_select_pin);
     bool run();
 
     /**
@@ -115,6 +115,7 @@ private:
     void calculateT();
     void calculateP();
     void calculateH();
+    bool init();
 
     SPI_HandleTypeDef *mp_spi;
     CGpioWrapper m_slave_select;

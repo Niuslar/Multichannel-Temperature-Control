@@ -60,20 +60,30 @@ uint8_t CBME280::s_sensor_count = 0;
 /**
  * @brief Construct a sensor driver class instance.
  *
+ */
+CBME280::CBME280() : m_state(INIT_PENDING) {}
+
+CBME280::~CBME280()
+{
+    // TODO Auto-generated destructor stub
+}
+/**
+ * @brief Begin sensor initialization
+ *
  * @param p_spi Pointer to HAL handler for SPI channel.
  * @param p_slave_select_port Pointer to GPIO port for SS pin.
  * @param slave_select_pin Mask of the SS pin.
+ * @return
  */
-CBME280::CBME280(SPI_HandleTypeDef *p_spi,
-                 GPIO_TypeDef *p_slave_select_port,
-                 uint16_t slave_select_pin)
-    : mp_spi(p_spi),
-      m_slave_select(p_slave_select_port, slave_select_pin),
-      m_state(INIT_PENDING)
+bool CBME280::init(SPI_HandleTypeDef *p_spi,
+                   GPIO_TypeDef *p_slave_select_port,
+                   uint16_t slave_select_pin)
 {
+    mp_spi = p_spi;
+    m_slave_select.init(p_slave_select_port, slave_select_pin);
     if (mp_spi == nullptr)
     {
-        Error_Handler();
+        return false;
     }
     m_slave_select.set(true);
     if (s_sensor_count < MAX_SENSORS)
@@ -83,18 +93,12 @@ CBME280::CBME280(SPI_HandleTypeDef *p_spi,
     }
     else
     {
-        Error_Handler();
+        return false;
     }
 }
-
-CBME280::~CBME280()
-{
-    // TODO Auto-generated destructor stub
-}
-
 /**
- * @brief Initialise the sensor. This must be successfully completed before
- * sensor can be accessed for data.
+ * @brief Finish sensor initialization. This must be successfully completed
+ * before sensor can be accessed for data.
  *
  * @return True if initialisation is successful, false otherwise.
  */
@@ -107,7 +111,7 @@ bool CBME280::init()
      */
     /* This communication via SPI is going to be done without interrupts.*/
     // TODO: how do we ensure SPI is available? Perhaps need a wrapper around
-    // SPI with a mutex.
+
     if (HAL_SPI_GetState(mp_spi) != HAL_SPI_STATE_READY)
     {
         return false;
