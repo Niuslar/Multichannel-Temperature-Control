@@ -124,6 +124,12 @@ public:
      * @param power Value in percent between 0 and 100.
      */
     virtual void setHumidifierPower(float power) = 0;
+    /**
+     * @brief Get power status of the humidifier
+     *
+     * @return Value of power output
+     */
+    virtual bool getHumidifierPower() = 0;
 };
 
 #endif /* IHARDWAREMAP_H_ */

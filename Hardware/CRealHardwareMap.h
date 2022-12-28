@@ -41,6 +41,7 @@ public:
     virtual void setBreathingLight(float duty_cycle);
     virtual void enableControlPower(bool b_enable);
     virtual void setHumidifierPower(float power);
+    virtual bool getHumidifierPower();
 
 private:
     typedef struct TIMER_INIT_MAP_T

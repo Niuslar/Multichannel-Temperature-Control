@@ -195,3 +195,12 @@ void CRealHardwareMap::setHumidifierPower(float power)
         m_humidifier_enable.set(false);
     }
 }
+/**
+ * @brief Get the power state of the humidifier.
+ *
+ * @return True: Humidifier active. False: Humidifier inactive.
+ */
+bool CRealHardwareMap::getHumidifierPower()
+{
+    return m_humidifier_enable.get();
+}
