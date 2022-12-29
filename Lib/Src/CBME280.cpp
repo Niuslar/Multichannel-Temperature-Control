@@ -95,6 +95,7 @@ bool CBME280::init(SPI_HandleTypeDef *p_spi,
     {
         return false;
     }
+    return true;
 }
 /**
  * @brief Finish sensor initialization. This must be successfully completed
