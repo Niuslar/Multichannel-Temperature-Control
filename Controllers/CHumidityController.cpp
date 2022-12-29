@@ -33,8 +33,9 @@ CHumidityController::CHumidityController(IHardwareMap *p_hardware,
     // TODO Auto-generated constructor stub
     reset();
 
-    CBME280 humidity_sensor(p_spi, p_slave_select_port, slave_select_pin);
-    mp_humidity_sensor = &humidity_sensor;
+    // TODO Fix this constructor
+    // CBME280 humidity_sensor(p_spi, p_slave_select_port, slave_select_pin);
+    // mp_humidity_sensor = &humidity_sensor;
 }
 
 /**
