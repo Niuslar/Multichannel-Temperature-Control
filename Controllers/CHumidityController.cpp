@@ -34,7 +34,7 @@ CHumidityController::CHumidityController(IHardwareMap *p_hardware,
     reset();
 
     CBME280 humidity_sensor(p_spi, p_slave_select_port, slave_select_pin);
-    m_humidity_sensor = &humidity_sensor;
+    mp_humidity_sensor = &humidity_sensor;
 }
 
 /**
@@ -49,11 +49,7 @@ void CHumidityController::run()
         if (m_target_humidity != DISABLE_TARGET)
         {
             float actual_humidity = mp_humidity_sensor->getHumidity();
-            if ((MIN_HUMIDITY <= actual_humidity) &&
-                (actual_humidity <= MAX_humidity))
-            {
-                power = m_control_loop.run(m_target_humidity, actual_humidity);
-            }
+            power = m_control_loop.run(m_target_humidity, actual_humidity);
         }
     }
     else
@@ -82,7 +78,7 @@ bool CHumidityController::newCommand(ICommand *p_command,
 
     if (p_command->getName()->compare("heater") == 0)
     {
-        result = overrideHeater(p_command);
+        result = overrideHumidifier(p_command);
         b_command_recognised = true;
     }
     if (b_command_recognised)
@@ -126,7 +122,7 @@ void CHumidityController::sendStatus(IComChannel *p_comchannel)
     p_comchannel->send(message);
     // Send actual humidity
     message.assign("Humidity: ");
-    sprintf(value, "%2.1f, ", m_humidity_sensor->getHumidity());
+    sprintf(value, "%2.1f, ", mp_humidity_sensor->getHumidity());
     message.append(value);
     p_comchannel->send(message);
     // Send heater power
@@ -152,11 +148,11 @@ ICommand::command_error_code_t CHumidityController::setHumidity(
     ICommand *p_command)
 {
     // Sanitise command arguments
-    if (p_command->getArgumentCount != 1)
+    if (p_command->getArgumentCount() != 1)
     {
         return ICommand::ERROR_ARG_COUNT;
     }
-    m_target_humidity = *p_command;
+    m_target_humidity = (*p_command)[0];
 
     if (m_target_humidity > MAX_HUMIDITY)
     {
@@ -179,7 +175,7 @@ ICommand::command_error_code_t CHumidityController::overrideHumidifier(
     {
         return ICommand::ERROR_ARG_COUNT;
     }
-    float power = *p_command;
+    float power = (*p_command)[0];
 
     // Execute command
     if (power > MAX_POWER)
