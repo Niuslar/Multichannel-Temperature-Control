@@ -32,11 +32,11 @@ public:
 private:
     void sendStatus(IComChannel *p_comchannel);
     ICommand::command_error_code_t setHumidity(ICommand *p_command);
-    ICommand::command_error_code_t overrideHeater(ICommand *p_command);
+    ICommand::command_error_code_t overrideHumidifier(ICommand *p_command);
 
     IHardwareMap *mp_hw;
 
-    CBME280 *m_humidity_sensor;
+    CBME280 *mp_humidity_sensor;
 
     float m_target_humidity;
     float m_power_override;
