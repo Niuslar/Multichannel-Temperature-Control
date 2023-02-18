@@ -14,8 +14,6 @@
 #include "CPIDLoop.h"
 #include "IHardwareMap.h"
 
-#define CHANNEL_NUMBER 1
-
 class CHumidityController : public CController
 {
 public:
@@ -30,6 +28,13 @@ public:
     virtual void reset();
 
 private:
+    static constexpr uint8_t CHANNEL_NUMBER = 1;
+    static constexpr uint8_t MAX_HUMIDITY = 95;
+    static constexpr uint8_t MIN_HUMIDITY = 85;
+    static constexpr uint8_t MAX_POWER = 100;
+    static constexpr uint8_t MIN_POWER = 0;
+    static constexpr uint8_t DISABLE_OVERRIDE = -1;
+    static constexpr uint8_t DISABLE_TARGET = 0;
     void sendStatus(IComChannel *p_comchannel);
     ICommand::command_error_code_t setHumidity(ICommand *p_command);
     ICommand::command_error_code_t overrideHumidifier(ICommand *p_command);

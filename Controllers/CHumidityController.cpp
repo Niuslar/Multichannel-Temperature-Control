@@ -7,19 +7,6 @@
 
 #include "CHumidityController.h"
 #include <stdio.h>
-#include "CBME280.h"
-#include "CHumidifier.h"
-#include "ICommand.h"
-#include "IHardwareMap.h"
-
-#define MIN_TEMPERATURE  10
-#define MAX_TEMPERATURE  50
-#define MIN_POWER        0
-#define MAX_POWER        100
-#define DISABLE_OVERRIDE -1
-#define DISABLE_TARGET   0
-#define MIN_HUMIDITY     85
-#define MAX_HUMIDITY     95
 
 CHumidityController::CHumidityController(IHardwareMap *p_hardware,
                                          etl::string<MAX_STRING_SIZE> name,
