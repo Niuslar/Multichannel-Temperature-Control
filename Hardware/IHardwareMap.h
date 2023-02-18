@@ -19,7 +19,7 @@
 /**
  * @note Declare this value to the number of soft PWM outputs that are needed.
  */
-//#define SOFT_PWM_OUTPUTS 0
+// #define SOFT_PWM_OUTPUTS 0
 
 class IHardwareMap
 {
@@ -117,6 +117,19 @@ public:
      * @param b_enable Set to true to enable, false to disable.
      */
     virtual void enableControlPower(bool b_enable) = 0;
+    /**
+     * @brief Set power to the humidifier. This controls either boiler power or
+     * ultrasonic atomiser depending on exact hardware implementation.
+     *
+     * @param power Value in percent between 0 and 100.
+     */
+    virtual void setHumidifierPower(float power) = 0;
+    /**
+     * @brief Get power status of the humidifier
+     *
+     * @return Value of power output
+     */
+    virtual bool getHumidifierPower() = 0;
 };
 
 #endif /* IHARDWAREMAP_H_ */

@@ -34,6 +34,8 @@ public:
 #endif
     virtual void setBreathingLight(float duty_cycle);
     virtual void enableControlPower(bool b_enable);
+    virtual void setHumidifierPower(float power);
+    virtual bool getHumidifierPower();
     /* CController methods. */
     //    etl::string<MAX_STRING_SIZE> getName() const;
     //    virtual bool tick(uint32_t current_time);

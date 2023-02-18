@@ -40,6 +40,8 @@ public:
 #endif
     virtual void setBreathingLight(float duty_cycle);
     virtual void enableControlPower(bool b_enable);
+    virtual void setHumidifierPower(float power);
+    virtual bool getHumidifierPower();
 
 private:
     typedef struct TIMER_INIT_MAP_T
@@ -60,6 +62,7 @@ private:
     CGpioWrapper m_polarity_switch[HARD_PWM_OUTPUTS];
     CHardPwmOutput m_breathing_light;
     CGpioWrapper m_power_enable;
+    CGpioWrapper m_humidifier_enable;
 #ifdef SOFT_PWM_OUTPUTS
     CSoftPwmOutput m_soft_pwm_output[SOFT_PWM_OUTPUTS];
 #endif
