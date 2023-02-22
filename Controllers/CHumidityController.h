@@ -10,7 +10,7 @@
 
 #include "CBME280.h"
 #include "CController.h"
-#include "CHumidifier.h"
+#include "CHumidifier.h"  //TODO: Sam, this is not used since we delegate hardware map to take care of humidifier control.
 #include "CPIDLoop.h"
 #include "IHardwareMap.h"
 
@@ -28,13 +28,16 @@ public:
     virtual void reset();
 
 private:
-    static constexpr uint8_t CHANNEL_NUMBER = 1;
+    // TODO: Sam, these should be public to make special values visible for
+    // external users.
+    // this does nothing useful. static constexpr uint8_t CHANNEL_NUMBER = 1;
     static constexpr uint8_t MAX_HUMIDITY = 95;
     static constexpr uint8_t MIN_HUMIDITY = 85;
     static constexpr uint8_t MAX_POWER = 100;
     static constexpr uint8_t MIN_POWER = 0;
     static constexpr uint8_t DISABLE_OVERRIDE = -1;
     static constexpr uint8_t DISABLE_TARGET = 0;
+
     void sendStatus(IComChannel *p_comchannel);
     ICommand::command_error_code_t setHumidity(ICommand *p_command);
     ICommand::command_error_code_t overrideHumidifier(ICommand *p_command);
