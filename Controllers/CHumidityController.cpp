@@ -59,7 +59,7 @@ bool CHumidityController::newCommand(ICommand *p_command,
         b_command_recognised = true;
     }
 
-    if (p_command->getName()->compare("heater") == 0)
+    if (p_command->getName()->compare("humidifier") == 0)
     {
         result = overrideHumidifier(p_command);
         b_command_recognised = true;
@@ -97,10 +97,10 @@ void CHumidityController::reset()
 void CHumidityController::sendStatus(IComChannel *p_comchannel)
 {
     etl::string<MAX_STRING_SIZE> message;
-    char value[10];
+    char value[20];
     // send target humidity
-    message.assign("Target:      ");
-    sprintf(value, "%2.1f", m_target_humidity);
+    message.assign("Target: ");
+    sprintf(value, "%2.1f, ", m_target_humidity);
     message.append(value);
     p_comchannel->send(message);
     // Send actual humidity
@@ -108,18 +108,8 @@ void CHumidityController::sendStatus(IComChannel *p_comchannel)
     sprintf(value, "%2.1f, ", mp_humidity_sensor->getHumidity());
     message.append(value);
     p_comchannel->send(message);
-    // Send heater power
-    message.assign("Power:       ");
-    float power;
-    if (m_power_override == DISABLE_OVERRIDE)
-    {
-        power = mp_hw->getHardPwmOutput(CHANNEL_NUMBER - 1);
-    }
-    else
-    {
-        power = m_power_override;
-    }
-    sprintf(value, "%4.1f, ", power);
+    // Send humidifier status. N.B. Assumes atomiser based humidifier.
+    sprintf(value, "Power: %s\n", mp_hw->getHumidifierPower() ? "On" : "Off");
     message.append(value);
     p_comchannel->send(message);
 }
