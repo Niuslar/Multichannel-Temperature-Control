@@ -10,6 +10,7 @@
 #include "CAdcData.h"
 #include "CDebugController.h"
 #include "CDispatcher.h"
+#include "CHumidityController.h"
 #include "CMockHardwareMap.h"
 #include "CRealHardwareMap.h"
 #include "CTemperatureController.h"
@@ -58,6 +59,7 @@ CRealHardwareMap g_hardware_map;
  */
 CDebugController g_debug_controller("debug", 97);
 CTemperatureController g_temp_controller(&g_hardware_map, "temperature", 89);
+CHumidityController g_hum_controller(&g_hardware_map, "humidity", 1000);
 
 #ifdef __cplusplus
 extern "C"

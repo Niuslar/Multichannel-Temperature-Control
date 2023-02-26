@@ -10,14 +10,22 @@
 
 CHumidityController::CHumidityController(IHardwareMap *p_hardware,
                                          etl::string<MAX_STRING_SIZE> name,
-                                         uint32_t run_period_ms,
-                                         SPI_HandleTypeDef *p_spi,
-                                         GPIO_TypeDef *p_slave_select_port,
-                                         uint16_t slave_select_pin)
+                                         uint32_t run_period_ms)
     : CController(name, run_period_ms),
       mp_hw(p_hardware)
 {
     reset();
+}
+
+/**
+ * @brief Overload tick method to run himidifier logic.
+ * @param current_time
+ * @return true if run() method is due to be called.
+ */
+bool CHumidityController::tick(uint32_t current_time)
+{
+    runHumidifier(current_time);
+    return CController::tick(current_time);
 }
 
 /**
@@ -26,20 +34,19 @@ CHumidityController::CHumidityController(IHardwareMap *p_hardware,
  */
 void CHumidityController::run()
 {
-    float power = 0;
     if (m_power_override == DISABLE_OVERRIDE)
     {
         if (m_target_humidity != DISABLE_TARGET)
         {
             float actual_humidity = mp_humidity_sensor->getHumidity();
-            power = m_control_loop.run(m_target_humidity, actual_humidity);
+            m_humidifier_power =
+                m_control_loop.run(m_target_humidity, actual_humidity);
         }
     }
     else
     {
-        power = m_power_override;
+        m_humidifier_power = m_power_override;
     }
-    mp_hw->setHumidifierPower(power);
 }
 
 bool CHumidityController::newCommand(ICommand *p_command,
@@ -92,6 +99,8 @@ void CHumidityController::reset()
     m_target_humidity = DISABLE_TARGET;
     m_power_override = DISABLE_OVERRIDE;
     m_control_loop.reset();
+    m_humidifier_power = 0;
+    m_humidifier_cycle_timestamp = 0;
 }
 
 void CHumidityController::sendStatus(IComChannel *p_comchannel)
@@ -161,4 +170,37 @@ ICommand::command_error_code_t CHumidityController::overrideHumidifier(
     }
     m_power_override = power;
     return ICommand::COMMAND_OK;
+}
+
+void CHumidityController::runHumidifier(uint32_t current_time)
+{
+    /* check if this is first time tick is called. */
+    if (m_humidifier_cycle_timestamp == 0)
+    {
+        m_humidifier_cycle_timestamp = current_time;
+        mp_hw->setHumidifierPower(0);
+        return;
+    }
+    /* only run this logic if power requirement is above zero. */
+    if (m_humidifier_power > 0)
+    {
+        uint32_t duty_cycle = HUMIDIFIER_PWM_PERIOD * m_humidifier_power / 100;
+        if ((current_time - m_humidifier_cycle_timestamp) < duty_cycle)
+        {
+            mp_hw->setHumidifierPower(1);
+        }
+        else
+        {
+            mp_hw->setHumidifierPower(0);
+            if (current_time - m_humidifier_cycle_timestamp >
+                HUMIDIFIER_PWM_PERIOD)
+            {
+                m_humidifier_cycle_timestamp += HUMIDIFIER_PWM_PERIOD;
+            }
+        }
+    }
+    else
+    {
+        mp_hw->setHumidifierPower(0);
+    }
 }
