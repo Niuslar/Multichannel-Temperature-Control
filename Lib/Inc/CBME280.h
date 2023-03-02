@@ -69,6 +69,9 @@ public:
     bool init(SPI_HandleTypeDef *p_spi,
               GPIO_TypeDef *p_slave_select_port,
               uint16_t slave_select_pin);
+
+    bool calibrateSensor();
+
     bool run();
 
     /**
@@ -106,10 +109,11 @@ public:
         return m_state == MEASURING;
     }
 
-    static void processIrq();
+    static void newData();
 
 private:
-    void calibrateSensor(uint8_t const *const p_calibration_data);
+    bool readCalibration(uint8_t *p_calibration_data);
+    void calculateCalibrationValues(uint8_t const *const p_calibration_data);
     void convertRawData();
     bool startMeasurement();
     void calculateT();
@@ -127,9 +131,6 @@ private:
         MEASURING,
         NEW_DATA
     } m_state;
-
-    static CBME280 *sp_sensors[MAX_SENSORS];
-    static uint8_t s_sensor_count;
 
     float m_temperature_calibration[T_CALIBRATION_SIZE];
     float m_pressure_calibration[P_CALIBRATION_SIZE];

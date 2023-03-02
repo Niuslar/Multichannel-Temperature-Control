@@ -53,10 +53,6 @@ constexpr float P_OFFSET_1 = 64000;
 constexpr float P_OFFSET_2 = 1048576;
 constexpr float H_OFFSET = 76800;
 
-/* Static instance control variables. */
-CBME280 *CBME280::sp_sensors[] = {nullptr};
-uint8_t CBME280::s_sensor_count = 0;
-
 /**
  * @brief Construct a sensor driver class instance.
  *
@@ -86,15 +82,6 @@ bool CBME280::init(SPI_HandleTypeDef *p_spi,
         return false;
     }
     m_slave_select.set(true);
-    if (s_sensor_count < MAX_SENSORS)
-    {
-        sp_sensors[s_sensor_count] = this;
-        s_sensor_count++;
-    }
-    else
-    {
-        return false;
-    }
     return true;
 }
 /**
@@ -103,73 +90,21 @@ bool CBME280::init(SPI_HandleTypeDef *p_spi,
  *
  * @return True if initialisation is successful, false otherwise.
  */
-bool CBME280::init()
+bool CBME280::calibrateSensor()
 {
-    /* TODO:
-     * 1. Check SPI available.
-     * 2. Read chip ID to verify comms to sensor works.
-     * 3. Read calibration values and store in appropriate places.
-     */
-    /* This communication via SPI is going to be done without interrupts.*/
     // TODO: how do we ensure SPI is available? Perhaps need a wrapper around
-
-    if (HAL_SPI_GetState(mp_spi) != HAL_SPI_STATE_READY)
-    {
-        return false;
-    }
-    uint8_t register_address;
-    /* Soft reset. */
-    register_address = RESET;
-    m_slave_select.set(false);
-    HAL_SPI_Transmit(mp_spi, &register_address, 1, SPI_TIMEOUT_MS);
-    m_slave_select.set(true);
-    HAL_Delay(SENSOR_RESET_DELAY_MS);
-    /* Read sensor ID to see if it is responding to comms. */
-    register_address = ID;
-    uint8_t id_register[ID_PACKET_SIZE];
-    m_slave_select.set(LOW);
-    HAL_SPI_TransmitReceive(mp_spi,
-                            &register_address,
-                            id_register,
-                            ID_PACKET_SIZE,
-                            SPI_TIMEOUT_MS);
-    m_slave_select.set(HIGH);
-    if ((id_register[1] != BME280_ID) && (id_register[1] != BMP280_ID))
-    {
-        return false;
-    }
-    /* Read sensor calibration data. */
-    register_address = DIG_T1;
+    bool b_success;
     uint8_t calibration_register[CALIB1_PACKET_SIZE +
                                  CALIB2_PACKET_SIZE * CALIB3_PACKET_SIZE];
-    m_slave_select.set(LOW);
-    HAL_SPI_TransmitReceive(mp_spi,
-                            &register_address,
-                            calibration_register,
-                            CALIB1_PACKET_SIZE,
-                            SPI_TIMEOUT_MS);
-    m_slave_select.set(HIGH);
-    register_address = DIG_H1;
-    m_slave_select.set(LOW);
-    HAL_SPI_TransmitReceive(mp_spi,
-                            &register_address,
-                            &(calibration_register[CALIB1_PACKET_SIZE - 1]),
-                            CALIB2_PACKET_SIZE,
-                            SPI_TIMEOUT_MS);
-    m_slave_select.set(HIGH);
-    register_address = DIG_H2;
-    m_slave_select.set(LOW);
-    HAL_SPI_TransmitReceive(mp_spi,
-                            &register_address,
-                            &(calibration_register[CALIB1_PACKET_SIZE]),
-                            CALIB2_PACKET_SIZE,
-                            SPI_TIMEOUT_MS);
-    m_slave_select.set(HIGH);
-    calibrateSensor(calibration_register);
+    b_success = readCalibration(calibration_register);
+    if (b_success)
+    {
+        calculateCalibrationValues(calibration_register);
+    }
     // TODO: sensor requires setting up.
     //  set operational mode.
     //  set oversampling modes for all three measurements.
-    return true;
+    return b_success;
 }
 
 bool CBME280::run()
@@ -178,7 +113,7 @@ bool CBME280::run()
     switch (m_state)
     {
         case INIT_PENDING:
-            if (init())
+            if (calibrateSensor())
             {
                 m_state = READY;
             }
@@ -210,13 +145,71 @@ bool CBME280::run()
     return b_new_data;
 }
 
+bool CBME280::readCalibration(uint8_t *p_calibration_data)
+{
+    if (HAL_SPI_GetState(mp_spi) != HAL_SPI_STATE_READY)
+    {
+        return false;
+    }
+    uint8_t register_address;
+    /* Soft reset. */
+    register_address = RESET;
+    m_slave_select.set(false);
+    HAL_SPI_Transmit(mp_spi, &register_address, 1, SPI_TIMEOUT_MS);
+    m_slave_select.set(true);
+    HAL_Delay(SENSOR_RESET_DELAY_MS);
+    /* Read sensor ID to see if it is responding to comms. */
+    register_address = ID;
+    uint8_t id_register[ID_PACKET_SIZE];
+    m_slave_select.set(LOW);
+    HAL_SPI_TransmitReceive(mp_spi,
+                            &register_address,
+                            id_register,
+                            ID_PACKET_SIZE,
+                            SPI_TIMEOUT_MS);
+    m_slave_select.set(HIGH);
+    if ((id_register[1] != BME280_ID) && (id_register[1] != BMP280_ID))
+    {
+        return false;
+    }
+    /* Read sensor calibration data. */
+    register_address = DIG_T1;
+    m_slave_select.set(LOW);
+    HAL_SPI_TransmitReceive(mp_spi,
+                            &register_address,
+                            p_calibration_data,
+                            CALIB1_PACKET_SIZE,
+                            SPI_TIMEOUT_MS);
+    p_calibration_data += CALIB1_PACKET_SIZE;
+    m_slave_select.set(HIGH);
+    register_address = DIG_H1;
+    m_slave_select.set(LOW);
+    HAL_SPI_TransmitReceive(mp_spi,
+                            &register_address,
+                            p_calibration_data,
+                            CALIB2_PACKET_SIZE,
+                            SPI_TIMEOUT_MS);
+    p_calibration_data += CALIB2_PACKET_SIZE;
+    m_slave_select.set(HIGH);
+    register_address = DIG_H2;
+    m_slave_select.set(LOW);
+    HAL_SPI_TransmitReceive(mp_spi,
+                            &register_address,
+                            p_calibration_data,
+                            CALIB3_PACKET_SIZE,
+                            SPI_TIMEOUT_MS);
+    m_slave_select.set(HIGH);
+    return true;
+}
+
 /**
  * @brief Convert raw data from the sensor registers into usable calibration
  * values.
  *
  * @param p_calibration_data Pointer to raw data stream of 33 8-bit values.
  */
-void CBME280::calibrateSensor(uint8_t const *const p_calibration_data)
+void CBME280::calculateCalibrationValues(
+    uint8_t const *const p_calibration_data)
 {
     uint8_t const *p_runner = p_calibration_data;
     uint32_t raw_calibration;
@@ -369,25 +362,7 @@ void CBME280::calculateH()
     m_humidity += var_1 * var_1 * m_humidity_calibration[0];
 }
 
-/**
- * @brief Process IRQ call for all registered and active sensors.
- *
- */
-void CBME280::processIrq()
-{
-    uint8_t sensor = 0;
-    while ((sp_sensors[sensor] != nullptr) && sensor < s_sensor_count)
-    {
-        if (sp_sensors[sensor]->isMeasuring())
-        {
-            sp_sensors[sensor]->m_state = NEW_DATA;
-            break;
-        }
-        sensor++;
-    }
-}
-
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
-    CBME280::processIrq();
+    CBME280::newData();
 }
